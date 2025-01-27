@@ -16,7 +16,7 @@
 /RMG/Generator/Confine UnConfined
 
 /RMG/Generator/Select MUSUNCosmicMuons
-/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
+/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/MUSUN_100_events.csv
 
 
 /run/beamOn 100000

@@ -8,6 +8,7 @@
 #include "HardwareQEOverride.hh"
 #include "RNGTrackingAction.hh"
 #include "CosmogenicOutputScheme.hh"
+#include "NeutronsOutputScheme.hh"
 
 #include <fstream>
 #include <iostream>
@@ -51,6 +52,7 @@ int main(int argc, char **argv) {
   std::string macroName;
   int rngFlag = 0;
   bool useCosmogenicOutputScheme = false;
+  bool useNeutronsOutputScheme = false;
 
   app.add_option("-m,--macro", macroName,
                  "<Geant4 macro filename> Default: None");
@@ -58,6 +60,7 @@ int main(int argc, char **argv) {
                  "<number of threads to use> Default: 16");
   app.add_option("-r,--rng", rngFlag, "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
   app.add_flag("-c,--cosmogenic", useCosmogenicOutputScheme, "Use CosmogenicOutputScheme");
+  app.add_flag("-n,--neutrons", useNeutronsOutputScheme, "Use NeutronsOutputScheme");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -71,6 +74,7 @@ int main(int argc, char **argv) {
   // Overwrite the standard Hardware with one that reads
   // in the PMT QE from datasheet
   manager.SetUserInit(new HardwareQEOverride());
+
   // Overwrite RMGPhysics to use own Optical Processes
   manager.GetDetectorConstruction()->IncludeGDMLFile(filename);
 
@@ -105,6 +109,10 @@ int main(int argc, char **argv) {
 
   if (useCosmogenicOutputScheme) {
     user_init->AddOptionalOutputScheme<CosmogenicOutputScheme>("CosmogenicOutputScheme");
+  }
+
+  if (useNeutronsOutputScheme) {
+    user_init->AddOptionalOutputScheme<NeutronsOutputScheme>("NeutronsOutputScheme");
   }
 
   // Interactive or batch mode?

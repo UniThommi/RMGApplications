@@ -10,28 +10,28 @@
 
 #include "RMGGermaniumDetector.hh"
 #include "RMGOpticalDetector.hh"
-#include "RMGVOutputScheme.hh"
+#include "RMGVOutputScheme.hh"  // "RMGVertexOutputScheme"? Nein
 
 class G4Event;
 class CosmogenicOutputScheme : public RMGVOutputScheme {
 
   public:
 
-    CosmogenicOutputScheme();
+    CosmogenicOutputScheme();                                     // Construktor aktiviert Funktion define commands, die aber leer ist.
 
-    void ClearBeforeEvent() override;
-    void AssignOutputNames(G4AnalysisManager* ana_man) override;
-    void StoreEvent(const G4Event*) override;
-    bool ShouldDiscardEvent(const G4Event*) override;
-    void TrackingActionPre(const G4Track* aTrack) override;
+    void ClearBeforeEvent() override;                             // löscht alte Capture Positionen.
+    void AssignOutputNames(G4AnalysisManager* ana_man) override;  // Bereitet mithilfe des G4 Analysis Manager die Outputs vor (Tabellen)
+    void StoreEvent(const G4Event*) override;                     // Speichert G4Events, hier wird explizit nach einem Germanium hit gefragt.
+    bool ShouldDiscardEvent(const G4Event*) override;             // Gibt nur false aus, es wird kein event weggeworfen
+    void TrackingActionPre(const G4Track* aTrack) override;       // Gibt Vertex Position des Events zurück. Hier Hardcoded für Ge77
 
   protected:
 
-    [[nodiscard]] inline std::string GetNtuplenameFlat() const override { return "cosmogenic"; }
+    [[nodiscard]] inline std::string GetNtuplenameFlat() const override { return "cosmogenic"; }    // Gibt Tupel mit Namen cosmogenic zurück, nodiscard warnt wenn Rückgabe nicht verwendet wird.
 
   private:
 
-    RMGGermaniumDetectorHitsCollection* GetGeHitColl(const G4Event*);
+    RMGGermaniumDetectorHitsCollection* GetGeHitColl(const G4Event*);    
     RMGOpticalDetectorHitsCollection* GetOptHitColl(const G4Event*);
     int GetGeFlag(const RMGGermaniumDetectorHitsCollection*);
     int GetWaterFlag(const RMGOpticalDetectorHitsCollection*);

@@ -50,7 +50,7 @@ void CosmogenicOutputScheme::TrackingActionPre(const G4Track* aTrack) {
 }
 
 // invoked in RMGRunAction::SetupAnalysisManager()
-void CosmogenicOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
+void CosmogenicOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {  
 
   auto rmg_man = RMGManager::Instance();
 
@@ -66,28 +66,8 @@ void CosmogenicOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   ana_man->FinishNtuple(id);
 }
 
-RMGGermaniumDetectorHitsCollection* CosmogenicOutputScheme::GetGeHitColl(const G4Event* event) {
-  auto sd_man = G4SDManager::GetSDMpointer();
-
-  auto hit_coll_id = sd_man->GetCollectionID("Germanium/Hits");
-  if (hit_coll_id < 0) {
-    RMGLog::OutDev(RMGLog::error, "Could not find hit collection Germanium/Hits");
-    return nullptr;
-  }
-
-  auto hit_coll = dynamic_cast<RMGGermaniumDetectorHitsCollection*>(
-      event->GetHCofThisEvent()->GetHC(hit_coll_id));
-
-  if (!hit_coll) {
-    RMGLog::Out(RMGLog::error, "Could not find hit collection associated with event");
-    return nullptr;
-  }
-
-  return hit_coll;
-}
-
 // Could summarize these functions into one, but this is more readable i think
-RMGOpticalDetectorHitsCollection* CosmogenicOutputScheme::GetOptHitColl(const G4Event* event) {
+RMGOpticalDetectorHitsCollection* CosmogenicOutputScheme::GetOptHitColl(const G4Event* event) {  // Gets hit collection from sensitive Ge detectors with optical information.
   auto sd_man = G4SDManager::GetSDMpointer();
 
   auto hit_coll_id = sd_man->GetCollectionID("Optical/Hits");
@@ -108,12 +88,12 @@ RMGOpticalDetectorHitsCollection* CosmogenicOutputScheme::GetOptHitColl(const G4
 }
 
 // invoked in RMGEventAction::EndOfEventAction()
-bool CosmogenicOutputScheme::ShouldDiscardEvent(const G4Event* event) {
+bool CosmogenicOutputScheme::ShouldDiscardEvent(const G4Event* event) {  // Keine Ge events werden discarded
   return false;
 }
 
 // invoked in RMGEventAction::EndOfEventAction()
-void CosmogenicOutputScheme::StoreEvent(const G4Event* event) {
+void CosmogenicOutputScheme::StoreEvent(const G4Event* event) {  // Speichert events in G4AnalysisManager
   auto Ge_hit_coll = GetGeHitColl(event);
   if (!Ge_hit_coll) {
     RMGLog::Out(RMGLog::error, "No germanium hit collection!");
@@ -137,12 +117,12 @@ void CosmogenicOutputScheme::StoreEvent(const G4Event* event) {
   }
 
   auto rmg_man = RMGManager::Instance();
-  if (rmg_man->IsPersistencyEnabled()) {
+  if (rmg_man->IsPersistencyEnabled()) { 
     RMGLog::OutDev(RMGLog::debug, "Filling persistent data vectors");
     const auto ana_man = G4AnalysisManager::Instance();
 
-    int Ge_flag = GetGeFlag(Ge_hit_coll);
-    int Water_flag = GetWaterFlag(Opt_hit_coll);
+    int Ge_flag = GetGeFlag(Ge_hit_coll);                       // Checkt ob events innerhalb eines Zeitintervalls (1ms) und mindest deponierte Energie >100keV und Abstand zum nächsten string gering.
+    int Water_flag = GetWaterFlag(Opt_hit_coll);                // Checkt events nach ob Muon Veto und Neutron Tagger Veto aktiviert wird.
 
     auto ntupleid = rmg_man->GetNtupleID(OutputRegisterID);
     int col_id = 0;
@@ -182,12 +162,12 @@ int CosmogenicOutputScheme::GetGeFlag(const RMGGermaniumDetectorHitsCollection *
       double distance = (c_position - hit_position).mag(); // TODO check if units match?
 
       // Is within adjacent string?
-      if((distance / u::cm) < (dist_to_next_string + gerad)) {
-        edep += hit->energy_deposition;
+      if((distance / u::cm) < (dist_to_next_string + gerad)) {            
+        edep += hit->energy_deposition;                                // Greift auf energy_deposition vom Zeiger hit zu und addiert das zur deponierten Energie.
       }
     }
 
-    if(edep > 100 * u::keV) 
+    if(edep > 100 * u::keV)                         
       detected_one = true;
     else 
       missed_one = true;
@@ -212,7 +192,7 @@ int CosmogenicOutputScheme::GetWaterFlag(const RMGOpticalDetectorHitsCollection 
   const double coincidence_window = 60 * u::ns;
   const double muon_max_time = 1 * u::microsecond;
   const double neutron_max_time = 200 * u::microsecond;
-  const int required_multiplicity = 6;
+  const int required_multiplicity = 6;        // Für muon Veto
 
   std::vector<std::pair<double, int>> hit_times_and_ids;
   for (auto hit : *hit_coll->GetVector()) {
