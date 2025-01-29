@@ -5,22 +5,22 @@
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
 /RMG/Processes/OpticalPhysics true
-/RMG/Output/ActivateOutputScheme IsotopeFilter
+#/RMG/Output/ActivateOutputScheme IsotopeFilter
 /run/initialize
 
 #/process/optical/boundary/verbose 2
 
-/RMG/Output/IsotopeFilter/AddIsotope 77 32
+#/RMG/Output/IsotopeFilter/AddIsotope 77 32
 #/RMG/Output/IsotopeFilter/DiscardPhotonsIfIsotopeNotProduced true
 /RMG/Output/NtuplePerDetector false
 
 /RMG/Generator/Confine UnConfined
 
 /RMG/Generator/Select MUSUNCosmicMuons
-/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/MUSUN_100_events.csv
+/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
 #/RMG/Generator/Select CustomMUSUN
-#/Cosmogenics/Generator/SetMUSUNFile musun/MUSUN_100_events.csv
+#/Cosmogenics/Generator/SetMUSUNFile musun/combined_file.dat
 
 #/RMG/Generator/Select GPS
 #/gps/particle mu-
@@ -32,4 +32,4 @@
 #/RMG/Generator/CosmicMuons/SkyShape Plane
 #/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
 
-/run/beamOn 1000000
+/run/beamOn 10000

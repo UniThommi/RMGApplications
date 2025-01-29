@@ -24,6 +24,8 @@
 #include "G4OpticalPhoton.hh"
 #include "G4SDManager.hh"
 
+#include "G4Neutron.hh"
+
 #include "RMGHardware.hh"
 #include "RMGLog.hh"
 #include "RMGManager.hh"
@@ -33,23 +35,26 @@ namespace u = CLHEP;
 NeutronsOutputScheme::NeutronsOutputScheme() { this->DefineCommands(); }
 
 void NeutronsOutputScheme::ClearBeforeEvent() {
-  Capture_Positions.clear();
-  zOfEvent.clear();
-  aOfEvent.clear();
+  vertexPositions.clear();
+
+  zOfEvents.clear();
+  aOfEvents.clear();
 }
 
 // Need information of isotop creation here as well. Could also get from other IsotopeFilterOutputscheme.
 void NeutronsOutputScheme::TrackingActionPre(const G4Track* aTrack) {
   const auto particle = aTrack->GetParticleDefinition();
-  // if (!particle->IsGeneralIon()) return;
   const int z = particle->GetAtomicNumber();
   const int a = particle->GetAtomicMass();
-  if (z != 0 || a != 1) return; // Hard coded for Neutrons.
+  if (particle != G4Neutron::NeutronDefinition()) return; // Hard coded for Neutrons.
 
-  // Save the locations of Neutrons creation
-  Capture_Positions.push_back(aTrack->GetVertexPosition()); 
-  zOfEvent.push_back(z);
-  aOfEvent.push_back(a);
+  vertexPositions.push_back(aTrack->GetVertexPosition()); // Save the locations of Neutrons creation
+  vertexMomentums.push_back(aTrack->GetVertexMomentumDirection());
+  globalTimes.push_back(aTrack->GetGlobalTime());
+  vertexKineticEnergies.push_back(aTrack->GetVertexKineticEnergy());
+  trackLengths.push_back(aTrack->GetTrackLength());
+  zOfEvents.push_back(z);
+  aOfEvents.push_back(a);
 }
 
 // invoked in RMGRunAction::SetupAnalysisManager()
@@ -63,35 +68,18 @@ void NeutronsOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   ana_man->CreateNtupleIColumn(id, "evtid");
   // Hier könnte man noch NTuple kreieren die Informationen speichern, z.B Entstehungsort, ob Neutronen Multiplizitäskriterien erfüllen usw.
   // Für Debug Zwecke: 
+  ana_man->CreateNtupleDColumn(id, "x_position_in_m");
+  ana_man->CreateNtupleDColumn(id, "y_position_in_m");
+  ana_man->CreateNtupleDColumn(id, "z_position_in_m");
+  ana_man->CreateNtupleDColumn(id, "x_momentum_in_m");
+  ana_man->CreateNtupleDColumn(id, "y_momentum_in_m");
+  ana_man->CreateNtupleDColumn(id, "z_momentum_in_m");
+  ana_man->CreateNtupleDColumn(id, "global_time");
+  ana_man->CreateNtupleDColumn(id, "kinetic_energy_in_?");
+  ana_man->CreateNtupleDColumn(id, "track_length_in_m");
   ana_man->CreateNtupleIColumn(id, "Z");
   ana_man->CreateNtupleIColumn(id, "A");
   ana_man->FinishNtuple(id);
-}
-
-// Braucht man das für Neutronen?
-RMGOpticalDetectorHitsCollection* NeutronsOutputScheme::GetOptHitColl(const G4Event* event) {  // Gets hit collection from sensitive Ge detectors with optical information.
-  auto sd_man = G4SDManager::GetSDMpointer();
-
-  auto hit_coll_id = sd_man->GetCollectionID("Optical/Hits");
-  if (hit_coll_id < 0) {
-    RMGLog::OutDev(RMGLog::error, "Could not find hit collection Optical/Hits");
-    return nullptr;
-  }
-
-  auto hit_coll =
-      dynamic_cast<RMGOpticalDetectorHitsCollection*>(event->GetHCofThisEvent()->GetHC(hit_coll_id));
-
-  if (!hit_coll) {
-    RMGLog::Out(RMGLog::error, "Could not find hit collection associated with event");
-    return nullptr;
-  }
-
-  return hit_coll;
-}
-
-// invoked in RMGEventAction::EndOfEventAction()
-bool NeutronsOutputScheme::ShouldDiscardEvent(const G4Event* event) {  // Keine Neutron events werden discarded
-  return false;
 }
 
 // invoked in RMGEventAction::EndOfEventAction()
@@ -103,13 +91,25 @@ void NeutronsOutputScheme::StoreEvent(const G4Event* event) {  // Speichert even
     const auto ana_man = G4AnalysisManager::Instance();
 
     auto ntupleid = rmg_man->GetNtupleID(OutputRegisterID);
-    int col_id = 0;
-    ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID());
-    ana_man->FillNtupleIColumn(ntupleid, col_id++, zOfEvent[i]);
-    ana_man->FillNtupleIColumn(ntupleid, col_id++, aOfEvent[i]);
 
-    // NOTE: must be called here for hit-oriented output
-    ana_man->AddNtupleRow(ntupleid); // Muss das sein für Neutronen???
+    for (size_t i = 0; i < zOfEvents.size(); ++i) {
+      int col_id = 0;
+      ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID());
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getX())/u::m;
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getY())/u::m;
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getZ())/u::m;  // Standard Einheit ist mm, bei Definition mit Einheit in m *u::m -> mal 1000, bei Abfrage des Wertes in m /u::m -> geteilt durch 1000 für Rückrechnung
+      // Füge hinzu : Kinetische Energie, Zeitpunkt der Entstehung (global, also seitdem das Muon erzeugt wurde), Impulsvektor (x, y, z), kinetische Energie
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getX());
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getY());
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getZ()); 
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, globalTimes[i]);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexKineticEnergies[i]);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, trackLengths[i]);
+      ana_man->FillNtupleIColumn(ntupleid, col_id++, zOfEvents[i]);
+      ana_man->FillNtupleIColumn(ntupleid, col_id++, aOfEvents[i]);
+      // Startet neue Reihe in Output
+      ana_man->AddNtupleRow(ntupleid);
+    }
   }
 }
 

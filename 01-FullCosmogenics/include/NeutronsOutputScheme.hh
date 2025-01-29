@@ -20,7 +20,6 @@ class NeutronsOutputScheme : public RMGVOutputScheme {
     void ClearBeforeEvent() override;
     void AssignOutputNames(G4AnalysisManager* ana_man) override;
     void StoreEvent(const G4Event*) override;
-    bool ShouldDiscardEvent(const G4Event*) override;
     void TrackingActionPre(const G4Track* aTrack) override;
 
   protected:
@@ -33,9 +32,13 @@ class NeutronsOutputScheme : public RMGVOutputScheme {
 
     G4int OutputRegisterID = 12120;
 
-    std::vector<G4ThreeVector> Capture_Positions;
-    std::vector<G4int> zOfEvent;
-    std::vector<G4int> aOfEvent;
+    std::vector<G4ThreeVector> vertexPositions;
+    std::vector<G4ThreeVector> vertexMomentums;
+    std::vector<G4double> globalTimes;
+    std::vector<G4double> vertexKineticEnergies;
+    std::vector<G4double> trackLengths;
+    std::vector<G4int> zOfEvents;
+    std::vector<G4int> aOfEvents;
 };
 
 #endif

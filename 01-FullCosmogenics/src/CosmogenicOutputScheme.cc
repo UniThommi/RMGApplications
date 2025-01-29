@@ -66,6 +66,26 @@ void CosmogenicOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   ana_man->FinishNtuple(id);
 }
 
+RMGGermaniumDetectorHitsCollection* CosmogenicOutputScheme::GetGeHitColl(const G4Event* event) {
+  auto sd_man = G4SDManager::GetSDMpointer();
+
+  auto hit_coll_id = sd_man->GetCollectionID("Germanium/Hits");
+  if (hit_coll_id < 0) {
+    RMGLog::OutDev(RMGLog::error, "Could not find hit collection Germanium/Hits");
+    return nullptr;
+  }
+
+  auto hit_coll = dynamic_cast<RMGGermaniumDetectorHitsCollection*>(
+      event->GetHCofThisEvent()->GetHC(hit_coll_id));
+
+  if (!hit_coll) {
+    RMGLog::Out(RMGLog::error, "Could not find hit collection associated with event");
+    return nullptr;
+  }
+
+  return hit_coll;
+}
+
 // Could summarize these functions into one, but this is more readable i think
 RMGOpticalDetectorHitsCollection* CosmogenicOutputScheme::GetOptHitColl(const G4Event* event) {  // Gets hit collection from sensitive Ge detectors with optical information.
   auto sd_man = G4SDManager::GetSDMpointer();
