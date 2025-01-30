@@ -5,6 +5,7 @@
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
 /RMG/Processes/OpticalPhysics true
+/RMG/Output/ActivateOutputScheme NeutronsOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 /run/initialize
 
@@ -32,4 +33,4 @@
 #/RMG/Generator/CosmicMuons/SkyShape Plane
 #/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
 
-/run/beamOn 10000
+/run/beamOn 1000000

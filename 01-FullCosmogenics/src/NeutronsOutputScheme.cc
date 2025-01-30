@@ -71,11 +71,11 @@ void NeutronsOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   ana_man->CreateNtupleDColumn(id, "x_position_in_m");
   ana_man->CreateNtupleDColumn(id, "y_position_in_m");
   ana_man->CreateNtupleDColumn(id, "z_position_in_m");
-  ana_man->CreateNtupleDColumn(id, "x_momentum_in_m");
-  ana_man->CreateNtupleDColumn(id, "y_momentum_in_m");
-  ana_man->CreateNtupleDColumn(id, "z_momentum_in_m");
+  ana_man->CreateNtupleDColumn(id, "x_momentum_in_m/s");
+  ana_man->CreateNtupleDColumn(id, "y_momentum_in_m/s");
+  ana_man->CreateNtupleDColumn(id, "z_momentum_in_m/s");
   ana_man->CreateNtupleDColumn(id, "global_time");
-  ana_man->CreateNtupleDColumn(id, "kinetic_energy_in_?");
+  ana_man->CreateNtupleDColumn(id, "kinetic_energy_in_keV");
   ana_man->CreateNtupleDColumn(id, "track_length_in_m");
   ana_man->CreateNtupleIColumn(id, "Z");
   ana_man->CreateNtupleIColumn(id, "A");
@@ -99,12 +99,12 @@ void NeutronsOutputScheme::StoreEvent(const G4Event* event) {  // Speichert even
       ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getY())/u::m;
       ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getZ())/u::m;  // Standard Einheit ist mm, bei Definition mit Einheit in m *u::m -> mal 1000, bei Abfrage des Wertes in m /u::m -> geteilt durch 1000 für Rückrechnung
       // Füge hinzu : Kinetische Energie, Zeitpunkt der Entstehung (global, also seitdem das Muon erzeugt wurde), Impulsvektor (x, y, z), kinetische Energie
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getX());
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getY());
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getZ()); 
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getX())/(u::m / u::s);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getY())/(u::m / u::s);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getZ())/(u::m / u::s); 
       ana_man->FillNtupleDColumn(ntupleid, col_id++, globalTimes[i]);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexKineticEnergies[i]);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, trackLengths[i]);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexKineticEnergies[i])/u::keV;
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, trackLengths[i])/u::m;
       ana_man->FillNtupleIColumn(ntupleid, col_id++, zOfEvents[i]);
       ana_man->FillNtupleIColumn(ntupleid, col_id++, aOfEvents[i]);
       // Startet neue Reihe in Output
