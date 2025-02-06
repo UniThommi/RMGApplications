@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 
   // RMGLog::SetLogLevel(RMGLog::debug);
 
-  std::string filename = "gdml/WLGDOptical.gdml";
+  std::string filename = "gdml/L1000V0.gdml";
 
   std::string outputfilename = "build/output.hdf5";
 

@@ -4,14 +4,14 @@
 
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
-/RMG/Processes/OpticalPhysics true
+/RMG/Processes/OpticalPhysics false #für Neutronen generieren
 /RMG/Output/ActivateOutputScheme NeutronsOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 /run/initialize
 
 #/process/optical/boundary/verbose 2
 
-#/RMG/Output/IsotopeFilter/AddIsotope 77 32
+#/RMG/Output/IsotopeFilter/AddIsotope 77 32 # Ge77 filter
 #/RMG/Output/IsotopeFilter/DiscardPhotonsIfIsotopeNotProduced true
 /RMG/Output/NtuplePerDetector false
 
@@ -33,4 +33,4 @@
 #/RMG/Generator/CosmicMuons/SkyShape Plane
 #/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
 
-/run/beamOn 1000000
+/run/beamOn 100000
