@@ -7,8 +7,13 @@
 #include "CustomMUSUNGenerator.hh"
 #include "HardwareQEOverride.hh"
 #include "RNGTrackingAction.hh"
+#include "RMGIsotopeFilterOutputScheme.hh"
 #include "CosmogenicOutputScheme.hh"
 #include "NeutronsOutputScheme.hh"
+#include "MyGe77EventFilterOutputScheme.hh"
+#include "MyTrackInfo.hh"
+#include "MyRunMappingAction.hh"
+#include "G4VUserEventInformation.hh"
 
 #include <fstream>
 #include <iostream>
@@ -70,37 +75,38 @@ int main(int argc, char **argv) {
 
   std::string outputfilename = "build/output.hdf5";
 
-  RMGManager manager("FullCosmogenics", argc, argv);
+  RMGManager man("FullCosmogenics", argc, argv);  // RMGManager ist ein singleton.
   // Overwrite the standard Hardware with one that reads
   // in the PMT QE from datasheet
-  manager.SetUserInit(new HardwareQEOverride());
+  man.SetUserInit(new HardwareQEOverride());
 
   // Overwrite RMGPhysics to use own Optical Processes
-  manager.GetDetectorConstruction()->IncludeGDMLFile(filename);
+  man.GetDetectorConstruction()->IncludeGDMLFile(filename);
 
   // Get the physical volume names of the PMTs to register them
   std::vector<std::string> PMTnames = getPMTNames(filename);
   int id = 0;
   // Register all of the PMTs
   for (const auto &name : PMTnames) {
-    manager.GetDetectorConstruction()->RegisterDetector(RMGHardware::kOptical,
+    man.GetDetectorConstruction()->RegisterDetector(RMGHardware::kOptical,
                                                         name, id);
     id++;
   }
   // Register the germanium volume as germanium detector.
-  manager.GetDetectorConstruction()->RegisterDetector(RMGHardware::kGermanium,
+  man.GetDetectorConstruction()->RegisterDetector(RMGHardware::kGermanium,
                                                       "Ge_phys", id + 1000);
 
   // Custom User init
-  auto user_init = manager.GetUserInit();
+  auto user_init = man.GetUserInit();
+  auto *run_man = man.GetG4RunManager();
+
   if (rngFlag != 0) {
     user_init->AddOptionalOutputScheme<CustomIsotopeFilter>(
         "CustomIsotopeFilter");
     user_init->AddTrackingAction<RNGTrackingAction>();
     user_init->SetUserGenerator<CustomMUSUNGenerator>();
-    auto *RunManager = manager.GetG4RunManager();
-    RunManager->SetNumberOfThreads(16);
-    manager.SetUserInit(new CosmogenicPhysics());
+    run_man->SetNumberOfThreads(16);
+    man.SetUserInit(new CosmogenicPhysics());
     if(rngFlag == 1)
       outputfilename = "build/output.csv";
     else
@@ -112,21 +118,26 @@ int main(int argc, char **argv) {
   }
 
   if (useNeutronsOutputScheme) {
+    user_init->AddSteppingAction<MySteppingAction>();
     user_init->AddOptionalOutputScheme<NeutronsOutputScheme>("NeutronsOutputScheme");
+    user_init->AddOptionalOutputScheme<MyGe77EventFilterOutputScheme>("MyGe77EventFilterOutputScheme");
   }
 
   // Interactive or batch mode?
   if (!macroName.empty())
-    manager.IncludeMacroFile(macroName);
+    man.IncludeMacroFile(macroName);
   else
-    manager.SetInteractive(true);
+    man.SetInteractive(true);
 
   // Outputfilename and Threads. Then run
   
-  manager.SetOutputFileName(outputfilename);
-  manager.SetNumberOfThreads(16);
-  manager.Initialize();
-  manager.Run();
+  man.SetOutputFileName(outputfilename);
+  man.EnablePersistency();
+  man.SetNumberOfThreads(16);
+  man.Initialize();
+  MyRunMappingAction* runAction = new MyRunMappingAction();
+  run_man->SetUserAction(runAction);
+  man.Run();
 
   return 0;
 }

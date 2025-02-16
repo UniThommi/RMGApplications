@@ -17,7 +17,10 @@ add_executable(
   src/RNGCerenkov.cc
   src/RNGTrackingAction.cc
   src/CosmogenicOutputScheme.cc
-  src/NeutronsOutputScheme.cc)
+  src/NeutronsOutputScheme.cc
+  src/MyTrackInfo.cc
+  src/MyGe77EventFilterOutputScheme.cc
+  src/MyRunMappingAction.cc)
 
 target_link_libraries(FullCosmogenics PUBLIC RMG::remage)
 

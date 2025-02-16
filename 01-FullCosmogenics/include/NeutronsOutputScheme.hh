@@ -3,12 +3,16 @@
 
 #include <optional>
 #include <set>
+#include <string>
 
 #include "G4AnalysisManager.hh"
 #include "G4GenericMessenger.hh"
 #include "G4ThreeVector.hh"
-
+#include "G4Run.hh"
 #include "RMGVOutputScheme.hh"
+
+#include "MyRunMappingAction.hh"
+
 
 class G4Event;
 class NeutronsOutputScheme : public RMGVOutputScheme {
@@ -16,6 +20,7 @@ class NeutronsOutputScheme : public RMGVOutputScheme {
   public:
 
     NeutronsOutputScheme();
+    
 
     void ClearBeforeEvent() override;
     void AssignOutputNames(G4AnalysisManager* ana_man) override;
@@ -27,25 +32,22 @@ class NeutronsOutputScheme : public RMGVOutputScheme {
     [[nodiscard]] inline std::string GetNtuplenameFlat() const override { return "neutrons"; }
 
   private:
-
+    
+    // RMGVOutputScheme Variablen.
     std::unique_ptr<G4GenericMessenger> fMessenger;
     void DefineCommands();
-    void InsertGe77Info();
-
-    // Vektor an killbaren Tracks, da Ge77 bereits produziert wurde.
-    std::vector<G4int> killableIDs;
-    
     G4int OutputRegisterID = 12120;
 
+    // Ge77 Flag für Event (1 Muon):
+    G4bool fGe77Produced = false; // True -> Ge77 wurde produziert.
+
+    // Neutron Parameter
     std::vector<G4ThreeVector> vertexPositions;
     std::vector<G4ThreeVector> vertexMomentums;
     std::vector<G4double> globalTimes;
     std::vector<G4double> vertexKineticEnergies;
-    std::vector<G4int> volumes;
-    std::vector<G4string> materials;
-    std::vector<G4int> primaryTrackId; // Damit man sieht welche Neutronen 1. Generation zum gleichen Muon gehören.
-    std::vector<G4int> gen1NeutronID; // Damit man sieht welches das Neutron 1. Generation ist und welche weiteren Reaktionen zu diesem Neutron gehören -> Man kann Ge77 PRoduktion zuweisen. Entsteht kein Neutron ist der Wert auf -1 (wird dann aber auch nicht gespeichert).   
-    std::vector<G4bool> fGe77Produced; // True -> Ge77 wurde produziert.
+    std::vector<G4int> physicalVolumes;
+    std::vector<G4int> materials;
 };
 
 #endif

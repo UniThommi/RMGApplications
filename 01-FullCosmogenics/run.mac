@@ -6,6 +6,7 @@
 /RMG/Processes/Realm CosmicRays
 /RMG/Processes/OpticalPhysics false #für Neutronen generieren
 /RMG/Output/ActivateOutputScheme NeutronsOutputScheme
+/RMG/Output/ActivateOutputScheme MyGe77EventFilterOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 /run/initialize
 
@@ -33,4 +34,4 @@
 #/RMG/Generator/CosmicMuons/SkyShape Plane
 #/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
 
-/run/beamOn 100000
+/run/beamOn 10000000

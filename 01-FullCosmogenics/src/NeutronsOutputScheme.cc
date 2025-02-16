@@ -1,9 +1,10 @@
 #include "NeutronsOutputScheme.hh"
 
 #include <set>
-#include <map>
-#include <fstream>
 #include <algorithm>
+#include <iostream>
+#include <string>
+
 
 #include "G4AnalysisManager.hh"
 #include "G4Event.hh"
@@ -14,6 +15,8 @@
 #include "G4Neutron.hh"
 
 #include "MyTrackInfo.hh"
+#include "MyRunMappingAction.hh"
+#include "MyGe77EventFilterOutputScheme.hh"
 #include "RMGHardware.hh"
 #include "RMGLog.hh"
 #include "RMGManager.hh"
@@ -24,95 +27,67 @@ NeutronsOutputScheme::NeutronsOutputScheme() {
   this->DefineCommands(); 
 }
 
+
 void NeutronsOutputScheme::ClearBeforeEvent() {
   vertexPositions.clear();
   vertexMomentums.clear();
   globalTimes.clear();
   vertexKineticEnergies.clear();
-  volumes.clear();
+  physicalVolumes.clear();
   materials.clear();
-  primaryTrackId.clear();
-  gen1NeutronID.clear();
-  fGe77Produced.clear();
+  fGe77Produced = false;
 };
 
-void NeutronsOutputScheme::InsertGe77Info(const G4int NeutronID) {
-  // Hole die gen1NeutronID des aktuellen Tracks
-  auto* trackInfo = dynamic_cast<MyTrackInfo*>(aTrack->GetUserInformation());
-  if (!trackInfo) return;
-
-  int currentGen1ID = trackInfo->GetGen1NeutronID();
-  if (currentGen1ID == -1) return;  // Kein gültiger gen1NeutronID vorhanden
-
-  // Suche nach gleichen gen1NeutronIDs in gespeicherten Daten und ändere für die Einträge die fGe77Produced auf true.
-  for (size_t i = 0; i < gen1NeutronID.size(); ++i) {
-    if (gen1NeutronID[i] == currentGen1ID) {
-      fGe77Produced[i] = true;
-    }
-  }
-}
-
 // Need information of isotop creation here as well. Could also get from other IsotopeFilterOutputscheme.
-void NeutronsOutputScheme::TrackingActionPre(const G4Track* aTrack) {  
- // Check if the track is a neutron
+void NeutronsOutputScheme::TrackingActionPre(const G4Track* aTrack) { 
+  // Check if the track is a neutron
   auto* info = aTrack->GetDefinition();
   auto* trackInfo = dynamic_cast<MyTrackInfo*>(aTrack->GetUserInformation());
 
   // Schaue ob gen1NeutronID des Tracks in killableIDs ist. Wenn ja kille Track.
-  if (trackInfo && std::find(killableIDs.begin(), killableIDs.end(), trackInfo->GetGen1NeutronID()) != killableIDs.end()) {
-    const_cast<G4Track*>(aTrack)->SetTrackStatus(fStopAndKill);
-  }
   if (info == G4Neutron::NeutronDefinition()) {
+    G4cout << "Debug: Teilchen ist Neutron mit Gen1NeutronID " << trackInfo->MyTrackInfo::GetGen1NeutronID() << G4endl;
     // Check if MyTrackInfo exists and if the gen1NeutronID is -1 (indicating first-generation neutron)
-    if (trackInfo && trackInfo->GetGen1NeutronID() == -1) {
+    if (trackInfo && trackInfo->MyTrackInfo::GetGen1NeutronID() == -1) {
         // Set the gen1NeutronID to the current neutron's TrackID (this is the first-generation neutron)
-        trackInfo->SetGen1NeutronID(aTrack->GetTrackID());
+        trackInfo->MyTrackInfo::SetGen1NeutronID(aTrack->GetTrackID());
 
         // Push Data
         vertexPositions.push_back(aTrack->GetVertexPosition()); // Save the locations of Neutrons creation
         vertexMomentums.push_back(aTrack->GetVertexMomentumDirection());
         globalTimes.push_back(aTrack->GetGlobalTime());
         vertexKineticEnergies.push_back(aTrack->GetVertexKineticEnergy());
-        // In welchem Volumen erzeugt? Nicht als string ausgeben sondern als int
-        const G4VPhysicalVolume* volume = aTrack->GetVolume();
-        if (volume) {
+        // In welchem Volumen erzeugt? Nicht als string ausgeben sondern als int 
+        const G4VPhysicalVolume* physicalVolume = aTrack->GetVolume();
+        if (physicalVolume) {
         // Volumenname und Materialname ermitteln
-          volumes.push_back(volume->GetVolumeID());
-          G4Material* material = volume->GetLogicalVolume()->GetMaterial();
+          G4int G4PhysVolumeID = MyRunMappingAction::GetPhysVolumeMappingID(physicalVolume->GetName());
+          G4cout << "G4PhysVolumeID: " << G4PhysVolumeID << G4endl; 
+          physicalVolumes.push_back(G4PhysVolumeID);
+          G4Material* material = physicalVolume->GetLogicalVolume()->GetMaterial();
           if (material) {
-            materials.push_back(material->GetName());
+            G4int G4MaterialID = MyRunMappingAction::GetMaterialMappingID(material->GetName());
+            G4cout << "G4MaterialID : " << G4MaterialID << G4endl;
+            physicalVolumes.push_back(G4PhysVolumeID);
+            materials.push_back(G4MaterialID);
           }
           else {
-            materials.push_back('Unknown');  
+            materials.push_back(-1);  
           }
         }
-        else {
-          volumes.push_back(-1);     
-        }
-
-        // Get primaryTrackID and gen1NeutronID from MyTrackInfo
-        primaryTrackId.push_back(trackInfo->GetPrimaryID());
-        gen1NeutronID.push_back(trackInfo->GetGen1NeutronID());
-
-        // Setze Flag für Ge77 Production erstmal auf False. Später bearbeiten.
-        fGe77Produced.push_back(false);
+        else {   
+          physicalVolumes.push_back(-1);     
+          materials.push_back(-1);     
+      }
     }
   }
-  if (info->GetAtomicMass() == 77 && info-> GetAtomicNumber() == 32) {
-    if (trackInfo && trackInfo->GetGen1NeutronID() != -1) {
-      InsertGe77Info(aTrack);
-      // Kille den Track, da nicht mehr Info benötigt wird nach Ge77 Produktion.
-      killableIDs.push_back(trackInfo->GetGen1NeutronID());
-      const_cast<G4Track*>(aTrack)->SetTrackStatus(fStopAndKill);
-    }
-  } 
 }
 
 // invoked in RMGRunAction::SetupAnalysisManager()
 void NeutronsOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {  
+  G4cout << "Debug: AssignOutputNames" << G4endl;
 
   auto rmg_man = RMGManager::Instance();
-
   auto id = rmg_man->RegisterNtuple(OutputRegisterID,
       ana_man->CreateNtuple("NeutronsOutput", "Event data"));
 
@@ -121,47 +96,52 @@ void NeutronsOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   ana_man->CreateNtupleDColumn(id, "x_position_in_m");
   ana_man->CreateNtupleDColumn(id, "y_position_in_m");
   ana_man->CreateNtupleDColumn(id, "z_position_in_m");
-  ana_man->CreateNtupleDColumn(id, "x_momentum_in_m/s");
-  ana_man->CreateNtupleDColumn(id, "y_momentum_in_m/s");
-  ana_man->CreateNtupleDColumn(id, "z_momentum_in_m/s");
+  ana_man->CreateNtupleDColumn(id, "x_momentum_in_m_s");
+  ana_man->CreateNtupleDColumn(id, "y_momentum_in_m_s");
+  ana_man->CreateNtupleDColumn(id, "z_momentum_in_m_s");
   ana_man->CreateNtupleDColumn(id, "global_time");
   ana_man->CreateNtupleDColumn(id, "kinetic_energy_in_keV");
-  ana_man->CreateNtupleIColumn(id, "volume_id_of_N_creation");
-  ana_man->CreateNtupleSColumn(id, "material_of_N_creation");
-  ana_man->CreateNtupleIColumn(id, "track_ID_of_Muon");
-  ana_man->CreateNtupleIColumn(id, "track_ID_of_Gen1_N");
-  ana_man->CreateNtupleBColumn(id, "Ge77_creation_from_N");
+  ana_man->CreateNtupleIColumn(id, "physical_volume_id_of_N_creation");
+  ana_man->CreateNtupleIColumn(id, "material_of_N_creation");
+  ana_man->CreateNtupleIColumn(id, "Ge77_produced_in_muon_event");
 }
 
-// invoked in RMGEventAction::EndOfEventAction()
-void NeutronsOutputScheme::StoreEvent(const G4Event* event) {  // Speichert events in G4AnalysisManager //FIX!!!
+void NeutronsOutputScheme::StoreEvent(const G4Event* event) {
+  // Wurde Ge77 Flagge gesetzt?
+  auto info = event->GetUserInformation();
+  if (info != nullptr && dynamic_cast<MyGe77EventInformation*>(info) != nullptr) {
+      G4cout << "Ge77Flag wird auf true gesetzt" << G4endl;
+      fGe77Produced = true;
+  }
 
   auto rmg_man = RMGManager::Instance();
   if (rmg_man->IsPersistencyEnabled()) { 
     RMGLog::OutDev(RMGLog::debug, "Filling persistent data vectors");
     const auto ana_man = G4AnalysisManager::Instance();
     auto ntupleid = rmg_man->GetNtupleID(OutputRegisterID);
+    if (ntupleid < 0) {
+        G4cerr << "❌ ERROR: Invalid Ntuple ID! Data will not be saved." << G4endl;
+        // return;
+    }   
 
     for (size_t i = 0; i < globalTimes.size(); ++i) {
       int col_id = 0;
       // Output: Was Ge77 produced in this event?
       ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID());
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getX())/u::m;
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getY())/u::m;
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getZ())/u::m;  // Standard Einheit ist mm, bei Definition mit Einheit in m *u::m -> mal 1000, bei Abfrage des Wertes in m /u::m -> geteilt durch 1000 für Rückrechnung
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getX()/u::m);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getY()/u::m);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getZ()/u::m);  // Standard Einheit ist mm, bei Definition mit Einheit in m *u::m -> mal 1000, bei Abfrage des Wertes in m /u::m -> geteilt durch 1000 für Rückrechnung
       // Füge hinzu : Kinetische Energie, Zeitpunkt der Entstehung (global, also seitdem das Muon erzeugt wurde), Impulsvektor (x, y, z), kinetische Energie
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getX())/(u::m / u::s);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getY())/(u::m / u::s);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getZ())/(u::m / u::s); 
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getX());
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getY());
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getZ()); 
       ana_man->FillNtupleDColumn(ntupleid, col_id++, globalTimes[i]);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexKineticEnergies[i])/u::keV;
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexKineticEnergies[i]/u::keV);
       //Volumen und Material:
-      ana_man->FillNtupleIColumn(ntupleid, col_id++, volumes[i]);
-      ana_man->FillNtupleSColumn(ntupleid, col_id++, materials[i]);
-      // IDs und Ge77 Flag
-      ana_man->FillNtupleIColumn(ntupleid, col_id++, primaryTrackId[i]);
-      ana_man->FillNtupleIColumn(ntupleid, col_id++, gen1NeutronID[i]);
-      ana_man->FillNtupleBColumn(ntupleid, col_id++, fGe77Produced[i]);
+      ana_man->FillNtupleIColumn(ntupleid, col_id++, physicalVolumes[i]);
+      ana_man->FillNtupleIColumn(ntupleid, col_id++, materials[i]);
+      // Ge77Flag
+      ana_man->FillNtupleIColumn(ntupleid, col_id++, fGe77Produced);
       // Startet neue Reihe in Output
       ana_man->AddNtupleRow(ntupleid);
     }
@@ -169,7 +149,7 @@ void NeutronsOutputScheme::StoreEvent(const G4Event* event) {  // Speichert even
 }
 
 void NeutronsOutputScheme::DefineCommands() {
-
+  
 }
 
 // vim: tabstop=2 shiftwidth=2 expandtab

@@ -1,0 +1,11 @@
+{
+    "G4_AIR": 5,
+    "G4_Cu": 6,
+    "G4_Galactic": 8,
+    "G4_STAINLESS-STEEL": 0,
+    "G4_lAr": 1,
+    "H2O": 2,
+    "H2ONotOptical": 4,
+    "enrGe": 7,
+    "loadedPMMA": 3
+}
