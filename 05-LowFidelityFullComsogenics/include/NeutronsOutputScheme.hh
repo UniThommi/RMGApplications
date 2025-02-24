@@ -11,6 +11,7 @@
 #include "G4Run.hh"
 #include "RMGVOutputScheme.hh"
 
+#include "MyRunMappingAction.hh"
 
 
 class G4Event;
@@ -19,15 +20,12 @@ class NeutronsOutputScheme : public RMGVOutputScheme {
   public:
 
     NeutronsOutputScheme();
-    ~NeutronsOutputScheme();
     
 
     void ClearBeforeEvent() override;
     void AssignOutputNames(G4AnalysisManager* ana_man) override;
     void StoreEvent(const G4Event*) override;
     void TrackingActionPre(const G4Track* aTrack) override;
-
-    [[nodiscard]] inline bool StoreAlways() const override { return true; }
 
   protected:
 
@@ -38,15 +36,7 @@ class NeutronsOutputScheme : public RMGVOutputScheme {
     // RMGVOutputScheme Variablen.
     std::unique_ptr<G4GenericMessenger> fMessenger;
     void DefineCommands();
-
-    // Output Register:
-    G4int neutronsRegister = 12120;
-    G4int physVolRegister = 12121;
-    G4int materialRegister = 12122;
-
-    // Mappings: Physisches Volumen und Material
-    std::map<std::string, int> physVolumeMapping;
-    std::map<std::string, int> materialMapping;
+    G4int OutputRegisterID = 12120;
 
     // Ge77 Flag für Event (1 Muon):
     G4bool fGe77Produced = false; // True -> Ge77 wurde produziert.
@@ -58,17 +48,6 @@ class NeutronsOutputScheme : public RMGVOutputScheme {
     std::vector<G4double> vertexKineticEnergies;
     std::vector<G4int> physicalVolumes;
     std::vector<G4int> materials;
-
-
-    // Mapping Vektoren
-    std::vector<G4int> physicalVolumeMappingIDs;
-    std::vector<G4int> materialMappingIDs;
-
-    std::vector<G4String> physicalVolumeMappingNames;
-    std::vector<G4String> materialMappingNames;
-
-    bool fPhysVolumeMapping;
-    bool fMaterialMapping;
 };
 
 #endif

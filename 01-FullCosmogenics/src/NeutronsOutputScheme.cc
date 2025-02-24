@@ -15,7 +15,6 @@
 #include "G4Neutron.hh"
 
 #include "MyTrackInfo.hh"
-#include "MyRunMappingAction.hh"
 #include "MyGe77EventFilterOutputScheme.hh"
 #include "RMGHardware.hh"
 #include "RMGLog.hh"
@@ -27,6 +26,7 @@ NeutronsOutputScheme::NeutronsOutputScheme() {
   this->DefineCommands(); 
 }
 
+NeutronsOutputScheme::~NeutronsOutputScheme() {};
 
 void NeutronsOutputScheme::ClearBeforeEvent() {
   vertexPositions.clear();
@@ -36,6 +36,14 @@ void NeutronsOutputScheme::ClearBeforeEvent() {
   physicalVolumes.clear();
   materials.clear();
   fGe77Produced = false;
+
+  physicalVolumeMappingIDs.clear();
+  materialMappingIDs.clear();
+  physicalVolumeMappingNames.clear();
+  materialMappingNames.clear();
+
+  fPhysVolumeMapping = false;
+  fMaterialMapping = false;
 };
 
 // Need information of isotop creation here as well. Could also get from other IsotopeFilterOutputscheme.
@@ -54,31 +62,40 @@ void NeutronsOutputScheme::TrackingActionPre(const G4Track* aTrack) {
 
         // Push Data
         vertexPositions.push_back(aTrack->GetVertexPosition()); // Save the locations of Neutrons creation
-        vertexMomentums.push_back(aTrack->GetVertexMomentumDirection());
+        vertexMomentums.push_back(aTrack->GetMomentum());
         globalTimes.push_back(aTrack->GetGlobalTime());
         vertexKineticEnergies.push_back(aTrack->GetVertexKineticEnergy());
         // In welchem Volumen erzeugt? Nicht als string ausgeben sondern als int 
         const G4VPhysicalVolume* physicalVolume = aTrack->GetVolume();
+        int physVolumeID = -1;
+        int materialID = -1;
         if (physicalVolume) {
         // Volumenname und Materialname ermitteln
-          G4int G4PhysVolumeID = MyRunMappingAction::GetPhysVolumeMappingID(physicalVolume->GetName());
-          G4cout << "G4PhysVolumeID: " << G4PhysVolumeID << G4endl; 
-          physicalVolumes.push_back(G4PhysVolumeID);
+          std::string physVolumeName = physicalVolume->GetName();
+          
+          if (physVolumeMapping.find(physVolumeName) == physVolumeMapping.end()) {
+            physVolumeMapping.emplace(physVolumeName, physVolumeMapping.size());
+            physicalVolumeMappingNames.push_back(physVolumeName);
+            physicalVolumeMappingIDs.push_back(physVolumeMapping[physVolumeName]);
+            fPhysVolumeMapping = true;
+          }
+          physVolumeID = physVolumeMapping[physVolumeName];
+          
           G4Material* material = physicalVolume->GetLogicalVolume()->GetMaterial();
           if (material) {
-            G4int G4MaterialID = MyRunMappingAction::GetMaterialMappingID(material->GetName());
-            G4cout << "G4MaterialID : " << G4MaterialID << G4endl;
-            physicalVolumes.push_back(G4PhysVolumeID);
-            materials.push_back(G4MaterialID);
-          }
-          else {
-            materials.push_back(-1);  
+            std::string materialName = material->GetName();
+          
+            if (materialMapping.find(materialName) == materialMapping.end()) {
+              materialMapping.emplace(materialName, materialMapping.size());
+              materialMappingNames.push_back(materialName);
+              materialMappingIDs.push_back(materialMapping[materialName]);
+              fMaterialMapping = true;
+            }
+            materialID = materialMapping[materialName];
           }
         }
-        else {   
-          physicalVolumes.push_back(-1);     
-          materials.push_back(-1);     
-      }
+        physicalVolumes.push_back(physVolumeID);
+        materials.push_back(materialID);
     }
   }
 }
@@ -88,22 +105,34 @@ void NeutronsOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   G4cout << "Debug: AssignOutputNames" << G4endl;
 
   auto rmg_man = RMGManager::Instance();
-  auto id = rmg_man->RegisterNtuple(OutputRegisterID,
+  auto neutronsNTuple = rmg_man->RegisterNtuple(neutronsRegister,
       ana_man->CreateNtuple("NeutronsOutput", "Event data"));
 
-  ana_man->CreateNtupleIColumn(id, "evtid");
+  ana_man->CreateNtupleIColumn(neutronsNTuple, "evtid");
   // Create column structure to safe data
-  ana_man->CreateNtupleDColumn(id, "x_position_in_m");
-  ana_man->CreateNtupleDColumn(id, "y_position_in_m");
-  ana_man->CreateNtupleDColumn(id, "z_position_in_m");
-  ana_man->CreateNtupleDColumn(id, "x_momentum_in_m_s");
-  ana_man->CreateNtupleDColumn(id, "y_momentum_in_m_s");
-  ana_man->CreateNtupleDColumn(id, "z_momentum_in_m_s");
-  ana_man->CreateNtupleDColumn(id, "global_time");
-  ana_man->CreateNtupleDColumn(id, "kinetic_energy_in_keV");
-  ana_man->CreateNtupleIColumn(id, "physical_volume_id_of_N_creation");
-  ana_man->CreateNtupleIColumn(id, "material_of_N_creation");
-  ana_man->CreateNtupleIColumn(id, "Ge77_produced_in_muon_event");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "x_position_in_m");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "y_position_in_m");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "z_position_in_m");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "x_momentum_in_m_s");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "y_momentum_in_m_s");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "z_momentum_in_m_s");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "global_time");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "kinetic_energy_in_keV");
+  ana_man->CreateNtupleIColumn(neutronsNTuple, "physical_volume_id_of_N_creation");
+  ana_man->CreateNtupleIColumn(neutronsNTuple, "material_id_of_N_creation");
+  ana_man->CreateNtupleIColumn(neutronsNTuple, "Ge77_produced_in_muon_event");
+
+  auto physVol = rmg_man->RegisterNtuple(physVolRegister,
+    ana_man->CreateNtuple("physVolumes", "physVolumes name mapping"));
+ana_man->CreateNtupleIColumn(physVol, "physVolumesID");
+ana_man->CreateNtupleSColumn(physVol, "physVolumeNames");
+ana_man->FinishNtuple(physVol);
+
+auto materials = rmg_man->RegisterNtuple(materialRegister,
+    ana_man->CreateNtuple("materials", "materials name mapping"));
+ana_man->CreateNtupleIColumn(materials, "materialsID");
+ana_man->CreateNtupleSColumn(materials, "materialNames");
+ana_man->FinishNtuple(materials);
 }
 
 void NeutronsOutputScheme::StoreEvent(const G4Event* event) {
@@ -118,32 +147,48 @@ void NeutronsOutputScheme::StoreEvent(const G4Event* event) {
   if (rmg_man->IsPersistencyEnabled()) { 
     RMGLog::OutDev(RMGLog::debug, "Filling persistent data vectors");
     const auto ana_man = G4AnalysisManager::Instance();
-    auto ntupleid = rmg_man->GetNtupleID(OutputRegisterID);
-    if (ntupleid < 0) {
-        G4cerr << "❌ ERROR: Invalid Ntuple ID! Data will not be saved." << G4endl;
-        // return;
-    }   
+    auto neutronsNTuple = rmg_man->GetNtupleID(neutronsRegister); 
 
     for (size_t i = 0; i < globalTimes.size(); ++i) {
       int col_id = 0;
       // Output: Was Ge77 produced in this event?
-      ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID());
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getX()/u::m);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getY()/u::m);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexPositions[i].getZ()/u::m);  // Standard Einheit ist mm, bei Definition mit Einheit in m *u::m -> mal 1000, bei Abfrage des Wertes in m /u::m -> geteilt durch 1000 für Rückrechnung
+      ana_man->FillNtupleIColumn(neutronsNTuple, col_id++, event->GetEventID());
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexPositions[i].getX()/u::m);
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexPositions[i].getY()/u::m);
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexPositions[i].getZ()/u::m);  // Standard Einheit ist mm, bei Definition mit Einheit in m *u::m -> mal 1000, bei Abfrage des Wertes in m /u::m -> geteilt durch 1000 für Rückrechnung
       // Füge hinzu : Kinetische Energie, Zeitpunkt der Entstehung (global, also seitdem das Muon erzeugt wurde), Impulsvektor (x, y, z), kinetische Energie
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getX());
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getY());
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexMomentums[i].getZ()); 
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, globalTimes[i]);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, vertexKineticEnergies[i]/u::keV);
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexMomentums[i].getX()/(u::m/u::s));
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexMomentums[i].getY()/(u::m/u::s));
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexMomentums[i].getZ()/(u::m/u::s)); 
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, globalTimes[i]);
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexKineticEnergies[i]/u::keV);
       //Volumen und Material:
-      ana_man->FillNtupleIColumn(ntupleid, col_id++, physicalVolumes[i]);
-      ana_man->FillNtupleIColumn(ntupleid, col_id++, materials[i]);
+      ana_man->FillNtupleIColumn(neutronsNTuple, col_id++, physicalVolumes[i]);
+      ana_man->FillNtupleIColumn(neutronsNTuple, col_id++, materials[i]);
       // Ge77Flag
-      ana_man->FillNtupleIColumn(ntupleid, col_id++, fGe77Produced);
+      ana_man->FillNtupleIColumn(neutronsNTuple, col_id++, fGe77Produced);
       // Startet neue Reihe in Output
-      ana_man->AddNtupleRow(ntupleid);
+      ana_man->AddNtupleRow(neutronsNTuple);
+    }
+
+    if (fPhysVolumeMapping) {
+      auto physVolumesNTuple = rmg_man->GetNtupleID(physVolRegister);
+      for (size_t i = 0; i < physicalVolumeMappingIDs.size(); ++i) {
+        int col_id = 0;
+        ana_man->FillNtupleIColumn(physVolumesNTuple, col_id++, physicalVolumeMappingIDs[i]);
+        ana_man->FillNtupleSColumn(physVolumesNTuple, col_id++, physicalVolumeMappingNames[i]);
+        ana_man->AddNtupleRow(physVolumesNTuple);
+      }
+    }
+
+    if (fMaterialMapping) {
+      auto materialsNTuple = rmg_man->GetNtupleID(materialRegister);
+      for (size_t i = 0; i < physicalVolumeMappingIDs.size(); ++i) {
+        int col_id = 0;
+        ana_man->FillNtupleIColumn(materialsNTuple, col_id++, materialMappingIDs[i]);
+        ana_man->FillNtupleSColumn(materialsNTuple, col_id++, materialMappingNames[i]);
+        ana_man->AddNtupleRow(materialsNTuple);
+      }
     }
   }
 }

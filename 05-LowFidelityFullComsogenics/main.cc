@@ -5,13 +5,16 @@
 #include "CosmogenicPhysics.hh"
 #include "CustomIsotopeFilter.hh"
 #include "CustomMUSUNGenerator.hh"
+#include "CustomNeutronGenerator.hh"
 #include "HardwareQEOverride.hh"
 #include "RNGTrackingAction.hh"
 #include "RMGIsotopeFilterOutputScheme.hh"
 #include "CosmogenicOutputScheme.hh"
 #include "NeutronsOutputScheme.hh"
+#include "LowFidelityOutputScheme.hh"
 #include "MyGe77EventFilterOutputScheme.hh"
 #include "MyTrackInfo.hh"
+#include "MyRunMappingAction.hh"
 #include "G4VUserEventInformation.hh"
 
 #include <fstream>
@@ -57,6 +60,7 @@ int main(int argc, char **argv) {
   int rngFlag = 0;
   bool useCosmogenicOutputScheme = false;
   bool useNeutronsOutputScheme = false;
+  bool fLowFidelity = false;
 
   app.add_option("-m,--macro", macroName,
                  "<Geant4 macro filename> Default: None");
@@ -65,6 +69,7 @@ int main(int argc, char **argv) {
   app.add_option("-r,--rng", rngFlag, "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
   app.add_flag("-c,--cosmogenic", useCosmogenicOutputScheme, "Use CosmogenicOutputScheme");
   app.add_flag("-n,--neutrons", useNeutronsOutputScheme, "Use NeutronsOutputScheme");
+  app.add_flag("-lf, --lowfidelity", fLowFidelity , "Low Fidelity Output Scheme");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -117,9 +122,14 @@ int main(int argc, char **argv) {
   }
 
   if (useNeutronsOutputScheme) {
-    user_init->AddSteppingAction<MySteppingAction>();
+    // user_init->AddSteppingAction<MySteppingAction>();
     user_init->AddOptionalOutputScheme<NeutronsOutputScheme>("NeutronsOutputScheme");
     user_init->AddOptionalOutputScheme<MyGe77EventFilterOutputScheme>("MyGe77EventFilterOutputScheme");
+  }
+
+  if (fLowFidelity) {
+    user_init->AddOptionalOutputScheme<LowFidelityOutputScheme>("LowFidelityOutputScheme");
+    user_init->SetUserGenerator<CustomNeutronGenerator>();
   }
 
   // Interactive or batch mode?
@@ -134,6 +144,8 @@ int main(int argc, char **argv) {
   man.EnablePersistency();
   man.SetNumberOfThreads(16);
   man.Initialize();
+  MyRunMappingAction* runAction = new MyRunMappingAction();
+  run_man->SetUserAction(runAction);
   man.Run();
 
   return 0;

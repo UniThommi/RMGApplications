@@ -33,7 +33,7 @@ std::mutex MyRunMappingAction::_m;
 void MyRunMappingAction::BeginOfRunAction(const G4Run* aRun) {
     // Get Physical Volume and Material Mapping
     std::lock_guard<std::mutex> guard(MyRunMappingAction::_m);
-    G4cout << "BeginOfRunAction: Hole Mappings" << G4endl;
+    G4cout << "BeginOfRunAction: Get Mappings" << G4endl;
     MyRunMappingAction::ReadComponentMapping(&MyRunMappingAction::physVolumeMapping, physVolumeFile);
     MyRunMappingAction::FindMaxID(&MyRunMappingAction::physVolumeMapping, &MyRunMappingAction::maxIDPhysVolume);
 
@@ -44,26 +44,26 @@ void MyRunMappingAction::BeginOfRunAction(const G4Run* aRun) {
 
 void MyRunMappingAction::EndOfRunAction(const G4Run* aRun) {
     std::lock_guard<std::mutex> guard(MyRunMappingAction::_m);
-    G4cout << "EndOfRunAction: Schreibe Mappings weg" << G4endl;
+    G4cout << "EndOfRunAction: Write Mappings" << G4endl;
     MyRunMappingAction::WriteComponentMapping(&MyRunMappingAction::physVolumeMapping, physVolumeFile);
     MyRunMappingAction::WriteComponentMapping(&MyRunMappingAction::materialMapping, materialFile);   
 }
 
 G4int MyRunMappingAction::GetPhysVolumeMappingID(G4String G4PhysVolumeName) {
+    std::lock_guard<std::mutex> guard(MyRunMappingAction::_m);
     std::string physVolumeName = static_cast<std::string>(G4PhysVolumeName);
     bool found = MyRunMappingAction::SearchMapping(&MyRunMappingAction::physVolumeMapping, physVolumeName, &MyRunMappingAction::physVolumeMappingID);
     if (!found) {
-        std::lock_guard<std::mutex> guard(MyRunMappingAction::_m);
         MyRunMappingAction::InsertMapping(&MyRunMappingAction::physVolumeMapping, physVolumeName, &MyRunMappingAction::physVolumeMappingID, &MyRunMappingAction::maxIDPhysVolume);
     }
     return static_cast<G4int>(MyRunMappingAction::physVolumeMappingID);
 }
 
 G4int MyRunMappingAction::GetMaterialMappingID(G4String G4materialName) {
+    std::lock_guard<std::mutex> guard(MyRunMappingAction::_m);
     std::string materialName = static_cast<std::string>(G4materialName);
     bool found = MyRunMappingAction::SearchMapping(&MyRunMappingAction::materialMapping, materialName, &MyRunMappingAction::materialMappingID);
     if (!found) {
-        std::lock_guard<std::mutex> guard(MyRunMappingAction::_m);
         MyRunMappingAction::InsertMapping(&MyRunMappingAction::materialMapping, materialName, &MyRunMappingAction::materialMappingID, &MyRunMappingAction::maxIDMaterial);
     }
     return static_cast<G4int>(MyRunMappingAction::materialMappingID);
