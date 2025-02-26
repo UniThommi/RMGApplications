@@ -52,7 +52,7 @@ std::vector<std::string> getPMTNames(std::string filename) {
 
 int main(int argc, char **argv) {
   CLI::App app{"Cosmogenic Simulations"};
-  int nthreads = 16;
+  int nThreads = 256;
   std::string macroName;
   int rngFlag = 0;
   bool useCosmogenicOutputScheme = false;
@@ -60,8 +60,8 @@ int main(int argc, char **argv) {
 
   app.add_option("-m,--macro", macroName,
                  "<Geant4 macro filename> Default: None");
-  app.add_option("-t, --nthreads", nthreads,
-                 "<number of threads to use> Default: 16");
+  app.add_option("-t, --nthreads", nThreads,
+                 "<number of threads to use> Default: 256");
   app.add_option("-r,--rng", rngFlag, "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
   app.add_flag("-c,--cosmogenic", useCosmogenicOutputScheme, "Use CosmogenicOutputScheme");
   app.add_flag("-n,--neutrons", useNeutronsOutputScheme, "Use NeutronsOutputScheme");
@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
         "CustomIsotopeFilter");
     user_init->AddTrackingAction<RNGTrackingAction>();
     user_init->SetUserGenerator<CustomMUSUNGenerator>();
-    run_man->SetNumberOfThreads(16);
+    run_man->SetNumberOfThreads(nThreads);
     man.SetUserInit(new CosmogenicPhysics());
     if(rngFlag == 1)
       outputfilename = "build/output.csv";
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
   
   man.SetOutputFileName(outputfilename);
   man.EnablePersistency();
-  man.SetNumberOfThreads(16);
+  man.SetNumberOfThreads(nThreads);
   man.Initialize();
   man.Run();
 
