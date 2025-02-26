@@ -54,7 +54,6 @@ void NeutronsOutputScheme::TrackingActionPre(const G4Track* aTrack) {
 
   // Schaue ob gen1NeutronID des Tracks in killableIDs ist. Wenn ja kille Track.
   if (info == G4Neutron::NeutronDefinition()) {
-    G4cout << "Debug: Teilchen ist Neutron mit Gen1NeutronID " << trackInfo->MyTrackInfo::GetGen1NeutronID() << G4endl;
     // Check if MyTrackInfo exists and if the gen1NeutronID is -1 (indicating first-generation neutron)
     if (trackInfo && trackInfo->MyTrackInfo::GetGen1NeutronID() == -1) {
         // Set the gen1NeutronID to the current neutron's TrackID (this is the first-generation neutron)
