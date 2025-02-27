@@ -43,11 +43,13 @@ void LowFidelityOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
 
   ana_man->CreateNtupleIColumn(id, "evtid");
   // Create column structure to safe data
+  ana_man->CreateNtupleIColumn(id, "PMT_uid");
   ana_man->CreateNtupleDColumn(id, "hit_time_in_s");
   ana_man->CreateNtupleDColumn(id, "x_hit_position_in_m");
   ana_man->CreateNtupleDColumn(id, "y_hit_position_in_m");
   ana_man->CreateNtupleDColumn(id, "z_hit_position_in_m");
-  ana_man->CreateNtupleDColumn(id, "hit_energy_deposition_in_keV");
+  ana_man->CreateNtupleDColumn(id, "hit_wavelength_in_nm");
+  // ana_man->CreateNtupleDColumn(id, "hit_energy_deposition_in_keV");
   ana_man->CreateNtupleIColumn(id, "physical_volume_id_of_N_creation");
   ana_man->CreateNtupleIColumn(id, "material_of_N_creation");
   ana_man->CreateNtupleIColumn(id, "Ge77_produced_in_muon_event");
@@ -83,7 +85,7 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
 
           hitPMTUID = hit->detector_uid;   // FIX Füge Name das PMTs hinzu. Mit Mapping?
           hitTimes = hit->global_time;
-          hitWaveLength = hit->photon_wavelength;
+          hitWaveLengths = hit->photon_wavelength;
           // hitEnergie = FIX: Berechne Energie aus Wellenlänge
       }
   }
@@ -106,8 +108,9 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
       int col_id = 0;
       // Output: Was Ge77 produced in this event?
       ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID());
+      ana_man->FillNtupleIColumn(ntupleid, col_id++, hitPMTUID[i]);
       ana_man->FillNtupleDColumn(ntupleid, col_id++, hitTimes[i]);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, hitEnergieDepositions[i]/u::keV);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, hitWaveLengths[i]/u::nm);
       // Neutroneninfo:
       ana_man->FillNtupleIColumn(ntupleid, col_id++, neutronPhysicalVolume);
       ana_man->FillNtupleIColumn(ntupleid, col_id++, neutronMaterial);

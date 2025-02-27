@@ -55,7 +55,7 @@ std::vector<std::string> getPMTNames(std::string filename) {
 
 int main(int argc, char **argv) {
   CLI::App app{"Cosmogenic Simulations"};
-  int nthreads = 16;
+  int nTreads = 256;
   std::string macroName;
   int rngFlag = 0;
   bool useCosmogenicOutputScheme = false;
@@ -64,8 +64,8 @@ int main(int argc, char **argv) {
 
   app.add_option("-m,--macro", macroName,
                  "<Geant4 macro filename> Default: None");
-  app.add_option("-t, --nthreads", nthreads,
-                 "<number of threads to use> Default: 16");
+  app.add_option("-t, --nthreads", nThreads,
+                 "<number of threads to use> Default: 256");
   app.add_option("-r,--rng", rngFlag, "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
   app.add_flag("-c,--cosmogenic", useCosmogenicOutputScheme, "Use CosmogenicOutputScheme");
   app.add_flag("-n,--neutrons", useNeutronsOutputScheme, "Use NeutronsOutputScheme");
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
   
   man.SetOutputFileName(outputfilename);
   man.EnablePersistency();
-  man.SetNumberOfThreads(16);
+  man.SetNumberOfThreads(nTreads);
   man.Initialize();
   MyRunMappingAction* runAction = new MyRunMappingAction();
   run_man->SetUserAction(runAction);

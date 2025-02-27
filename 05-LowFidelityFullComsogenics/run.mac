@@ -26,7 +26,8 @@
 #/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
 /RMG/Generator/Select NeutronsDistribution
-/Cosmogenics/Generator/SetMUSUNFile neutrons/distribution_file.csv
+/Cosmogenics/Generator/SetNeutronsFile neutrons/distribution_file.hdf5
+
 
 #/RMG/Generator/Select GPS
 #/gps/particle mu-

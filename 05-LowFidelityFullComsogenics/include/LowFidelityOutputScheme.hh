@@ -39,8 +39,10 @@ class LowFidelityOutputScheme : public RMGVOutputScheme {
 
 
     // Neutron Parameter
+    std::vector<G4int> hitPMTUID;
     std::vector<G4double> hitTimes;
-    std::vector<G4double> hitEnergieDepositions;
+    std::vector<G4double> hitWaveLengths;
+    //std::vector<G4double> hitEnergieDepositions;
     <G4int> neutronPhysicalVolume;
     <G4int> neutronMaterial;
     <G4int> fNeutronGe77; // Ist in dem Neutronschauer, in dem das Primary Neutron produziert wurde, Ge77 entstanden?
