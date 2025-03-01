@@ -50,6 +50,8 @@ void LowFidelityOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   ana_man->CreateNtupleDColumn(id, "z_hit_position_in_m");
   ana_man->CreateNtupleDColumn(id, "hit_wavelength_in_nm");
   // ana_man->CreateNtupleDColumn(id, "hit_energy_deposition_in_keV");
+  // Wo wurde Neutron gecaptchured in Zusammenhang mit Licht -> Photon auf Neutron zurückführen
+  // Für Neutron captchure:  
   ana_man->CreateNtupleIColumn(id, "physical_volume_id_of_N_creation");
   ana_man->CreateNtupleIColumn(id, "material_of_N_creation");
   ana_man->CreateNtupleIColumn(id, "Ge77_produced_in_muon_event");

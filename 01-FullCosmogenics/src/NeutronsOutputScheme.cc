@@ -61,7 +61,7 @@ void NeutronsOutputScheme::TrackingActionPre(const G4Track* aTrack) {
 
         // Push Data
         vertexPositions.push_back(aTrack->GetVertexPosition()); // Save the locations of Neutrons creation
-        vertexMomentums.push_back(aTrack->GetMomentum());
+        vertexMomentums.push_back(aTrack->GetMomentumDirection());
         globalTimes.push_back(aTrack->GetGlobalTime());
         vertexKineticEnergies.push_back(aTrack->GetVertexKineticEnergy());
         // In welchem Volumen erzeugt? Nicht als string ausgeben sondern als int 
@@ -112,9 +112,9 @@ void NeutronsOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   ana_man->CreateNtupleDColumn(neutronsNTuple, "x_position_in_m");
   ana_man->CreateNtupleDColumn(neutronsNTuple, "y_position_in_m");
   ana_man->CreateNtupleDColumn(neutronsNTuple, "z_position_in_m");
-  ana_man->CreateNtupleDColumn(neutronsNTuple, "x_momentum_in_m_s");
-  ana_man->CreateNtupleDColumn(neutronsNTuple, "y_momentum_in_m_s");
-  ana_man->CreateNtupleDColumn(neutronsNTuple, "z_momentum_in_m_s");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "x_momentum_direction");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "y_momentum_direction");
+  ana_man->CreateNtupleDColumn(neutronsNTuple, "z_momentum_direction");
   ana_man->CreateNtupleDColumn(neutronsNTuple, "global_time");
   ana_man->CreateNtupleDColumn(neutronsNTuple, "kinetic_energy_in_keV");
   ana_man->CreateNtupleIColumn(neutronsNTuple, "physical_volume_id_of_N_creation");
@@ -156,9 +156,9 @@ void NeutronsOutputScheme::StoreEvent(const G4Event* event) {
       ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexPositions[i].getY()/u::m);
       ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexPositions[i].getZ()/u::m);  // Standard Einheit ist mm, bei Definition mit Einheit in m *u::m -> mal 1000, bei Abfrage des Wertes in m /u::m -> geteilt durch 1000 für Rückrechnung
       // Füge hinzu : Kinetische Energie, Zeitpunkt der Entstehung (global, also seitdem das Muon erzeugt wurde), Impulsvektor (x, y, z), kinetische Energie
-      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexMomentums[i].getX()/(u::m/u::s));
-      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexMomentums[i].getY()/(u::m/u::s));
-      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexMomentums[i].getZ()/(u::m/u::s)); 
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexMomentums[i].getX());
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexMomentums[i].getY());
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexMomentums[i].getZ()); 
       ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, globalTimes[i]);
       ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, vertexKineticEnergies[i]/u::keV);
       //Volumen und Material:

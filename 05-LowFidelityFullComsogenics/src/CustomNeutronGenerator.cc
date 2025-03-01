@@ -58,18 +58,11 @@ void CustomNeutronGenerator::BeginOfRunAction(const G4Run*) {
 void CustomNeutronGenerator::GeneratePrimaries(G4Event *event) {
     G4int currentEventID = event->GetEventID();      
 
+    int index = currentEventID;
+
     G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
 
     fGun->SetParticleDefinition(theParticleTable->FindParticle("neutron"));
-
-    int index = -1;  // Standardwert, falls nicht gefunden
-
-    for (size_t i = 0; i < evtid.size(); ++i) {
-        if (evtid[i] == currentEventID) {
-            index = i;
-            break;  // Stoppt die Suche beim ersten Treffer
-        }
-    }
 
     G4ThreeVector Position(x[index], y[index], z[index]);
     G4ThreeVector momentumDir(px[index], py[index], pz[index]);
@@ -77,6 +70,7 @@ void CustomNeutronGenerator::GeneratePrimaries(G4Event *event) {
     fGun->SetParticlePosition(Position);
     fGun->SetParticleMomentumDirection(momentumDir);
     fGun->SetParticleEnergy(eKin[index]);
+    fGun->SetParticleTime(time[index]) // FIX in vectoren
 
     // Erstelle das Vertex und speichere die Flag als UserInfo
     G4PrimaryVertex* vertex = new G4PrimaryVertex(Position, 0);
