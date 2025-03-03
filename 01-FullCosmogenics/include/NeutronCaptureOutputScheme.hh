@@ -1,5 +1,5 @@
-#ifndef _NEUTRONS_OUTPUT_SCHEME_HH_
-#define _NEUTRONS_OUTPUT_SCHEME_HH_
+#ifndef _NEUTRON_CAPTURE_OUTPUT_SCHEME_HH_
+#define _NEUTRON_CAPTURE_OUTPUT_SCHEME_HH_
 
 #include <optional>
 #include <set>
@@ -14,12 +14,12 @@
 
 
 class G4Event;
-class NeutronsOutputScheme : public RMGVOutputScheme {
+class NeutronCaptureOutputScheme : public RMGVOutputScheme {
 
   public:
 
-    NeutronsOutputScheme();
-    ~NeutronsOutputScheme();
+    NeutronCaptureOutputScheme();
+    ~NeutronCaptureOutputScheme();
     
 
     void ClearBeforeEvent() override;
@@ -48,16 +48,15 @@ class NeutronsOutputScheme : public RMGVOutputScheme {
     std::map<std::string, int> physVolumeMapping;
     std::map<std::string, int> materialMapping;
 
-    // Ge77 Flag für Event (1 Muon):
-    G4bool fGe77Produced = false; // True -> Ge77 wurde produziert.
-
     // Neutron Parameter
-    std::vector<G4ThreeVector> vertexPositions;
-    std::vector<G4ThreeVector> vertexMomentums;
+    std::vector<G4ThreeVector> gammaPositions;
+    std::vector<G4ThreeVector> gammaMomentumDirections;
     std::vector<G4double> globalTimes;
-    std::vector<G4double> vertexKineticEnergies;
-    std::vector<G4int> physicalVolumes;
-    std::vector<G4int> materials;
+    std::vector<G4double> gammaKinEnergies;
+    std::vector<G4int> nCNeutronID;
+    std::vector<G4int> nCPhysicalVolumes;
+    std::vector<G4int> nCMaterials;
+    std::vector<G4bool> fGe77; // True -> Ge77 wurde produziert.
 
 
     // Mapping Vektoren

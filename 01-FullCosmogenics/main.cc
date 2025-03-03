@@ -9,8 +9,7 @@
 #include "RNGTrackingAction.hh"
 #include "RMGIsotopeFilterOutputScheme.hh"
 #include "CosmogenicOutputScheme.hh"
-#include "NeutronsOutputScheme.hh"
-#include "MyGe77EventFilterOutputScheme.hh"
+#include "NeutronCaptureOutputScheme.hh"
 #include "MyTrackInfo.hh"
 #include "G4VUserEventInformation.hh"
 
@@ -56,7 +55,7 @@ int main(int argc, char **argv) {
   std::string macroName;
   int rngFlag = 0;
   bool useCosmogenicOutputScheme = false;
-  bool useNeutronsOutputScheme = false;
+  bool useNeutronCaptureOutputScheme = false;
 
   app.add_option("-m,--macro", macroName,
                  "<Geant4 macro filename> Default: None");
@@ -64,15 +63,15 @@ int main(int argc, char **argv) {
                  "<number of threads to use> Default: 256");
   app.add_option("-r,--rng", rngFlag, "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
   app.add_flag("-c,--cosmogenic", useCosmogenicOutputScheme, "Use CosmogenicOutputScheme");
-  app.add_flag("-n,--neutrons", useNeutronsOutputScheme, "Use NeutronsOutputScheme");
+  app.add_flag("-n,--neutrons", useNeutronCaptureOutputScheme, "Use NeutronCaptureOutputScheme");
 
   CLI11_PARSE(app, argc, argv);
 
   // RMGLog::SetLogLevel(RMGLog::debug);
 
-  std::string filename = "gdml/L1000V0.gdml";
+  std::string filename = "code/sim/RMGApplications/01-FullCosmogenics/gdml/L1000V0.gdml";
 
-  std::string outputfilename = "build/output.hdf5";
+  std::string outputfilename = "code/sim/RMGApplications/01-FullCosmogenics/build/output.hdf5";
 
   RMGManager man("FullCosmogenics", argc, argv);  // RMGManager ist ein singleton.
   // Overwrite the standard Hardware with one that reads
@@ -107,19 +106,18 @@ int main(int argc, char **argv) {
     run_man->SetNumberOfThreads(nThreads);
     man.SetUserInit(new CosmogenicPhysics());
     if(rngFlag == 1)
-      outputfilename = "build/output.csv";
+      outputfilename = "code/sim/RMGApplications/01-FullCosmogenics/build/output.csv";
     else
-      outputfilename = "build/RestoredOutput.hdf5";
+      outputfilename = "code/sim/RMGApplications/01-FullCosmogenics/build/RestoredOutput.hdf5";
   }
 
   if (useCosmogenicOutputScheme) {
     user_init->AddOptionalOutputScheme<CosmogenicOutputScheme>("CosmogenicOutputScheme");
   }
 
-  if (useNeutronsOutputScheme) {
+  if (useNeutronCaptureOutputScheme) {
     user_init->AddSteppingAction<MySteppingAction>();
-    user_init->AddOptionalOutputScheme<NeutronsOutputScheme>("NeutronsOutputScheme");
-    user_init->AddOptionalOutputScheme<MyGe77EventFilterOutputScheme>("MyGe77EventFilterOutputScheme");
+    user_init->AddOptionalOutputScheme<NeutronCaptureOutputScheme>("NeutronCaptureOutputScheme");
   }
 
   // Interactive or batch mode?

@@ -5,8 +5,7 @@
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
 /RMG/Processes/OpticalPhysics false #für Neutronen generieren
-/RMG/Output/ActivateOutputScheme NeutronsOutputScheme
-/RMG/Output/ActivateOutputScheme MyGe77EventFilterOutputScheme
+/RMG/Output/ActivateOutputScheme NeutronCaptureOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 /run/initialize
 
@@ -19,7 +18,7 @@
 /RMG/Generator/Confine UnConfined
 
 /RMG/Generator/Select MUSUNCosmicMuons
-/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
+/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile code/sim/RMGApplications/01-FullCosmogenics/musun/combined_file.dat
 
 #/RMG/Generator/Select CustomMUSUN
 #/Cosmogenics/Generator/SetMUSUNFile musun/combined_file.dat
