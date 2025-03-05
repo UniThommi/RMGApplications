@@ -69,9 +69,9 @@ int main(int argc, char **argv) {
 
   // RMGLog::SetLogLevel(RMGLog::debug);
 
-  std::string filename = "code/sim/RMGApplications/01-FullCosmogenics/gdml/L1000V0.gdml";
+  std::string filename = "gdml/L1000V0.gdml";
 
-  std::string outputfilename = "code/sim/RMGApplications/01-FullCosmogenics/build/output.hdf5";
+  std::string outputfilename = "build/output.hdf5";
 
   RMGManager man("FullCosmogenics", argc, argv);  // RMGManager ist ein singleton.
   // Overwrite the standard Hardware with one that reads
@@ -106,9 +106,9 @@ int main(int argc, char **argv) {
     run_man->SetNumberOfThreads(nThreads);
     man.SetUserInit(new CosmogenicPhysics());
     if(rngFlag == 1)
-      outputfilename = "code/sim/RMGApplications/01-FullCosmogenics/build/output.csv";
+      outputfilename = "build/output.csv";
     else
-      outputfilename = "code/sim/RMGApplications/01-FullCosmogenics/build/RestoredOutput.hdf5";
+      outputfilename = "build/RestoredOutput.hdf5";
   }
 
   if (useCosmogenicOutputScheme) {
