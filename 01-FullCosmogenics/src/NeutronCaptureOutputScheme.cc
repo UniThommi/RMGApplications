@@ -12,7 +12,7 @@
 #include "G4HCtable.hh"
 #include "G4OpticalPhoton.hh"
 #include "G4SDManager.hh"
-#include "G4Neutron.hh"
+#include "G4Gamma.hh"
 
 #include "MyTrackInfo.hh"
 #include "RMGHardware.hh"
@@ -28,13 +28,13 @@ NeutronCaptureOutputScheme::NeutronCaptureOutputScheme() {
 NeutronCaptureOutputScheme::~NeutronCaptureOutputScheme() {};
 
 void NeutronCaptureOutputScheme::ClearBeforeEvent() {
+  nCNeutronID.clear();
   gammaPositions.clear();
   gammaMomentumDirections.clear();
   globalTimes.clear();
   gammaKinEnergies.clear();
-  nCNeutronID.clear();
-  nCPhysicalVolumes.clear();
-  nCMaterials.clear();
+  gammaPhysicalVolumes.clear();
+  gammaMaterials.clear();
   fGe77.clear();
 
   physicalVolumeMappingIDs.clear();
@@ -48,44 +48,50 @@ void NeutronCaptureOutputScheme::ClearBeforeEvent() {
 
 // Need information of isotop creation here as well. Could also get from other IsotopeFilterOutputscheme.
 void NeutronCaptureOutputScheme::TrackingActionPre(const G4Track* aTrack) {
-  // Initialisieren der Track Info
-  G4int eventID = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-  G4int trackID = aTrack->GetTrackID();
-
-  if (aTrack->GetParticleDefinition() == G4Neutron::Definition()) {
-    MyTrackInfo* trackInfo = dynamic_cast<MyTrackInfo*>(aTrack->GetUserInformation());
-
-    if (!trackInfo) {
-      trackInfo = new MyTrackInfo(eventID, trackID);  // Track-ID als eindeutige ID speichern
-      const_cast<G4Track*>(aTrack)->SetUserInformation(trackInfo);
-    }
-
-    // Daten in OutputScheme sammeln.
-    for (size_t i = 0; i < trackInfo->GetGammaPosition().size(); ++i) {
-      gammaPositions.push_back(trackInfo->GetGammaPosition()[i]);
-      gammaMomentumDirections.push_back(trackInfo->GetGammaMomentumDirection()[i]);
-      gammaKinEnergies.push_back(trackInfo->GetGammaKinEnergy()[i]);
-      globalTimes.push_back(trackInfo->GetnCTime()[i]); 
-      fGe77.push_back(trackInfo->GetfGe77()[i]);
-      nCNeutronID.push_back(trackID);
-
-      std::string physVolumeName = trackInfo->GetnCPhysVolume()[i];    
-      if (physVolumeMapping.find(physVolumeName) == physVolumeMapping.end()) {
-        physVolumeMapping.emplace(physVolumeName, physVolumeMapping.size());
-        physicalVolumeMappingNames.push_back(physVolumeName);
-        physicalVolumeMappingIDs.push_back(physVolumeMapping[physVolumeName]);
-        fPhysVolumeMapping = true;
+  if (aTrack->GetParticleDefinition() == G4Gamma::Definition()) {
+    // Initialisieren der Track Info
+    auto* trackInfo = dynamic_cast<MyTrackInfo*>(aTrack->GetUserInformation());
+    if (trackInfo && trackInfo->GetnCNeutronID() != -1) {
+      // Push Data
+      G4cout << "Pushe Gamma Daten" << G4endl;
+      nCNeutronID.push_back(trackInfo->GetnCNeutronID());
+      gammaPositions.push_back(aTrack->GetVertexPosition()); // Save the locations of Neutrons creation
+      gammaMomentumDirections.push_back(aTrack->GetMomentumDirection());
+      globalTimes.push_back(aTrack->GetGlobalTime());
+      gammaKinEnergies.push_back(aTrack->GetVertexKineticEnergy());
+      // In welchem Volumen erzeugt? Nicht als string ausgeben sondern als int 
+      const G4VPhysicalVolume* physicalVolume = aTrack->GetVolume();
+      int physVolumeID = -1;
+      int materialID = -1;
+      if (physicalVolume) {
+      // Volumenname und Materialname ermitteln
+        std::string physVolumeName = physicalVolume->GetName();
+        
+        if (physVolumeMapping.find(physVolumeName) == physVolumeMapping.end()) {
+          physVolumeMapping.emplace(physVolumeName, physVolumeMapping.size());
+          physicalVolumeMappingNames.push_back(physVolumeName);
+          physicalVolumeMappingIDs.push_back(physVolumeMapping[physVolumeName]);
+          fPhysVolumeMapping = true;
+        }
+        physVolumeID = physVolumeMapping[physVolumeName];
+        
+        G4Material* material = physicalVolume->GetLogicalVolume()->GetMaterial();
+        if (material) {
+          std::string materialName = material->GetName();
+        
+          if (materialMapping.find(materialName) == materialMapping.end()) {
+            materialMapping.emplace(materialName, materialMapping.size());
+            materialMappingNames.push_back(materialName);
+            materialMappingIDs.push_back(materialMapping[materialName]);
+            fMaterialMapping = true;
+          }
+          materialID = materialMapping[materialName];
+        }
       }
-      nCPhysicalVolumes.push_back(physVolumeMapping[physVolumeName]);
-
-      std::string materialName = trackInfo->GetnCMaterial()[i];
-      if (materialMapping.find(materialName) == materialMapping.end()) {
-        materialMapping.emplace(materialName, materialMapping.size());
-        materialMappingNames.push_back(materialName);
-        materialMappingIDs.push_back(materialMapping[materialName]);
-        fMaterialMapping = true;
-      }
-      nCMaterials.push_back(materialMapping[materialName]);
+      gammaPhysicalVolumes.push_back(physVolumeID);
+      gammaMaterials.push_back(materialID);
+      fGe77.push_back(trackInfo->GetnCfGe77());
+      const_cast<G4Track*>(aTrack)->SetTrackStatus(fStopAndKill);
     }
   }
 }
@@ -116,15 +122,15 @@ void NeutronCaptureOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
 
   auto physVol = rmg_man->RegisterNtuple(physVolRegister,
     ana_man->CreateNtuple("physVolumes", "physVolumes name mapping"));
-ana_man->CreateNtupleIColumn(physVol, "physVolumesID");
-ana_man->CreateNtupleSColumn(physVol, "physVolumeNames");
-ana_man->FinishNtuple(physVol);
+  ana_man->CreateNtupleIColumn(physVol, "physVolumesID");
+  ana_man->CreateNtupleSColumn(physVol, "physVolumeNames");
+  ana_man->FinishNtuple(physVol);
 
-auto materials = rmg_man->RegisterNtuple(materialRegister,
+  auto materials = rmg_man->RegisterNtuple(materialRegister,
     ana_man->CreateNtuple("materials", "materials name mapping"));
-ana_man->CreateNtupleIColumn(materials, "materialsID");
-ana_man->CreateNtupleSColumn(materials, "materialNames");
-ana_man->FinishNtuple(materials);
+  ana_man->CreateNtupleIColumn(materials, "materialsID");
+  ana_man->CreateNtupleSColumn(materials, "materialNames");
+  ana_man->FinishNtuple(materials);
 }
 
 void NeutronCaptureOutputScheme::StoreEvent(const G4Event* event) {
@@ -149,8 +155,8 @@ void NeutronCaptureOutputScheme::StoreEvent(const G4Event* event) {
       ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, globalTimes[i]);
       ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, gammaKinEnergies[i]/u::keV);
       //Volumen und Material:
-      ana_man->FillNtupleIColumn(neutronsNTuple, col_id++, nCPhysicalVolumes[i]);
-      ana_man->FillNtupleIColumn(neutronsNTuple, col_id++, nCMaterials[i]);
+      ana_man->FillNtupleIColumn(neutronsNTuple, col_id++, gammaPhysicalVolumes[i]);
+      ana_man->FillNtupleIColumn(neutronsNTuple, col_id++, gammaMaterials[i]);
       // Ge77Flag
       ana_man->FillNtupleIColumn(neutronsNTuple, col_id++, fGe77[i]);
       // Startet neue Reihe in Output
@@ -169,7 +175,7 @@ void NeutronCaptureOutputScheme::StoreEvent(const G4Event* event) {
 
     if (fMaterialMapping) {
       auto materialsNTuple = rmg_man->GetNtupleID(materialRegister);
-      for (size_t i = 0; i < physicalVolumeMappingIDs.size(); ++i) {
+      for (size_t i = 0; i < materialMappingIDs.size(); ++i) {
         int col_id = 0;
         ana_man->FillNtupleIColumn(materialsNTuple, col_id++, materialMappingIDs[i]);
         ana_man->FillNtupleSColumn(materialsNTuple, col_id++, materialMappingNames[i]);

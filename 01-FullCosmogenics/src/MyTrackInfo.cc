@@ -5,106 +5,76 @@
 #include "G4ParticleTypes.hh"
 #include "G4VProcess.hh"
 #include "G4RunManager.hh"
-
+#include "G4Neutron.hh"
 
 // Constructor initializes track IDs
-MyTrackInfo::MyTrackInfo(G4int evtID, G4int trkID) 
-    : eventID(evtID), trackID(trkID) {}
+MyTrackInfo::MyTrackInfo(G4int neutronID, G4int fGe77) 
+    : nCNeutronID(neutronID), nCfGe77(fGe77) {}
 
-// Destruktor
+// Destructor
 MyTrackInfo::~MyTrackInfo() {}
 
+G4int MyTrackInfo::GetnCNeutronID() const { return nCNeutronID; }
+void MyTrackInfo::SetnCNeutronID(G4int neutronID) { nCNeutronID = neutronID; }
 
-G4int MyTrackInfo::GetEventID() const { return eventID; }
-G4int MyTrackInfo::GetTrackID() const { return trackID; }
+G4bool MyTrackInfo::GetnCfGe77() const { return nCfGe77; }
+void MyTrackInfo::SetnCfGe77(G4bool fGe77) { nCfGe77 = fGe77; }
 
-// Getter-Methoden
-std::vector<G4String> MyTrackInfo::GetnCPhysVolume() const {
-    return nCPhysVolume;
-}
-
-std::vector<G4String> MyTrackInfo::GetnCMaterial() const {
-    return nCMaterial;
-}
-
-std::vector<G4double> MyTrackInfo::GetnCTime() const {
-    return nCTime;
-}
-
-std::vector<G4int> MyTrackInfo::GetfGe77() const {
-    return fGe77;
-}
-
-
-std::vector<G4ThreeVector> MyTrackInfo::GetGammaPosition() const {
-    return gammaPosition;
-}
-
-std::vector<G4ThreeVector> MyTrackInfo::GetGammaMomentumDirection() const {
-    return gammaMomentumDirection;
-}
-
-std::vector<G4double> MyTrackInfo::GetGammaKinEnergy() const {
-    return gammaKinEnergy;
-}
-
-
-// Vererbung der Primary-ID und 1. Gen Neutron-ID. Für Muon Track wird 1. Gen Neutron-ID auf -1 gesetzt.
-// Speichere zudem Gamma Daten von Neutron Captures.
+// Inheriting Primary ID and 1st Gen Neutron ID. For Muon track, the 1st Gen Neutron ID is set to -1.
+// Also save Gamma data from Neutron captures.
 void MySteppingAction::UserSteppingAction(const G4Step* step) {
-     // Prüfe, ob das Prozessende ein Neutroneneinfang (nCapture) ist
-    G4StepPoint* postStepPoint = step->GetPostStepPoint();
     const G4Track* track = step->GetTrack();
 
+    if (track->GetParentID() == 0) { // Primary Particle
+        auto* info = new MyTrackInfo(-1, false);
+        track->SetUserInformation(info);
+    }
+
+    // Muon is the primary particle
+    const auto* userInfo = track->GetUserInformation();
+    if (!userInfo)  {
+        RMGLog::OutDev(RMGLog::error, "No user information for the track.");
+        return;
+    }
+
+    const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
+    if (!trackInfo) {
+        RMGLog::OutDev(RMGLog::error, "No valid track information in user info.");
+        return;
+    }
+
+    // Check if the process is neutron capture (nCapture)
+    G4StepPoint* postStepPoint = step->GetPostStepPoint();
+    const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
+    MyTrackInfo* nonConstTrackInfo = const_cast<MyTrackInfo*>(trackInfo);
     if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture") {
-        // Sicherstellen, dass das eingefangene Teilchen ein Neutron ist
+        // Ensure the captured particle is a neutron
         if (track->GetParticleDefinition() == G4Neutron::Definition()) {
             G4cout << "Neutron capture detected" << G4endl;
+            // Use const_cast to remove the const qualifier and modify the object
+            nonConstTrackInfo->SetnCNeutronID(track->GetTrackID());
 
-            G4TouchableHandle touchable = postStepPoint->GetTouchableHandle();
-            G4VPhysicalVolume* physVol = touchable->GetVolume();
-            G4Material* material = physVol->GetLogicalVolume()->GetMaterial();
-
-            // Holen der sekundären Teilchen (entstandene Gammas)
-            const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
-            int prod_Ge77 = 0;
+            // Flag set if Ge77 was produced.
             for (const auto& secTrack : *secondaries) {
                 const auto particle = secTrack->GetParticleDefinition();
                 if (particle->IsGeneralIon()) {
                     int z = particle->GetAtomicNumber();
                     int a = particle->GetAtomicMass();
-                    if (z == 32 && a == 77) { //Ge77?
-                        prod_Ge77 = 1;
+                    if (z == 32 && a == 77) { // Ge77?
+                        // Remove const qualifier to modify nCfGe77
+                        nonConstTrackInfo->SetnCfGe77(true);
                         G4cout << "Ge-77 erzeugt! 🎉" << G4endl;
                     }
                 }
             }
-
-            // Hole oder erstelle MyTrackInfo für den aktuellen Track
-            MyTrackInfo* trackInfo = dynamic_cast<MyTrackInfo*>(track->GetUserInformation());
-
-            if (!trackInfo) {
-                // Falls keine Instanz existiert, erstelle eine neue
-                G4int eventID = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-                G4int trackID = track->GetTrackID();
-                trackInfo = new MyTrackInfo(eventID, trackID);
-                const_cast<G4Track*>(track)->SetUserInformation(trackInfo);
-            }
-
-            for (const auto& secTrack : *secondaries) {
-                if (secTrack->GetParticleDefinition() == G4Gamma::Definition()) {
-                    trackInfo->GetnCPhysVolume().push_back(physVol->GetName());
-                    trackInfo->GetnCMaterial().push_back(material->GetName());
-                    trackInfo->GetnCTime().push_back(postStepPoint->GetGlobalTime());
-                    trackInfo->GetfGe77().push_back(prod_Ge77);
-
-                    trackInfo->GetGammaPosition().push_back(secTrack->GetPosition());
-                    trackInfo->GetGammaMomentumDirection().push_back(secTrack->GetMomentumDirection());
-                    trackInfo->GetGammaKinEnergy().push_back(secTrack->GetKineticEnergy());
-                }
-            }
         }
+    }
+
+    // Inherit Track Info to secondary particles
+    for (const auto& secTrack : *secondaries) {
+        auto* inheritedInfo = new MyTrackInfo(nonConstTrackInfo->GetnCNeutronID(), nonConstTrackInfo->GetnCfGe77());
+        // Set user information for the secondary track
+        const_cast<G4Track*>(secTrack)->SetUserInformation(inheritedInfo);
+
     }   
 }
-
-// vim: tabstop=2 shiftwIDth=2 expandtab

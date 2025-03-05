@@ -12,33 +12,17 @@ public:
     explicit MyTrackInfo(G4int eventID, G4int trackID);
     ~MyTrackInfo() override;
 
-    // NeutronCapture Information
-    std::vector<G4String> GetnCPhysVolume() const;
-    std::vector<G4String> GetnCMaterial() const;
-    std::vector<G4double> GetnCTime() const;
-    std::vector<G4int> GetfGe77() const;
+    G4int GetnCNeutronID() const;
+    void SetnCNeutronID(G4int neutronID);
 
-    std::vector<G4ThreeVector> GetGammaPosition() const;
-    std::vector<G4ThreeVector> GetGammaMomentumDirection() const;
-    std::vector<G4double> GetGammaKinEnergy() const;
-
-    G4int GetEventID() const;
-    G4int GetTrackID() const;
+    G4bool GetnCfGe77() const;
+    void SetnCfGe77(G4bool flag);
 
 
 private:
-    std::vector<G4String> nCPhysVolume;
-    std::vector<G4String> nCMaterial;
-    std::vector<G4double> nCTime;
-    std::vector<G4int> fGe77;
-    std::vector<G4int> fNeutronSeenByPMTs; // True wenn das Neutron, welches im nC involviert ist, von optischen Detektoren gesehen wurde (involviert auch alle Prozesse vor dem nC)
 
-    std::vector<G4ThreeVector> gammaPosition;
-    std::vector<G4ThreeVector> gammaMomentumDirection;
-    std::vector<G4double> gammaKinEnergy;
-
-    G4int eventID;
-    G4int trackID;
+    G4int nCNeutronID;
+    G4bool nCfGe77;
 
 
 };

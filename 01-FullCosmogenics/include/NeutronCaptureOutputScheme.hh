@@ -49,13 +49,13 @@ class NeutronCaptureOutputScheme : public RMGVOutputScheme {
     std::map<std::string, int> materialMapping;
 
     // Neutron Parameter
+    std::vector<G4int> nCNeutronID;
     std::vector<G4ThreeVector> gammaPositions;
     std::vector<G4ThreeVector> gammaMomentumDirections;
     std::vector<G4double> globalTimes;
     std::vector<G4double> gammaKinEnergies;
-    std::vector<G4int> nCNeutronID;
-    std::vector<G4int> nCPhysicalVolumes;
-    std::vector<G4int> nCMaterials;
+    std::vector<G4int> gammaPhysicalVolumes;
+    std::vector<G4int> gammaMaterials;
     std::vector<G4bool> fGe77; // True -> Ge77 wurde produziert.
 
 
