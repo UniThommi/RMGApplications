@@ -10,6 +10,9 @@
 #/RMG/Output/ActivateOutputScheme MyGe77EventFilterOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 
+/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 GrabmayrGammaCascades/156Gd-100Entries.txt
+/RMG/GrabmayrGammaCascades/SetGammaCascadeRandomStartLocation 1
+/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 GrabmayrGammaCascades/158Gd-100Entries.txt
 /run/initialize
 
 /analysis/setFileType csv

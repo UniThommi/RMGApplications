@@ -5,16 +5,12 @@
 #include "CosmogenicPhysics.hh"
 #include "CustomIsotopeFilter.hh"
 #include "CustomMUSUNGenerator.hh"
-#include "CustomNeutronGenerator.hh"
+#include "CustomGammaGenerator.hh"
 #include "HardwareQEOverride.hh"
 #include "RNGTrackingAction.hh"
 #include "RMGIsotopeFilterOutputScheme.hh"
 #include "CosmogenicOutputScheme.hh"
-#include "NeutronsOutputScheme.hh"
 #include "LowFidelityOutputScheme.hh"
-#include "MyGe77EventFilterOutputScheme.hh"
-#include "MyTrackInfo.hh"
-#include "MyRunMappingAction.hh"
 #include "G4VUserEventInformation.hh"
 
 #include <fstream>
@@ -54,12 +50,11 @@ std::vector<std::string> getPMTNames(std::string filename) {
 }
 
 int main(int argc, char **argv) {
-  CLI::App app{"Cosmogenic Simulations"};
+  CLI::App app{"nCLowFidelity"};
   int nTreads = 256;
   std::string macroName;
   int rngFlag = 0;
   bool useCosmogenicOutputScheme = false;
-  bool useNeutronsOutputScheme = false;
   bool fLowFidelity = false;
 
   app.add_option("-m,--macro", macroName,
@@ -68,7 +63,6 @@ int main(int argc, char **argv) {
                  "<number of threads to use> Default: 256");
   app.add_option("-r,--rng", rngFlag, "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
   app.add_flag("-c,--cosmogenic", useCosmogenicOutputScheme, "Use CosmogenicOutputScheme");
-  app.add_flag("-n,--neutrons", useNeutronsOutputScheme, "Use NeutronsOutputScheme");
   app.add_flag("-lf, --lowfidelity", fLowFidelity , "Low Fidelity Output Scheme");
 
   CLI11_PARSE(app, argc, argv);
@@ -79,7 +73,7 @@ int main(int argc, char **argv) {
 
   std::string outputfilename = "build/output.hdf5";
 
-  RMGManager man("FullCosmogenics", argc, argv);  // RMGManager ist ein singleton.
+  RMGManager man("nCLowFidelity", argc, argv);  // RMGManager ist ein singleton.
   // Overwrite the standard Hardware with one that reads
   // in the PMT QE from datasheet
   man.SetUserInit(new HardwareQEOverride());
@@ -121,15 +115,9 @@ int main(int argc, char **argv) {
     user_init->AddOptionalOutputScheme<CosmogenicOutputScheme>("CosmogenicOutputScheme");
   }
 
-  if (useNeutronsOutputScheme) {
-    // user_init->AddSteppingAction<MySteppingAction>();
-    user_init->AddOptionalOutputScheme<NeutronsOutputScheme>("NeutronsOutputScheme");
-    user_init->AddOptionalOutputScheme<MyGe77EventFilterOutputScheme>("MyGe77EventFilterOutputScheme");
-  }
-
   if (fLowFidelity) {
     user_init->AddOptionalOutputScheme<LowFidelityOutputScheme>("LowFidelityOutputScheme");
-    user_init->SetUserGenerator<CustomNeutronGenerator>();
+    user_init->SetUserGenerator<CustomGammaGenerator>();
   }
 
   // Interactive or batch mode?
@@ -144,8 +132,6 @@ int main(int argc, char **argv) {
   man.EnablePersistency();
   man.SetNumberOfThreads(nTreads);
   man.Initialize();
-  MyRunMappingAction* runAction = new MyRunMappingAction();
-  run_man->SetUserAction(runAction);
   man.Run();
 
   return 0;
