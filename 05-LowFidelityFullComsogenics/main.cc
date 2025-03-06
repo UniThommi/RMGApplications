@@ -50,8 +50,8 @@ std::vector<std::string> getPMTNames(std::string filename) {
 }
 
 int main(int argc, char **argv) {
-  CLI::App app{"nCLowFidelity"};
-  int nTreads = 256;
+  CLI::App app{"FullCosmogenics"};
+  int nThreads = 256;
   std::string macroName;
   int rngFlag = 0;
   bool useCosmogenicOutputScheme = false;
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 
   std::string outputfilename = "build/output.hdf5";
 
-  RMGManager man("nCLowFidelity", argc, argv);  // RMGManager ist ein singleton.
+  RMGManager man("FullCosmogenics", argc, argv);  // RMGManager ist ein singleton.
   // Overwrite the standard Hardware with one that reads
   // in the PMT QE from datasheet
   man.SetUserInit(new HardwareQEOverride());
@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
   
   man.SetOutputFileName(outputfilename);
   man.EnablePersistency();
-  man.SetNumberOfThreads(nTreads);
+  man.SetNumberOfThreads(nThreads);
   man.Initialize();
   man.Run();
 

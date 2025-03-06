@@ -32,7 +32,7 @@ public:
 
 private:
   void DefineCommands();
-  void SetNeutronsFile(G4String pathToFile);
+  void SetGammasFile(G4String pathToFile);
 
   std::unique_ptr<G4ParticleGun> fGun = nullptr;
   std::unique_ptr<G4GenericMessenger> fMessenger = nullptr;

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(nCLowFidelity)
+project(FullCosmogenics)
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
@@ -21,6 +21,6 @@ add_executable(
   src/MyPrimaryGammaUserInfo.cc
   src/CustomGammaGenerator.cc)
 
-target_link_libraries(nCLowFidelity PUBLIC RMG::remage)
+target_link_libraries(FullCosmogenics PUBLIC RMG::remage)
 
-target_include_directories(nCLowFidelity PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(FullCosmogenics PUBLIC ${PROJECT_SOURCE_DIR}/include)

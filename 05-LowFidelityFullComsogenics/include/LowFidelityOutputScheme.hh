@@ -1,5 +1,5 @@
-#ifndef _NEUTRONS_OUTPUT_SCHEME_HH_
-#define _NEUTRONS_OUTPUT_SCHEME_HH_
+#ifndef _LOW_FIDELITY_OUTPUT_SCHEME_HH_
+#define _LOW_FIDELITY_OUTPUT_SCHEME_HH_
 
 #include <optional>
 #include <set>
@@ -10,6 +10,7 @@
 #include "G4ThreeVector.hh"
 #include "G4Run.hh"
 #include "RMGVOutputScheme.hh"
+#include "RMGOpticalDetector.hh"
 
 
 class G4Event;
@@ -24,6 +25,8 @@ class LowFidelityOutputScheme : public RMGVOutputScheme {
     void AssignOutputNames(G4AnalysisManager* ana_man) override;
     void StoreEvent(const G4Event*) override;
 
+    [[nodiscard]] inline bool StoreAlways() const override { return true; }
+
   protected:
 
     [[nodiscard]] inline std::string GetNtuplenameFlat() const override { return "PMTEvents"; }
@@ -35,10 +38,16 @@ class LowFidelityOutputScheme : public RMGVOutputScheme {
     void DefineCommands();
     G4int OutputRegisterID = 13121;
 
+    RMGOpticalDetectorHitsCollection* GetOptHitColl(const G4Event*);
+
 
     // Neutron Capture Info
-    G4int nCNeutronID;
+    G4int muonID;
+    
     G4double nCGlobalTime;
+    G4double nCxPosition;
+    G4double nCyPosition;
+    G4double nCzPosition;
     G4int nCPhysVolumeID;
     G4int nCMaterialID;
     G4int nCfGe77; // Ist in dem Neutronschauer, in dem das Primary Neutron produziert wurde, Ge77 entstanden?
@@ -46,7 +55,7 @@ class LowFidelityOutputScheme : public RMGVOutputScheme {
     G4double nCGammaTotalEnergy;
 
     // PMT Info
-    std::vector<G4int> hitPMTUID;
+    std::vector<G4int> hitPMTUIDs;
     std::vector<G4double> hitTimes;
     // std::vector<G4double> hitxPositions;
     // std::vector<G4double> hityPositions;

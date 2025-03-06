@@ -2,6 +2,7 @@
 #define MY_PRIMARY_GAMMA_USER_INFO_H 1
 
 #include "G4VUserPrimaryVertexInformation.hh"
+#include "globals.hh"
 
 class MyPrimaryGammaUserInfo : public G4VUserPrimaryVertexInformation {
   public:
@@ -13,7 +14,9 @@ class MyPrimaryGammaUserInfo : public G4VUserPrimaryVertexInformation {
     G4int GetnCMaterialID() const;
     G4int GetnCfGe77() const;
     G4int GetnCGammaAmount() const;
-    G4int GetnCGammaTotalEnergy() const;
+    G4double GetnCGammaTotalEnergy() const;
+
+    virtual void Print() const override {};
 
   private:
     G4int muonID;

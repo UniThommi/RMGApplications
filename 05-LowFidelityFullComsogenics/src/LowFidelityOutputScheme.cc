@@ -26,11 +26,24 @@ LowFidelityOutputScheme::LowFidelityOutputScheme() {
 
 
 void LowFidelityOutputScheme::ClearBeforeEvent() {
+  // Neutron Capture Info
+  muonID = -1;
+  nCGlobalTime = 0.;
+  nCxPosition = -1;
+  nCyPosition = -1;
+  nCzPosition = -1;
+  nCPhysVolumeID = -1;
+  nCMaterialID = -1;
+  nCfGe77 = -1;
+  nCGammaAmount = -1;
+  nCGammaTotalEnergy = 0.;
+  // PMT Info
+  hitPMTUIDs.clear();
   hitTimes.clear();
-  hitEnergieDepositions.clear();
-  neutronPhysicalVolume = -1;
-  neutronMaterial = -1;
-  fNeutronGe77 = -1;
+  // hitxPositions.clear();
+  // hityPositions.clear();
+  // hitzPositions.clear();
+  hitWaveLengths.clear();
 };
 
 // invoked in RMGRunAction::SetupAnalysisManager()
@@ -46,6 +59,9 @@ void LowFidelityOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   // Neutron Capture Info
   ana_man->CreateNtupleIColumn(id, "nC_muon_id");
   ana_man->CreateNtupleDColumn(id, "nC_global_time");
+  ana_man->CreateNtupleDColumn(id, "nC_x_position_in_m");
+  ana_man->CreateNtupleDColumn(id, "nC_y_position_in_m");
+  ana_man->CreateNtupleDColumn(id, "nC_z_position_in_m");
   ana_man->CreateNtupleDColumn(id, "nC_kinetic_energy_in_keV");
   ana_man->CreateNtupleIColumn(id, "nC_physical_volume_id_of_N_creation");
   ana_man->CreateNtupleIColumn(id, "nC_material_id_of_N_creation");
@@ -72,16 +88,19 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
   // Zugriff auf Primary Gamma User Info
   auto primaryVertex = event->GetPrimaryVertex(0);
   if (primaryVertex) {
-      auto userInfo = dynamic_cast<MyPrimaryNeutronUserInfo*>(primaryVertex->GetUserInformation());
+      auto userInfo = dynamic_cast<MyPrimaryGammaUserInfo*>(primaryVertex->GetUserInformation());
       if (userInfo) {
         muonID = userInfo->GetMuonID();
+        nCGlobalTime = primaryVertex->GetT0();
+        nCxPosition = primaryVertex->GetX0();
+        nCyPosition = primaryVertex->GetY0();
+        nCzPosition = primaryVertex->GetZ0();
         nCPhysVolumeID = userInfo->GetnCPhysVolumeID();
         nCMaterialID = userInfo->GetnCMaterialID();
         nCfGe77 = userInfo->GetnCfGe77();
         nCGammaAmount = userInfo->GetnCGammaAmount();
         nCGammaTotalEnergy = userInfo->GetnCGammaTotalEnergy();  
-        
-        nCGlobalTime = primaryVertex->GetParticleTime();
+
       }
       else {
         G4cout << "Error: Keine UserInfo mit nC Daten vorhanden" << G4endl;
@@ -90,27 +109,31 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
   }
 
   // PMT Hits abrufen
-  G4int collectionID = G4SDManager::GetSDMpointer()->GetCollectionID("Optical/Hits");
-  if (collectionID < 0) {
-    G4cout << "StoreEvent: Could not find hit collection Optical/Hits" << G4endl;
-    return nullptr;
+  auto hit_coll = GetOptHitColl(event);
+  // Optical hit collection can be empty!
+  if (!hit_coll) {
+    RMGLog::Out(RMGLog::error, "No optical hit collection!");
+    return;
   }
-  auto hitsCollection = static_cast<RMGOpticalDetectorHitsCollection*>(hce->GetHC(collectionID)); // FIX
+  if (hit_coll->entries() <= 0) {
+    RMGLog::OutDev(RMGLog::debug, "Optical hit collection is empty");
+    return;
+  } else {
+    RMGLog::OutDev(RMGLog::debug, "Optical hit collection contains ", hit_coll->entries(), " hits");
+  }
 
-  if (hitsCollection) {
-      for (size_t i = 0; i < hitsCollection->entries(); i++) {
-          auto hit = (*hitsCollection)[i];
-          if (!hit) continue;
-
-          hitPMTUID = hit->detector_uid;   // FIX Füge Name das PMTs hinzu. Mit Mapping?
-          hitTimes = hit->global_time;
-          hitWaveLengths = hit->photon_wavelength;
-          // hitEnergie = FIX: Berechne Energie aus Wellenlänge
-      }
+  if (hit_coll) {
+    for (auto hit : *(hit_coll->GetVector())) {
+      if (!hit) continue;
+      hitPMTUIDs.push_back(hit->detector_uid);   // FIX Füge Name das PMTs hinzu. Mit Mapping?
+      hitTimes.push_back(hit->global_time);
+      hitWaveLengths.push_back(hit->photon_wavelength);
+      // hitEnergie = FIX: Berechne Energie aus Wellenlänge
+    }
   }
   else {
     G4cout << "StoreEvent: Could not find PMT hit collection associated with neutron event" << G4endl;
-    return nullptr;
+    return;
   }
 
   auto rmg_man = RMGManager::Instance();
@@ -125,10 +148,13 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
 
     for (size_t i = 0; i < hitTimes.size(); ++i) {
       int col_id = 0;
-      ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID());
+      ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID()); // Gleichzeitig Neutron ID
       // Neutron Capture Info:
-      ana_man->FillNtupleIColumn(ntupleid, col_id++, nCNeutronID);
+      ana_man->FillNtupleIColumn(ntupleid, col_id++, muonID);
       ana_man->FillNtupleDColumn(ntupleid, col_id++, nCGlobalTime);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCxPosition);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCyPosition);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCzPosition);
       ana_man->FillNtupleIColumn(ntupleid, col_id++, nCPhysVolumeID);
       ana_man->FillNtupleIColumn(ntupleid, col_id++, nCMaterialID);
       ana_man->FillNtupleIColumn(ntupleid, col_id++, nCfGe77);
@@ -148,6 +174,27 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
       ana_man->AddNtupleRow(ntupleid);
     }
   }
+}
+
+// Could summarize these functions into one, but this is more readable i think
+RMGOpticalDetectorHitsCollection* LowFidelityOutputScheme::GetOptHitColl(const G4Event* event) {  // Gets hit collection from sensitive Ge detectors with optical information.
+auto sd_man = G4SDManager::GetSDMpointer();
+
+auto hit_coll_id = sd_man->GetCollectionID("Optical/Hits");
+if (hit_coll_id < 0) {
+  G4cout << "Could not find hit collection Optical/Hits" << G4endl;
+  return nullptr;
+}
+
+auto hit_coll =
+    dynamic_cast<RMGOpticalDetectorHitsCollection*>(event->GetHCofThisEvent()->GetHC(hit_coll_id));
+
+if (!hit_coll) {
+  G4cout << "Could not find hit collection associated with event" << G4endl;
+  return nullptr;
+}
+
+return hit_coll;
 }
 
 void LowFidelityOutputScheme::DefineCommands() {

@@ -2,7 +2,7 @@
 
 #include "G4Event.hh"
 #include "G4ParticleTable.hh"
-#include "MyPrimaryNeutronUserInfo.hh"
+#include "MyPrimaryGammaUserInfo.hh"
 
 #include <iostream>
 #include <fstream>
@@ -21,19 +21,17 @@ CustomGammaGenerator::~CustomGammaGenerator() {
 }
 
 void CustomGammaGenerator::BeginOfRunAction(const G4Run*) {
-    
-    std::ifstream file(fInputFile);
-    if (!file.is_open()) {
-        std::cerr << "Fehler: Konnte die Datei nicht öffnen!" << std::endl;
+    if (!fInputFile.is_open()) {
+        G4cerr << "Fehler: Gamma Daten konnten nicht gelesen werden." << G4endl;
         return;
     }
 
     std::string line;
     
     // Header-Zeile überspringen
-    std::getline(file, line);
+    std::getline(fInputFile, line);
 
-    while (std::getline(file, line)) {
+    while (std::getline(fInputFile, line)) {
         std::stringstream ss(line);
         G4double x_val, y_val, z_val, px_val, py_val, pz_val, nCTime_val, eKin_val;
         G4int muonID_val, neutronID_val, physVolID_val, matID_val, fGe77_val;
@@ -73,8 +71,8 @@ void CustomGammaGenerator::BeginOfRunAction(const G4Run*) {
         fGe77s.push_back(fGe77_val);
     }
 
-    file.close();
-    G4cout << "Geladene Events aus CSV: " << x.size() << G4endl;
+    fInputFile.close();
+    G4cout << "Geladene Events aus CSV: " << xs.size() << G4endl;
 }
 
 void CustomGammaGenerator::GeneratePrimaries(G4Event *event) {
@@ -126,7 +124,7 @@ void CustomGammaGenerator::GeneratePrimaries(G4Event *event) {
     }
 }
 
-void CustomGammaGenerator::SetNeutronsFile(G4String pathToFile) {
+void CustomGammaGenerator::SetGammasFile(G4String pathToFile) {
     fInputFile.open(pathToFile, std::ifstream::in);
     if (!(fInputFile.is_open())) {
         G4cerr << "Neutrons file not valid! Name: " << pathToFile << G4endl;
@@ -141,7 +139,7 @@ void CustomGammaGenerator::DefineCommands() {
         this, "/Cosmogenics/Generator/",
         "Commands for controlling the Neutron µ generator");
 
-    fMessenger->DeclareMethod("SetNeutronsFile", &CustomGammaGenerator::SetNeutronsFile)
+    fMessenger->DeclareMethod("SetNeutronsFile", &CustomGammaGenerator::SetGammasFile)
         .SetGuidance("Set the Neutron input file")
         .SetParameterName("pathToFile", false)
         .SetToBeBroadcasted(true)
