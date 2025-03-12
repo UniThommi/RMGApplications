@@ -53,7 +53,7 @@ void NeutronCaptureOutputScheme::TrackingActionPre(const G4Track* aTrack) {
     auto* trackInfo = dynamic_cast<MyTrackInfo*>(aTrack->GetUserInformation());
     if (trackInfo && trackInfo->GetnCNeutronID() != -1) {
       // Push Data
-      G4cout << "Pushe Gamma Daten" << G4endl;
+      // G4cout << "Pushe Gamma Daten" << G4endl;
       nCNeutronID.push_back(trackInfo->GetnCNeutronID());
       gammaPositions.push_back(aTrack->GetVertexPosition()); // Save the locations of Neutrons creation
       gammaMomentumDirections.push_back(aTrack->GetMomentumDirection());

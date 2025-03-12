@@ -2,7 +2,7 @@
 
 // Constructor initializes track IDs
 MyPrimaryGammaUserInfo::MyPrimaryGammaUserInfo(G4int muonID, G4int physVolumeID, G4int materialID, G4int fGe77, G4int nCGammaAmount, G4double nCGammaTotalEnergy)
-    : muonID(muonID), physVolumeID(physVolumeID), materialID(materialID), fGe77(fGe77) {}
+    : muonID(muonID), physVolumeID(physVolumeID), materialID(materialID), fGe77(fGe77), nCGammaAmount(nCGammaAmount), nCGammaTotalEnergy(nCGammaTotalEnergy) {}
 
 // Destruktor
 MyPrimaryGammaUserInfo::~MyPrimaryGammaUserInfo() {}

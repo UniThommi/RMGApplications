@@ -38,6 +38,12 @@ private:
   std::unique_ptr<G4GenericMessenger> fMessenger = nullptr;
   std::ifstream fInputFile;
 
+  // Gammas eines Neutron Captures:
+  std::vector<size_t> gammaIndices;
+  G4double nCGammaTotalEnergy;
+  G4int nCGammaAmount;
+
+  // Gamma parameter
   std::vector<G4int> muonIDs; 
   std::vector<G4int> neutronIDs; // Werden zur EventID
   std::vector<G4double> xs; 

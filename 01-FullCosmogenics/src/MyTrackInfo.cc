@@ -50,7 +50,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture") {
         // Ensure the captured particle is a neutron
         if (track->GetParticleDefinition() == G4Neutron::Definition()) {
-            G4cout << "Neutron capture detected" << G4endl;
+            // G4cout << "Neutron capture detected" << G4endl;
             // Use const_cast to remove the const qualifier and modify the object
             nonConstTrackInfo->SetnCNeutronID(track->GetTrackID());
 

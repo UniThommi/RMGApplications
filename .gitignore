@@ -26,3 +26,8 @@ __pycache__
 
 # python
 .venv
+
+# Gamma files
+Gammas.csv
+158Gd-5keV-cascades.txt
+156Gd-5keV-cascades.txt

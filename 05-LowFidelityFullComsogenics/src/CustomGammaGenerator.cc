@@ -10,7 +10,7 @@
 #include <sstream>
 
 CustomGammaGenerator::CustomGammaGenerator()
-    : RMGVGenerator("NeutronsDistribution") {
+    : RMGVGenerator("GammaDistribution") {
   this->DefineCommands();
   fGun = std::make_unique<G4ParticleGun>();
 }
@@ -76,30 +76,38 @@ void CustomGammaGenerator::BeginOfRunAction(const G4Run*) {
 }
 
 void CustomGammaGenerator::GeneratePrimaries(G4Event *event) {
+    gammaIndices.clear();
+    nCGammaTotalEnergy = 0;
+    nCGammaAmount = 0;
+
+    // Get correct neutron captures
     G4int currentEventID = event->GetEventID();      
 
     G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
 
     fGun->SetParticleDefinition(theParticleTable->FindParticle("gamma"));
 
-    std::vector<size_t> gammaIndices;
-
     for (size_t i = 0; i < neutronIDs.size(); i++) {
         if (neutronIDs[i] == currentEventID) {
             gammaIndices.push_back(i);  // Füge Gamma hinzu, wenn es das richtige Event ist
         }
+        else if (neutronIDs[i] > currentEventID) {
+            break;
+        }
     }
 
     if (!gammaIndices.empty()) {
-            G4int nCGammaAmount = gammaIndices.size();
-            G4int nCGammaTotalEnergy = 0;
+        nCGammaAmount = gammaIndices.size();
+        G4cout << "Gamma Indizes vorhanden: " << gammaIndices.size() << " Gammas" << G4endl;
 
         for (size_t idx : gammaIndices) {
+            G4cout << "Addiere Gamma Energie" << G4endl;
             nCGammaTotalEnergy += eKins[idx];
         }
-
+        G4cout << "Gamma totale Energie: " << nCGammaTotalEnergy << G4endl;
         // Für jedes Gamma im Event:
         for (size_t idx : gammaIndices) {
+            G4cout << "Loope Gamma Daten in Particle Gun" << G4endl;
             G4ThreeVector Position(xs[idx], ys[idx], zs[idx]);  // Position des Gammas
             G4ThreeVector momentumDir(pxs[idx], pys[idx], pzs[idx]);  // Richtung des Gammas
             G4double energy = eKins[idx];  // Energie des Gammas
@@ -116,10 +124,10 @@ void CustomGammaGenerator::GeneratePrimaries(G4Event *event) {
 
             // Füge das Primary Vertex für dieses Gamma hinzu
             vertex->SetUserInformation(new MyPrimaryGammaUserInfo(muonIDs[idx], physVolIDs[idx], matIDs[idx], fGe77s[idx], nCGammaAmount, nCGammaTotalEnergy));
-
+            event->AddPrimaryVertex(vertex);
             // Generiere das Primary-Vertex für das Gamma und füge es zum Event hinzu
             fGun->GeneratePrimaryVertex(event);
-            event->AddPrimaryVertex(vertex);
+            
         }
     }
 }
@@ -127,7 +135,7 @@ void CustomGammaGenerator::GeneratePrimaries(G4Event *event) {
 void CustomGammaGenerator::SetGammasFile(G4String pathToFile) {
     fInputFile.open(pathToFile, std::ifstream::in);
     if (!(fInputFile.is_open())) {
-        G4cerr << "Neutrons file not valid! Name: " << pathToFile << G4endl;
+        G4cerr << "Gammas file not valid! Name: " << pathToFile << G4endl;
     }
 }
 
@@ -139,7 +147,7 @@ void CustomGammaGenerator::DefineCommands() {
         this, "/Cosmogenics/Generator/",
         "Commands for controlling the Neutron µ generator");
 
-    fMessenger->DeclareMethod("SetNeutronsFile", &CustomGammaGenerator::SetGammasFile)
+    fMessenger->DeclareMethod("SetGammasFile", &CustomGammaGenerator::SetGammasFile)
         .SetGuidance("Set the Neutron input file")
         .SetParameterName("pathToFile", false)
         .SetToBeBroadcasted(true)

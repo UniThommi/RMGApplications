@@ -57,11 +57,7 @@ class LowFidelityOutputScheme : public RMGVOutputScheme {
     // PMT Info
     std::vector<G4int> hitPMTUIDs;
     std::vector<G4double> hitTimes;
-    // std::vector<G4double> hitxPositions;
-    // std::vector<G4double> hityPositions;
-    // std::vector<G4double> hitzPositions;
     std::vector<G4double> hitWaveLengths;
-    // G4int fCaptureDetected;
 };
 
 #endif

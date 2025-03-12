@@ -4,18 +4,16 @@
 
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
-/RMG/Processes/OpticalPhysics true #für Neutronen generieren
+/RMG/Processes/OpticalPhysics true #für NeutronenCaptures generieren
 /RMG/Output/ActivateOutputScheme LowFidelityOutputScheme
 
 #/RMG/Output/ActivateOutputScheme MyGe77EventFilterOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 
-/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 GrabmayrGammaCascades/156Gd-100Entries.txt
+/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 GrabmayrGammaCascades/156Gd-5keV-cascades.txt
 /RMG/GrabmayrGammaCascades/SetGammaCascadeRandomStartLocation 1
-/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 GrabmayrGammaCascades/158Gd-100Entries.txt
+/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 GrabmayrGammaCascades/158Gd-5keV-cascades.txt
 /run/initialize
-
-/analysis/setFileType csv
 
 #/process/optical/boundary/verbose 2
 
@@ -28,8 +26,8 @@
 #/RMG/Generator/Select MUSUNCosmicMuons
 #/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
-/RMG/Generator/Select NeutronsDistribution
-/Cosmogenics/Generator/SetNeutronsFile neutrons/distribution_file.hdf5
+/RMG/Generator/Select UserDefined
+/Cosmogenics/Generator/SetGammasFile gammas/Gammas.csv
 
 
 #/RMG/Generator/Select GPS
@@ -42,5 +40,5 @@
 #/RMG/Generator/CosmicMuons/SkyShape Plane
 #/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
 
-/run/beamOn 1000
+/run/beamOn 10000
 

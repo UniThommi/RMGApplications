@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
                  "<number of threads to use> Default: 256");
   app.add_option("-r,--rng", rngFlag, "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
   app.add_flag("-c,--cosmogenic", useCosmogenicOutputScheme, "Use CosmogenicOutputScheme");
-  app.add_flag("-lf, --lowfidelity", fLowFidelity , "Low Fidelity Output Scheme");
+  app.add_flag("-l, --lowfidelity", fLowFidelity , "Low Fidelity Output Scheme");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -116,6 +116,7 @@ int main(int argc, char **argv) {
   }
 
   if (fLowFidelity) {
+    std::cout << "registering low fidelity options" << std::endl;
     user_init->AddOptionalOutputScheme<LowFidelityOutputScheme>("LowFidelityOutputScheme");
     user_init->SetUserGenerator<CustomGammaGenerator>();
   }

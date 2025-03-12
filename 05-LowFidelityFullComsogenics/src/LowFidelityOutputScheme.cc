@@ -28,7 +28,7 @@ LowFidelityOutputScheme::LowFidelityOutputScheme() {
 void LowFidelityOutputScheme::ClearBeforeEvent() {
   // Neutron Capture Info
   muonID = -1;
-  nCGlobalTime = 0.;
+  nCGlobalTime = 0;
   nCxPosition = -1;
   nCyPosition = -1;
   nCzPosition = -1;
@@ -36,7 +36,7 @@ void LowFidelityOutputScheme::ClearBeforeEvent() {
   nCMaterialID = -1;
   nCfGe77 = -1;
   nCGammaAmount = -1;
-  nCGammaTotalEnergy = 0.;
+  nCGammaTotalEnergy = 0;
   // PMT Info
   hitPMTUIDs.clear();
   hitTimes.clear();
@@ -62,12 +62,11 @@ void LowFidelityOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   ana_man->CreateNtupleDColumn(id, "nC_x_position_in_m");
   ana_man->CreateNtupleDColumn(id, "nC_y_position_in_m");
   ana_man->CreateNtupleDColumn(id, "nC_z_position_in_m");
-  ana_man->CreateNtupleDColumn(id, "nC_kinetic_energy_in_keV");
   ana_man->CreateNtupleIColumn(id, "nC_physical_volume_id_of_N_creation");
   ana_man->CreateNtupleIColumn(id, "nC_material_id_of_N_creation");
   ana_man->CreateNtupleIColumn(id, "nC_Ge77_produced");
   ana_man->CreateNtupleIColumn(id, "nC_gamma_amount");
-  ana_man->CreateNtupleIColumn(id, "nC_gamma_total_energy");
+  ana_man->CreateNtupleDColumn(id, "nC_gamma_total_energy");
 
   // PMT Info
   ana_man->CreateNtupleIColumn(id, "PMT_uid");
@@ -163,12 +162,8 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
       
       // PMT Info
       ana_man->FillNtupleIColumn(ntupleid, col_id++, hitPMTUIDs[i]);
-      // ana_man->FillNtupleDColumn(ntupleid, col_id++, hitxPositions[i]);
-      // ana_man->FillNtupleDColumn(ntupleid, col_id++, hityPositions[i]);
-      // ana_man->FillNtupleDColumn(ntupleid, col_id++, hitzPositions[i]);
       ana_man->FillNtupleDColumn(ntupleid, col_id++, hitTimes[i]);
       ana_man->FillNtupleDColumn(ntupleid, col_id++, hitWaveLengths[i]); // in nm
-      //ana_man->FillNtupleDColumn(ntupleid, col_id++, fCaptureDetected);
 
       // Startet neue Reihe in Output
       ana_man->AddNtupleRow(ntupleid);
