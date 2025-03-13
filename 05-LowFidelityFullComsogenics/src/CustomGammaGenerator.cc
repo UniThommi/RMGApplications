@@ -9,6 +9,8 @@
 #include <vector>
 #include <sstream>
 
+namespace u = CLHEP;
+
 CustomGammaGenerator::CustomGammaGenerator()
     : RMGVGenerator("GammaDistribution") {
   this->DefineCommands();
@@ -58,14 +60,14 @@ void CustomGammaGenerator::BeginOfRunAction(const G4Run*) {
         // Werte speichern
         muonIDs.push_back(muonID_val);
         neutronIDs.push_back(neutronID_val);
-        xs.push_back(x_val);
-        ys.push_back(y_val);
-        zs.push_back(z_val);
+        xs.push_back(x_val*u::m);
+        ys.push_back(y_val*u::m);
+        zs.push_back(z_val*u::m);
         pxs.push_back(px_val);
         pys.push_back(py_val);
         pzs.push_back(pz_val);
-        nCTimes.push_back(nCTime_val);
-        eKins.push_back(eKin_val);
+        nCTimes.push_back(nCTime_val*u::s);
+        eKins.push_back(eKin_val*u::keV);
         physVolIDs.push_back(physVolID_val);
         matIDs.push_back(matID_val);
         fGe77s.push_back(fGe77_val);

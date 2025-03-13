@@ -152,7 +152,7 @@ void NeutronCaptureOutputScheme::StoreEvent(const G4Event* event) {
       ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, gammaMomentumDirections[i].getX());
       ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, gammaMomentumDirections[i].getY());
       ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, gammaMomentumDirections[i].getZ()); 
-      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, globalTimes[i]);
+      ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, globalTimes[i]/u::s);
       ana_man->FillNtupleDColumn(neutronsNTuple, col_id++, gammaKinEnergies[i]/u::keV);
       //Volumen und Material:
       ana_man->FillNtupleIColumn(neutronsNTuple, col_id++, gammaPhysicalVolumes[i]);

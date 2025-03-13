@@ -150,7 +150,7 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
       ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID()); // Gleichzeitig Neutron ID
       // Neutron Capture Info:
       ana_man->FillNtupleIColumn(ntupleid, col_id++, muonID);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCGlobalTime);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCGlobalTime/u::s);
       ana_man->FillNtupleDColumn(ntupleid, col_id++, nCxPosition);
       ana_man->FillNtupleDColumn(ntupleid, col_id++, nCyPosition);
       ana_man->FillNtupleDColumn(ntupleid, col_id++, nCzPosition);
@@ -162,7 +162,7 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
       
       // PMT Info
       ana_man->FillNtupleIColumn(ntupleid, col_id++, hitPMTUIDs[i]);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, hitTimes[i]);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, hitTimes[i]/u::s);
       ana_man->FillNtupleDColumn(ntupleid, col_id++, hitWaveLengths[i]); // in nm
 
       // Startet neue Reihe in Output
