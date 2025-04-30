@@ -9,9 +9,7 @@
 
 #include <iostream>
 
-MyEventAction::MyEventAction() {
-    // optional: Initialisierungen
-}
+MyEventAction::MyEventAction() = default;
 
 MyEventAction::~MyEventAction() = default;
 
@@ -35,5 +33,5 @@ void MyEventAction::BeginOfEventAction(const G4Event* event) {
 
 
 void MyEventAction::EndOfEventAction(const G4Event* event) {
-   
+    fPhotonHitsCollection = nullptr;
 }

@@ -67,10 +67,17 @@ private:
     
 };
 
+class MyEventAction;
 
 class MySteppingAction : public G4UserSteppingAction {
 public:
+    MySteppingAction(MyEventAction* eventAction); // Konstruktor
+    ~MySteppingAction() override = default;
+
     void UserSteppingAction(const G4Step* step) override;
+
+private:
+    MyEventAction* fEventAction = nullptr;
 };
 
 

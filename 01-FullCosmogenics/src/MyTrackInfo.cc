@@ -80,6 +80,12 @@ void MyTrackInfo::SetGammaMomentumDirection(G4ThreeVector _gammaMomentumDirectio
 G4double MyTrackInfo::GetGammaKineticEnergy() const { return gammaKineticEnergy; }
 void MyTrackInfo::SetGammaKineticEnergy(G4double _gammaKineticEnergy) { gammaKineticEnergy = _gammaKineticEnergy; }
 
+MySteppingAction::MySteppingAction(MyEventAction* eventAction)
+    : fEventAction(eventAction) {}
+
+// Destructor
+MySteppingAction::~MySteppingAction() {}    
+
 
 // Inheriting Primary ID and 1st Gen Neutron ID. For Muon track, the 1st Gen Neutron ID is set to -1.
 // Also save Gamma data from Neutron captures.
@@ -240,27 +246,26 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
 
             // Saving Data To Hit Allocator
             // Erstelle ein PhotonHit-Objekt und speichere die Daten
-            PhotonHit* photonHit = new PhotonHit();
-            photonHit->SetDetectorUID(det_uid);
-            photonHit->SetOptPhotonEnergy(photon_energy);
-            photonHit->SetOptPhotonglobalTime(photon_global_time);
-            photonHit->SetOptPhotonPosition(photon_position);
-            photonHit->SetOptPhotonMomentumDirection(photon_momentum_direction);
-            photonHit->SetnCTrackID(nCTrackID);
-            photonHit->SetnCPos(nCPos);
-            photonHit->SetnCTime(nCTime);
-            photonHit->SetnCPhysVol(nCPhysVol);
-            photonHit->SetnCMaterial(nCMaterial);
-            photonHit->SetnCGammaAmount(nCGammaAmount);
-            photonHit->SetnCGammaTotalEnergy(nCGammaTotalEnergy);
-            photonHit->SetnCfGe77(nCfGe77);
-            photonHit->SetGammaMomentumDirection(gammaMomentumDirection);
-            photonHit->SetGammaKineticEnergy(gammaKineticEnergy);
+            PhotonHit* hit = new PhotonHit();
+            hit->SetDetectorUID(det_uid);
+            hit->SetOptPhotonEnergy(photon_energy);
+            hit->SetOptPhotonglobalTime(photon_global_time);
+            hit->SetOptPhotonPosition(photon_position);
+            hit->SetOptPhotonMomentumDirection(photon_momentum_direction);
+            hit->SetnCTrackID(nCTrackID);
+            hit->SetnCPos(nCPos);
+            hit->SetnCTime(nCTime);
+            hit->SetnCPhysVol(nCPhysVol);
+            hit->SetnCMaterial(nCMaterial);
+            hit->SetnCGammaAmount(nCGammaAmount);
+            hit->SetnCGammaTotalEnergy(nCGammaTotalEnergy);
+            hit->SetnCfGe77(nCfGe77);
+            hit->SetGammaMomentumDirection(gammaMomentumDirection);
+            hit->SetGammaKineticEnergy(gammaKineticEnergy);
 
             // Hole HitsCollection aus G4Event
-            G4HCofThisEvent* hce = G4RunManager::GetRunManager()->GetCurrentEvent()->GetHCofThisEvent();
-            G4int hcID = G4SDManager::GetSDMpointer()->GetCollectionID("PhotonSD/PhotonHitsCollection");
-            auto hitsCollection = static_cast<PhotonHitsCollection*>(hce->GetHC(hcID));
+            auto hitsCollection = fEventAction->GetPhotonHitsCollection();
+            if (hitsCollection) {
 
             if (hitsCollection)
                 hitsCollection->insert(hit);

@@ -11,6 +11,7 @@
 #include "CosmogenicOutputScheme.hh"
 #include "NeutronCaptureOutputScheme.hh"
 #include "MyTrackInfo.hh"
+#include "MyEventAction.hh"
 #include "G4VUserEventInformation.hh"
 
 #include <fstream>
@@ -97,7 +98,7 @@ int main(int argc, char **argv) {
 
   man.GetDetectorConstruction()->RegisterDetector(RMGHardware::kOptical,
                                                       "Name", 999);
-  }
+
   // Register the germanium volume as germanium detector.
   man.GetDetectorConstruction()->RegisterDetector(RMGHardware::kGermanium,
                                                       "Ge_phys", 1000);
@@ -126,7 +127,8 @@ int main(int argc, char **argv) {
 
   if (useNeutronCaptureOutputScheme) {
     user_init->AddSteppingAction<MySteppingAction>();
-    user_init->AddOptionalOutputScheme<NeutronCaptureOutputScheme>("NeutronCaptureOutputScheme");
+    user_init->AddEventAction<MyEventAction>();
+    user_init->AddOptionalOutputScheme<OptHitsSensitiveSurfaceOutputScheme>("OptHitsSensitiveSurfaceOutputScheme");
   }
 
   // Interactive or batch mode?
