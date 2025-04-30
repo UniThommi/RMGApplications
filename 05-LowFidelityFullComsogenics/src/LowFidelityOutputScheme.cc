@@ -58,7 +58,7 @@ void LowFidelityOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   // Create column structure to safe data
   // Neutron Capture Info
   ana_man->CreateNtupleIColumn(id, "nC_muon_id");
-  ana_man->CreateNtupleDColumn(id, "nC_global_time");
+  ana_man->CreateNtupleDColumn(id, "nC_global_time_in_s");
   ana_man->CreateNtupleDColumn(id, "nC_x_position_in_m");
   ana_man->CreateNtupleDColumn(id, "nC_y_position_in_m");
   ana_man->CreateNtupleDColumn(id, "nC_z_position_in_m");
@@ -66,7 +66,7 @@ void LowFidelityOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   ana_man->CreateNtupleIColumn(id, "nC_material_id_of_N_creation");
   ana_man->CreateNtupleIColumn(id, "nC_Ge77_produced");
   ana_man->CreateNtupleIColumn(id, "nC_gamma_amount");
-  ana_man->CreateNtupleDColumn(id, "nC_gamma_total_energy");
+  ana_man->CreateNtupleDColumn(id, "nC_gamma_total_energy_in_keV");
 
   // PMT Info
   ana_man->CreateNtupleIColumn(id, "PMT_uid");
@@ -110,24 +110,23 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
   // PMT Hits abrufen
   auto hit_coll = GetOptHitColl(event);
   // Optical hit collection can be empty!
-  if (!hit_coll) {
-    RMGLog::Out(RMGLog::error, "No optical hit collection!");
-    return;
-  }
-  if (hit_coll->entries() <= 0) {
-    RMGLog::OutDev(RMGLog::debug, "Optical hit collection is empty");
-    return;
-  } else {
-    RMGLog::OutDev(RMGLog::debug, "Optical hit collection contains ", hit_coll->entries(), " hits");
+  if (!hit_coll || hit_coll->entries() <= 0) {
+    G4cout << "Optical hit collection is empty" << G4endl;
+    // Insert -1 entries for each PMT. Used in postprocessing.
+    hitPMTUIDs.push_back(-1);
+    hitTimes.push_back(-1);  
+    hitWaveLengths.push_back(-1);
+  } 
+  else {
+    G4cout << "Optical hit collection contains: " << hit_coll->entries() << " hits" << G4endl;
   }
 
   if (hit_coll) {
     for (auto hit : *(hit_coll->GetVector())) {
       if (!hit) continue;
-      hitPMTUIDs.push_back(hit->detector_uid);   // FIX Füge Name das PMTs hinzu. Mit Mapping?
+      hitPMTUIDs.push_back(hit->detector_uid);  
       hitTimes.push_back(hit->global_time);
       hitWaveLengths.push_back(hit->photon_wavelength);
-      // hitEnergie = FIX: Berechne Energie aus Wellenlänge
     }
   }
   else {
@@ -151,19 +150,19 @@ void LowFidelityOutputScheme::StoreEvent(const G4Event* event) {
       // Neutron Capture Info:
       ana_man->FillNtupleIColumn(ntupleid, col_id++, muonID);
       ana_man->FillNtupleDColumn(ntupleid, col_id++, nCGlobalTime/u::s);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCxPosition);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCyPosition);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCzPosition);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCxPosition/u::m);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCyPosition/u::m);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCzPosition/u::m);
       ana_man->FillNtupleIColumn(ntupleid, col_id++, nCPhysVolumeID);
       ana_man->FillNtupleIColumn(ntupleid, col_id++, nCMaterialID);
       ana_man->FillNtupleIColumn(ntupleid, col_id++, nCfGe77);
       ana_man->FillNtupleIColumn(ntupleid, col_id++, nCGammaAmount);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCGammaTotalEnergy);
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, nCGammaTotalEnergy/u::keV);
       
       // PMT Info
       ana_man->FillNtupleIColumn(ntupleid, col_id++, hitPMTUIDs[i]);
       ana_man->FillNtupleDColumn(ntupleid, col_id++, hitTimes[i]/u::s);
-      ana_man->FillNtupleDColumn(ntupleid, col_id++, hitWaveLengths[i]); // in nm
+      ana_man->FillNtupleDColumn(ntupleid, col_id++, hitWaveLengths[i]); // bereits in nm
 
       // Startet neue Reihe in Output
       ana_man->AddNtupleRow(ntupleid);

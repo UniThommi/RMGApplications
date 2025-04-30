@@ -17,8 +17,11 @@ add_executable(
   src/RNGCerenkov.cc
   src/RNGTrackingAction.cc
   src/CosmogenicOutputScheme.cc
-  src/NeutronCaptureOutputScheme.cc
-  src/MyTrackInfo.cc)
+  src/OptPhotonSensitiveSurfaceOutputScheme.cc
+  src/MyTrackInfo.cc
+  src/MyPhotonHitsCollection.cc
+  src/MyPhotonHit.cc
+  src/MyEventAction.cc)
 
 target_link_libraries(FullCosmogenics PUBLIC RMG::remage)
 

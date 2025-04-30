@@ -17,35 +17,92 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <sstream>
+#include <vector>
+#include <map>
+#include <nlohmann/json.hpp>
 
 #include "CLI11.hpp"
 
+using json = nlohmann::json;
+
 // The names can also be hardcoded when following a strict name convention
 // But as the number of rows and columns can change in the future this is better
-// Still the PMT name needs to start with "PMT"!
-std::vector<std::string> getPMTNames(std::string filename) {
+// The PMT name needs to start with "PMT"!
+// Schreibe die PMT Zuordnung zur Detektor UID in ein JSON File um hinterher zu wissen wo der PMT war der getroffen wurde.
+
+// Struktur für PMT-Daten
+struct PMTInfo {
+  std::string name;
+  double posX, posY, posZ;
+  double rotX, rotY, rotZ;
+};
+
+// Mapping für PMT-Daten
+std::map<int, PMTInfo> PMTMapping;
+
+// Funktion zur Ausgabe der Mapping-Informationen als JSON
+void WritePMTMappingToJson(const std::string& filename) {
+  json jsonData;
+  for (const auto& [uid, info] : PMTMapping) {
+      jsonData[std::to_string(uid)] = {
+          {"name", info.name},
+          {"position", {
+              {"x", info.posX},
+              {"y", info.posY},
+              {"z", info.posZ}
+          }},
+          {"rotation", {
+              {"x", info.rotX},
+              {"y", info.rotY},
+              {"z", info.rotZ}
+          }}
+      };
+  }
+  std::ofstream outFile("./build/" + filename);
+  outFile << jsonData.dump(4); // Schön formatierte JSON-Ausgabe
+}
+
+
+// PMT-Namen und Mapping auslesen und registrieren
+std::vector<std::string> getPMTNamesAndRegister(const std::string& filename, RMGManager& man) {
   std::vector<std::string> PMTnames;
-  std::ifstream gdmlfile;
-  gdmlfile.open(filename);
-  std::string key = "physvol name=\"PMT"; // The physical volume names have this
-                                          // as indicator before them
+  std::ifstream gdmlfile(filename);
   if (!gdmlfile) {
-    throw std::runtime_error("Error opening file: " + filename);
+      throw std::runtime_error("Error opening file: " + filename);
   }
-  // Search the file for a physical volume that starts with "PMT"
+
+  std::string key = "physvol name=\"PMT"; 
   std::string line;
+  int id = 0;
+
   while (std::getline(gdmlfile, line)) {
-    size_t pos = line.find(key);
-    if (pos != std::string::npos) {
-      line.erase(0, pos + key.length());
-      pos = line.find("0x"); // Start of the hexadecimal pointer that will be
-                             // ignored by geant4
-      std::string name =
-          "PMT" + line.substr(0, pos); // Deleted the "PMT" out of the name
-                                       // previously so add it again
-      PMTnames.push_back(name);
-    }
+      size_t pos = line.find(key);
+      if (pos != std::string::npos) {
+          PMTInfo pmtInfo;
+
+          line.erase(0, pos + key.length());
+          pos = line.find("0x"); 
+          pmtInfo.name = "PMT" + line.substr(0, pos); 
+          PMTnames.push_back(pmtInfo.name);
+
+          // Suche Position und Rotation
+          while (std::getline(gdmlfile, line) && line.find("</physvol>") == std::string::npos) {
+              if (line.find("<position") != std::string::npos) {
+                  sscanf(line.c_str(), "<position name=\"%*s\" unit=\"mm\" x=\"%lf\" y=\"%lf\" z=\"%lf\"/>",
+                         &pmtInfo.posX, &pmtInfo.posY, &pmtInfo.posZ);
+              } else if (line.find("<rotation") != std::string::npos) {
+                  sscanf(line.c_str(), "<rotation name=\"%*s\" unit=\"deg\" x=\"%lf\" y=\"%lf\" z=\"%lf\"/>",
+                         &pmtInfo.rotX, &pmtInfo.rotY, &pmtInfo.rotZ);
+              }
+          }
+
+          PMTMapping[id] = pmtInfo;
+          man.GetDetectorConstruction()->RegisterDetector(RMGHardware::kOptical, pmtInfo.name, id);
+          id++;
+      }
   }
+  WritePMTMappingToJson("PMTs.json");
   return PMTnames;
 }
 
@@ -80,19 +137,13 @@ int main(int argc, char **argv) {
 
   // Overwrite RMGPhysics to use own Optical Processes
   man.GetDetectorConstruction()->IncludeGDMLFile(filename);
-
-  // Get the physical volume names of the PMTs to register them
-  std::vector<std::string> PMTnames = getPMTNames(filename);
-  int id = 0;
-  // Register all of the PMTs
-  for (const auto &name : PMTnames) {
-    man.GetDetectorConstruction()->RegisterDetector(RMGHardware::kOptical,
-                                                        name, id);
-    id++;
-  }
+  
+  // Get the physical volume names of the PMTs and register them
+  getPMTNamesAndRegister(filename, man);
+  
   // Register the germanium volume as germanium detector.
   man.GetDetectorConstruction()->RegisterDetector(RMGHardware::kGermanium,
-                                                      "Ge_phys", id + 1000);
+                                                      "Ge_phys", 1000);
 
   // Custom User init
   auto user_init = man.GetUserInit();
