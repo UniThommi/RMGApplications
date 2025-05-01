@@ -2,8 +2,6 @@
 #define MY_TRACK_INFO_HH
 
 #include "G4VUserTrackInformation.hh"
-#include "G4UserSteppingAction.hh"
-#include "G4Track.hh"
 #include "G4Step.hh"
 #include <vector>
 
@@ -19,7 +17,7 @@ public:
         G4double _nCGammaTotalEnergy,
         G4bool _nCfGe77,
         G4ThreeVector _gammaMomentumDirection,
-        G4double _gammaKineticEnergy,
+        G4double _gammaKineticEnergy
     );
     ~MyTrackInfo() override;
 
@@ -36,10 +34,10 @@ public:
     void SetnCTime(G4double nCTime);
 
     G4string GetnCPhysVol() const;
-    void SetnCPhysVol(G4string nCPhysVolID);
+    void SetnCPhysVol(G4string& nCPhysVolID);
 
     G4string GetnCMaterial() const;
-    void SetnCMaterial(G4string nCMaterialID);
+    void SetnCMaterial(G4string& nCMaterialID);
 
     G4int GetnCGammaAmount() const;
     void SetnCGammaAmount(G4int nCGammaAmount);
@@ -48,7 +46,7 @@ public:
     void SetnCGammaTotalEnergy(G4double nCGammaTotalEnergy);
 
     G4ThreeVector GetGammaMomentumDirection() const;
-    void SetGammaMomentumDirection(G4ThreeVector nCGammaTotalEnergy);
+    void SetGammaMomentumDirection(G4ThreeVector nCGammaMomentumDirection);
 
     G4double GetGammaKineticEnergy() const;
     void SetGammaKineticEnergy(G4double gammaKineticEnergy);
@@ -66,19 +64,5 @@ private:
     G4double gammaKineticEnergy;
     
 };
-
-class MyEventAction;
-
-class MySteppingAction : public G4UserSteppingAction {
-public:
-    MySteppingAction(MyEventAction* eventAction); // Konstruktor
-    ~MySteppingAction() override = default;
-
-    void UserSteppingAction(const G4Step* step) override;
-
-private:
-    MyEventAction* fEventAction = nullptr;
-};
-
 
 #endif // MY_TRACK_INFO_HH
