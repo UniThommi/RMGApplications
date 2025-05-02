@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "PhotonHit.hh"
+#include "MyPhotonHit.hh"
 #include "G4THitsCollection.hh"
 
 using PhotonHitsCollection = G4THitsCollection<PhotonHit>;

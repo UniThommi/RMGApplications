@@ -1,3 +1,8 @@
+#include "MyTrackInfo.hh"
+#include "MyEventAction.hh"
+#include "MySteppingAction.hh"
+#include "OptPhotonSensitiveSurfaceOutputScheme.hh"
+
 #include "RMGHardware.hh"
 #include "RMGLog.hh"
 #include "RMGManager.hh"
@@ -5,14 +10,12 @@
 #include "CosmogenicPhysics.hh"
 #include "CustomIsotopeFilter.hh"
 #include "CustomMUSUNGenerator.hh"
-#include "HardwareQEOverride.hh"
 #include "RNGTrackingAction.hh"
 #include "RMGIsotopeFilterOutputScheme.hh"
-#include "CosmogenicOutputScheme.hh"
-#include "NeutronCaptureOutputScheme.hh"
-#include "MyTrackInfo.hh"
-#include "MyEventAction.hh"
 #include "G4VUserEventInformation.hh"
+
+#include "CosmogenicOutputScheme.hh"
+#include "HardwareQEOverride.hh"
 
 #include <fstream>
 #include <iostream>
@@ -125,9 +128,11 @@ int main(int argc, char **argv) {
     user_init->AddOptionalOutputScheme<CosmogenicOutputScheme>("CosmogenicOutputScheme");
   }
 
-  if (useNeutronCaptureOutputScheme) {
-    user_init->AddSteppingAction<MySteppingAction>();
-    user_init->AddEventAction<MyEventAction>();
+  if (useSensitiveSurfaceOutputScheme) {
+    G4UserEventAction* eventAction = new MyEventAction();
+    run_man->SetUserAction(eventAction);
+    G4UserSteppingAction* steppingAction = new MySteppingAction(static_cast<MyEventAction*>(eventAction));
+    run_man->SetUserAction(steppingAction);
     user_init->AddOptionalOutputScheme<OptHitsSensitiveSurfaceOutputScheme>("OptHitsSensitiveSurfaceOutputScheme");
   }
 
@@ -138,7 +143,6 @@ int main(int argc, char **argv) {
     man.SetInteractive(true);
 
   // Outputfilename and Threads. Then run
-  
   man.SetOutputFileName(outputfilename);
   man.EnablePersistency();
   man.SetNumberOfThreads(nThreads);

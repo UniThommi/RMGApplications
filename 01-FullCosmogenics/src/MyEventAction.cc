@@ -1,11 +1,12 @@
 #include "MyEventAction.hh"
+#include "MyPhotonHit.hh" // dein benutzerdefinierter Hit-Typ
+
 #include "G4Event.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4RunManager.hh"
-#include "PhotonHit.hh" // dein benutzerdefinierter Hit-Typ
-#include "YourOutputScheme.hh" // hier kommt deine Speicherklasse rein
+
 
 #include <iostream>
 

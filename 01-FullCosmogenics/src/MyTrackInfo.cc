@@ -7,60 +7,60 @@
 
 // Constructor initializes track IDs
 MyTrackInfo::MyTrackInfo(
-    G4int _nCTrackID,
-    G4ThreeVector _nCPos,
-    G4double _nCTime,
-    G4string _nCPhysVol,
-    G4string _nCMaterial,
-    G4int _nCGammaAmount,
-    G4double _nCGammaTotalEnergy,
-    G4bool _nCfGe77,
-    G4ThreeVector _gammaMomentumDirection,
-    G4double _gammaKineticEnergy
+    G4int trackID,
+    G4ThreeVector pos,
+    G4double time,
+    G4String physVol,
+    G4String material,
+    G4int amount,
+    G4double totalEnergy,
+    G4bool fGe77,
+    G4ThreeVector momentumDirection,
+    G4double kineticEnergy
 ) 
-    : nCTrackID(_nCTrackID),
-    nCPos(_nCPos), 
-    nCTime(_nCTime),
-    nCPhysVol(_nCPhysVol),
-    nCMaterial(_nCMaterial),
-    nCGammaAmount(_nCGammaAmount),
-    nCGammaTotalEnergy(_nCGammaTotalEnergy),
-    nCfGe77(_nCfGe77), 
-    gammaMomentumDirection(_gammaMomentumDirection),
-    gammaKineticEnergy(_gammaKineticEnergy)
+    : nCTrackID(trackID),
+    nCPos(pos), 
+    nCTime(time),
+    nCPhysVol(physVol),
+    nCMaterial(material),
+    nCGammaAmount(amount),
+    nCGammaTotalEnergy(totalEnergy),
+    nCfGe77(fGe77), 
+    gammaMomentumDirection(momentumDirection),
+    gammaKineticEnergy(kineticEnergy)
     {}
 
 // Destructor
 MyTrackInfo::~MyTrackInfo() {}
 
 // Get and Set Info
-G4int MyTrackInfo::GetnCTrackID() const { return nCTrackID; }
-void MyTrackInfo::SetnCTrackID(G4int _nCTrackID) { nCTrackID = _nCTrackID; }
+G4int MyTrackInfo::GetnCTrackID() const { return this->nCTrackID; }
+void MyTrackInfo::SetnCTrackID(G4int trackID) { this->nCTrackID = trackID; }
 
-G4ThreeVector MyTrackInfo::GetnCPos() const { return nCPos; }
-void MyTrackInfo::SetnCPos(G4ThreeVector _nCPos) { nCPos = _nCPos; }
+const G4ThreeVector& MyTrackInfo::GetnCPos() const { return this->nCPos; }
+void MyTrackInfo::SetnCPos(const G4ThreeVector& pos) { this->nCPos = pos; }
 
-G4bool MyTrackInfo::GetnCfGe77() const { return nCfGe77; }
-void MyTrackInfo::SetnCfGe77(G4bool _nCfGe77) { nCfGe77 = _nCfGe77; }
+G4bool MyTrackInfo::GetnCfGe77() const { return this->nCfGe77; }
+void MyTrackInfo::SetnCfGe77(G4bool fGe77) { this->nCfGe77 = fGe77; }
 
-G4double MyTrackInfo::GetnCTime() const { return nCTime; }
-void MyTrackInfo::SetnCTime(G4double _nCTime) { nCTime = _nCTime; }
+G4double MyTrackInfo::GetnCTime() const { return this->nCTime; }
+void MyTrackInfo::SetnCTime(G4double time) { this->nCTime = time; }
 
-G4string MyTrackInfo::GetnCPhysVol() const { return nCPhysVol; }
-void MyTrackInfo::SetnCPhysVol(G4string& _nCPhysVol) { nCPhysVol = _nCPhysVol; }
+const G4String& MyTrackInfo::GetnCPhysVol() const { return this->nCPhysVol; }
+void MyTrackInfo::SetnCPhysVol(const G4String& physVol) { this->nCPhysVol = physVol; }
 
-G4string MyTrackInfo::GetnCMaterial() const { return nCMaterial; }
-void MyTrackInfo::SetnCMaterial(G4string& _nCMaterial) { nCMaterial = _nCMaterial; }
+const G4String& MyTrackInfo::GetnCMaterial() const { return this->nCMaterial; }
+void MyTrackInfo::SetnCMaterial(const G4String& material) { this->nCMaterial = material; }
 
-G4int MyTrackInfo::GetnCGammaAmount() const { return nCGammaAmount; }
-void MyTrackInfo::SetnCGammaAmount(G4int _nCGammaAmount) { nCGammaAmount = _nCGammaAmount; }
+G4int MyTrackInfo::GetnCGammaAmount() const { return this->nCGammaAmount; }
+void MyTrackInfo::SetnCGammaAmount(G4int amount) { this->nCGammaAmount = amount; }
 
-G4double MyTrackInfo::GetnCGammaTotalEnergy() const { return nCGammaTotalEnergy; }
-void MyTrackInfo::SetnCGammaTotalEnergy(G4double _nCGammaTotalEnergy) { nCGammaTotalEnergy = _nCGammaTotalEnergy; } 
+G4double MyTrackInfo::GetnCGammaTotalEnergy() const { return this->nCGammaTotalEnergy; }
+void MyTrackInfo::SetnCGammaTotalEnergy(G4double totalEnergy) { this->nCGammaTotalEnergy = totalEnergy; } 
 
-G4ThreeVector MyTrackInfo::GetGammaMomentumDirection() const { return gammaMomentumDirection; }
-void MyTrackInfo::SetGammaMomentumDirection(G4ThreeVector _gammaMomentumDirection) { gammaMomentumDirection = _gammaMomentumDirection; }
+const G4ThreeVector& MyTrackInfo::GetGammaMomentumDirection() const { return this->gammaMomentumDirection; }
+void MyTrackInfo::SetGammaMomentumDirection(const G4ThreeVector& momentumDirection) { this->gammaMomentumDirection = momentumDirection; }
 
-G4double MyTrackInfo::GetGammaKineticEnergy() const { return gammaKineticEnergy; }
-void MyTrackInfo::SetGammaKineticEnergy(G4double _gammaKineticEnergy) { gammaKineticEnergy = _gammaKineticEnergy; }
+G4double MyTrackInfo::GetGammaKineticEnergy() const { return this->gammaKineticEnergy; }
+void MyTrackInfo::SetGammaKineticEnergy(G4double kineticEnergy) { this->gammaKineticEnergy = kineticEnergy; }
 

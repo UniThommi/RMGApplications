@@ -1,10 +1,11 @@
 #ifndef MY_EVENT_ACTION_HH
 #define MY_EVENT_ACTION_HH
-#pragma once
 
 #include "G4UserEventAction.hh"
 #include "G4THitsCollection.hh"
+
 #include "MyPhotonHitsCollection.hh"
+
 #include "globals.hh"
 
 class G4Event;

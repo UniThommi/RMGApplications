@@ -1,6 +1,7 @@
-#include "OptHitsSensitiveSurfaceOutputScheme.hh"
+#include "OptPhotonSensitiveSurfaceOutputScheme.hh"
 #include "MyTrackInfo.hh"
 #include "MyPhotonHit.hh"
+#include "MyPhotonHitsCollection.hh"
 
 #include <set>
 #include <algorithm>
@@ -33,33 +34,8 @@ void OptHitsSensitiveSurfaceOutputScheme::ClearBeforeEvent() {
 };
 
 
-void OptHitsSensitiveSurfaceOutputScheme::TrackingActionPre(const G4Track* aTrack) { //FIX: Wird nicht gebraucht!
+void OptHitsSensitiveSurfaceOutputScheme::TrackingActionPre(const G4Track* aTrack) { 
 
-    // Wenn es sich um ein optisches Photon handelt was den Sensitive Surface Detector getroffen hat (registriert in SDManager) speichere es
-    // optical photon?
-    auto particle = aTrack->GetDefinition();
-    if (particle != G4OpticalPhoton::OpticalPhotonDefinition()) return;
-    
-    auto* trackInfo = dynamic_cast<MyTrackInfo*>(aTrack->GetUserInformation());
-
-
-    if (aTrack->GetParticleDefinition() == G4Gamma::Definition()) {
-    // Initialisieren der Track Info
-    auto* trackInfo = dynamic_cast<MyTrackInfo*>(aTrack->GetUserInformation());
-    if (trackInfo && trackInfo->GetnCNeutronID() != -1) {
-        // Push Data
-        // G4cout << "Pushe Gamma Daten" << G4endl;
-        nCNeutronID.push_back(trackInfo->GetnCNeutronID());
-        gammaPositions.push_back(aTrack->GetVertexPosition()); // Save the locations of Neutrons creation
-        gammaMomentumDirections.push_back(aTrack->GetMomentumDirection());
-        globalTimes.push_back(aTrack->GetGlobalTime());
-        gammaKinEnergies.push_back(aTrack->GetVertexKineticEnergy());
-        // In welchem Volumen erzeugt? Nicht als string ausgeben sondern als int 
-        
-        fGe77.push_back(trackInfo->GetnCfGe77());
-        const_cast<G4Track*>(aTrack)->SetTrackStatus(fStopAndKill);
-        }
-    }
 }
 
 
@@ -68,8 +44,8 @@ void OptHitsSensitiveSurfaceOutputScheme::AssignOutputNames(G4AnalysisManager* a
     G4cout << "Debug: AssignOutputNames" << G4endl;
 
     auto rmg_man = RMGManager::Instance();
-    auto optPhotonsNTuple = rmg_man->RegisterNtuple(neutronsRegister,
-        ana_man->CreateNtuple("NeutronCaptureOutput", "Event data"));
+    auto optPhotonsNTuple = rmg_man->RegisterNtuple(optPhotonsRegister,
+        ana_man->CreateNtuple("SensitiveSurfaceOutput", "Event data"));
 
     ana_man->CreateNtupleIColumn(optPhotonsNTuple, "evtid");
     // Create column structure to safe data
@@ -141,7 +117,7 @@ void OptHitsSensitiveSurfaceOutputScheme::StoreEvent(const G4Event* event) {
             int materialID = -1;
             if (hit) {
             // Volumenname und Materialname ermitteln
-                G4string physVolumeName = hit->nCPhysVol;
+                G4String physVolumeName = hit->GetnCPhysVol();
                 
                 if (physVolumeMapping.find(physVolumeName) == physVolumeMapping.end()) {
                     const G4int physicalVolumeMappingID = physVolumeMapping.size();
@@ -156,7 +132,7 @@ void OptHitsSensitiveSurfaceOutputScheme::StoreEvent(const G4Event* event) {
                 physVolumeID = physVolumeMapping[physVolumeName];
                 
             
-                G4string materialName = hit->nCMaterial;
+                G4String materialName = hit->GetnCMaterial();
             
                 if (materialMapping.find(materialName) == materialMapping.end()) {
                     const G4int materialMappingID = materialMapping.size();
@@ -176,32 +152,32 @@ void OptHitsSensitiveSurfaceOutputScheme::StoreEvent(const G4Event* event) {
             int col_id = 0;
             // Output: Was Ge77 produced in this event?
             ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, event->GetEventID());
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->nCTrackID);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->nCTime/u::s);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->nCPos.getX()/u::m);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->nCPos.getY()/u::m);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->nCPos.getZ()/u::m); 
+            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCTrackID());
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCTime()/u::s);
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCPos().getX()/u::m);
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCPos().getY()/u::m);
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCPos().getZ()/u::m); 
             ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, physVolumeID);
             ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, materialID);
 
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->nCGammaAmount);
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->nCGammaTotalEnergy/u::keV);
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->nCfGe77);
+            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCGammaAmount());
+            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCGammaTotalEnergy()/u::keV);
+            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCfGe77());
             
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->gammaMomentumDirections.getX());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->gammaMomentumDirections.getY());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->gammaMomentumDirections.getZ()); 
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->gammaKineticEnergy/u::keV);
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getX());
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getY());
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getZ()); 
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaKineticEnergy()/u::keV);
 
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->detectorUID);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->optPhotonEnergy/u::keV);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->optPhotonGlobalTime/u::s);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->optPhotonPosition.getX()/u::m);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->optPhotonPosition.getY()/u::m);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->optPhotonPosition.getZ()/u::m);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->optPhotonMomentumDirection.getX());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->optPhotonMomentumDirection.getY());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->optPhotonMomentumDirection.getZ());
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetDetectorUID());
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonEnergy()/u::keV);
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonGlobalTime()/u::s);
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonPosition().getX()/u::m);
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonPosition().getY()/u::m);
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonPosition().getZ()/u::m);
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonMomentumDirection().getX());
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonMomentumDirection().getY());
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonMomentumDirection().getZ());
 
             ana_man->AddNtupleRow(optPhotonsNTuple);
         }

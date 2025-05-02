@@ -1,8 +1,12 @@
 #include "MyPhotonHit.hh"
 #include "MyTrackInfo.hh"
 #include "MyPhotonHitsCollection.hh"
+#include "MySteppingAction.hh"
 
 #include "RMGOpticalDetector.hh"
+#include "RMGLog.hh"
+#include "RMGManager.hh"
+#include "RMGHardware.hh"
 
 #include "G4HCofThisEvent.hh"
 #include "G4OpticalPhoton.hh"
@@ -29,16 +33,16 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
 
     if (track->GetParentID() == 0) { // Primary Particle
         auto* info = new MyTrackInfo(
-            -1,                     // TrackID
-            (-1., -1., -1.),        // nC Pos
-            -1.,                    // nC Time
-            -1,                     // nC Phys Vol
-            -1,                     // nC Material
-            -1,                     // nC Gamma Amount
-            -1.,                    // nC Gamma Total Energy
-            false,                  // nC fGe77
-            (-1., -1., -1.),        // Gamma Momentum Direction
-            -1.                     // Gamma Kinetic Energy
+            -1,                                 // TrackID
+            G4ThreeVector(-1., -1., -1.),       // nC Pos
+            -1.,                                // nC Time
+            "",                                 // nC Phys Vol
+            "",                                 // nC Material
+            -1,                                 // nC Gamma Amount
+            -1.,                                // nC Gamma Total Energy
+            false,                              // nC fGe77
+            G4ThreeVector(-1., -1., -1.),       // Gamma Momentum Direction
+            -1.                                 // Gamma Kinetic Energy
         );
         track->SetUserInformation(info);
     }
@@ -67,10 +71,10 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             // G4cout << "Neutron capture detected" << G4endl;
             // Use const_cast to remove the const qualifier and modify the object
             const G4VPhysicalVolume* physicalVolume = track->GetVolume();
-            G4string physVolumeName = "";
-            G4string materialName = "";
+            G4String physVolumeName = "";
+            G4String materialName = "";
             if (physicalVolume) {
-                physVolumeName = physicalVolume->GetName()
+                physVolumeName = physicalVolume->GetName();
                 G4Material* material = physicalVolume->GetLogicalVolume()->GetMaterial();
                 if (material) {
                     materialName = material->GetName();
@@ -114,8 +118,16 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     // Inherit Track Info to secondary particles
     for (const auto& secTrack : *secondaries) {
         auto* inheritedInfo = new MyTrackInfo(
-            nonConstTrackInfo->GetnCNeutronID(),
-            nonConstTrackInfo->GetnCfGe77()
+            nonConstTrackInfo->GetnCTrackID(),
+            nonConstTrackInfo->GetnCPos(),
+            nonConstTrackInfo->GetnCTime(),
+            nonConstTrackInfo->GetnCPhysVol(),
+            nonConstTrackInfo->GetnCMaterial(),
+            nonConstTrackInfo->GetnCGammaAmount(),
+            nonConstTrackInfo->GetnCGammaTotalEnergy(),
+            nonConstTrackInfo->GetnCfGe77(),
+            nonConstTrackInfo->GetGammaMomentumDirection(),
+            nonConstTrackInfo->GetGammaKineticEnergy()
         );
         // Wenn das Secondary ein Gamma ist, speichere Energie & Impulsrichtung
         if (secTrack->GetParticleDefinition() == G4Gamma::Definition()) {
@@ -147,15 +159,15 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             auto det_cons = RMGManager::Instance()->GetDetectorConstruction();
             try {
                 auto d_type = det_cons->GetDetectorMetadata({pv_name, pv_copynr}).type;
-                if (d_type != RMGDetectorType::kOptical) {
+                if (d_type != RMGHardware::kOptical) {
                 RMGLog::OutFormatDev(RMGLog::debug,
                     "Volume '{}' (copy nr. {} not registered as optical detector", pv_name, pv_copynr);
-                return false;
+                return;
                 }
             } catch (const std::out_of_range& e) {
                 RMGLog::OutFormatDev(RMGLog::debug, "Volume '{}' (copy nr. {} not registered as detector",
                     pv_name, pv_copynr);
-                return false;
+                return;
             }
 
             // retrieve data and unique id for persistency
@@ -171,8 +183,8 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             G4int nCTrackID = nonConstTrackInfo->GetnCTrackID();
             G4ThreeVector nCPos = nonConstTrackInfo->GetnCPos();
             G4double nCTime = nonConstTrackInfo->GetnCTime();
-            G4int nCPhysVol = nonConstTrackInfo->GetnCPhysVol();
-            G4string nCMaterial = nonConstTrackInfo->GetnCMaterial();
+            G4String nCPhysVol = nonConstTrackInfo->GetnCPhysVol();
+            G4String nCMaterial = nonConstTrackInfo->GetnCMaterial();
             G4int nCGammaAmount = nonConstTrackInfo->GetnCGammaAmount();
             G4double nCGammaTotalEnergy = nonConstTrackInfo->GetnCGammaTotalEnergy();
             G4bool nCfGe77 = nonConstTrackInfo->GetnCfGe77();
@@ -184,7 +196,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             PhotonHit* hit = new PhotonHit();
             hit->SetDetectorUID(det_uid);
             hit->SetOptPhotonEnergy(photon_energy);
-            hit->SetOptPhotonglobalTime(photon_global_time);
+            hit->SetOptPhotonGlobalTime(photon_global_time);
             hit->SetOptPhotonPosition(photon_position);
             hit->SetOptPhotonMomentumDirection(photon_momentum_direction);
             hit->SetnCTrackID(nCTrackID);
@@ -200,7 +212,6 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
 
             // Hole HitsCollection aus G4Event
             auto hitsCollection = fEventAction->GetPhotonHitsCollection();
-            if (hitsCollection) {
 
             if (hitsCollection)
                 hitsCollection->insert(hit);
