@@ -1,5 +1,5 @@
-#ifndef MY_STEPPING_ACTION
-#define MY_STEPPING_ACTION
+#ifndef MY_STEPPING_ACTION_HH
+#define MY_STEPPING_ACTION_HH
 
 #include "MyEventAction.hh"
 
@@ -22,4 +22,4 @@ private:
 };
 
 
-#endif // MY_STEPPING_ACTION
+#endif // MY_STEPPING_ACTION_HH

@@ -1,6 +1,7 @@
 #include "MyTrackInfo.hh"
 #include "MyEventAction.hh"
 #include "MySteppingAction.hh"
+#include "MyRMGActionInitialization.hh"
 #include "OptPhotonSensitiveSurfaceOutputScheme.hh"
 
 #include "RMGHardware.hh"
@@ -54,32 +55,6 @@
 //   return PMTnames;
 // }
 
-std::vector<std::string> getTyvekNames(std::string filename) {
-  std::vector<std::string> tyvekNames;
-  std::ifstream gdmlfile;
-  gdmlfile.open(filename);
-  std::string key = "physvol name=\"tyvek_"; // The physical volume names have this
-                                          // as indicator before them
-  if (!gdmlfile) {
-    throw std::runtime_error("Error opening file: " + filename);
-  }
-  // Search the file for a physical volume that starts with "tyvek"
-  std::string line;
-  while (std::getline(gdmlfile, line)) {
-    size_t pos = line.find(key);
-    if (pos != std::string::npos) {
-      line.erase(0, pos + key.length());
-      pos = line.find("0x"); // Start of the hexadecimal pointer that will be
-                             // ignored by geant4
-      std::string name =
-          "tyvek_" + line.substr(0, pos); // Deleted the "tyvek" out of the name
-                                       // previously so add it again
-      tyvekNames.push_back(name);
-    }
-  }
-  return tyvekNames;
-}
-
 int main(int argc, char **argv) {
   CLI::App app{"Cosmogenic Simulations"};
   int nThreads = 256;
@@ -101,7 +76,7 @@ int main(int argc, char **argv) {
   // RMGLog::SetLogLevel(RMGLog::debug);
 
   // Anpassen!
-  std::string filename = "gdml/OptPrismOriginalDistance.gdml";
+  std::string filename = "gdml/SensitiveSurfaceMaxDistance.gdml";
 
   std::string outputfilename = "build/output.hdf5";
 
@@ -123,32 +98,19 @@ int main(int argc, char **argv) {
   //   id++;
   // }
 
-  // Register optical Sensitive Surface Detector
-  // Get the physical volume names of the tyvek surfaces to register them
-  std::vector<std::string> tyvekNames = getTyvekNames(filename);
-  int tyvek_id = 2000; // Start ID for tyvek detectors (just an example, avoid collision)
-
-  for (const auto &name : tyvekNames) {
-    man.GetDetectorConstruction()->RegisterDetector(RMGHardware::kOptical, name, tyvek_id);
-    tyvek_id++;
-    G4cout << "Registered Tyvek detector: " << name << " with ID: " << tyvek_id-1 << G4endl;
-  }
-
-  // Register the germanium volume as germanium detector.
-  man.GetDetectorConstruction()->RegisterDetector(RMGHardware::kGermanium,
-                                                      "Ge_phys", 1000);
-                                                      //"Ge_phys", id + 1000);
+  // Register optical Sensitive Surface Detector -> Done by run.mac
+  
 
   // Custom User init
   auto user_init = man.GetUserInit();
   auto *run_man = man.GetG4RunManager();
-  man.SetUserInit(new CosmogenicPhysics());
 
   if (rngFlag != 0) {
     user_init->AddOptionalOutputScheme<CustomIsotopeFilter>(
         "CustomIsotopeFilter");
     user_init->AddTrackingAction<RNGTrackingAction>();
     user_init->SetUserGenerator<CustomMUSUNGenerator>();
+    man.SetUserInit(new CosmogenicPhysics());
     run_man->SetNumberOfThreads(nThreads);
     if(rngFlag == 1)
       outputfilename = "build/output.csv";
@@ -161,10 +123,7 @@ int main(int argc, char **argv) {
   }
 
   if (useSensitiveSurfaceOutputScheme) {
-    G4UserEventAction* eventAction = new MyEventAction();
-    run_man->SetUserAction(eventAction);
-    G4UserSteppingAction* steppingAction = new MySteppingAction(static_cast<MyEventAction*>(eventAction));
-    run_man->SetUserAction(steppingAction);
+    run_man->SetUserInitialization(new RMGActionInitialization());
     user_init->AddOptionalOutputScheme<OptHitsSensitiveSurfaceOutputScheme>("OptHitsSensitiveSurfaceOutputScheme");
   }
 
