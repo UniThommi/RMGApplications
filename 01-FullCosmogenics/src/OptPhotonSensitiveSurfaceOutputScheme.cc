@@ -98,7 +98,7 @@ void OptHitsSensitiveSurfaceOutputScheme::StoreEvent(const G4Event* event) {
         auto physVolumesNTuple = rmg_man->GetNtupleID(physVolRegister);
         auto materialsNTuple = rmg_man->GetNtupleID(materialRegister);
 
-        auto hitsCollection = RMGManager::Instance()->GetPhotonHitsCollection();  // oder wie auch immer du es speicherst
+        auto hitsCollection = fEventAction->GetPhotonHitsCollection();
         if (!hitsCollection) {
             G4cout << "ERROR: Keine Hits Collection für das ganze Event!" << G4endl;
             return;

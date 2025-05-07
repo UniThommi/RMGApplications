@@ -11,6 +11,8 @@
 #include "G4Run.hh"
 #include "RMGVOutputScheme.hh"
 
+#include "MyEventAction.hh"
+
 
 
 class G4Event;
@@ -38,6 +40,7 @@ class OptHitsSensitiveSurfaceOutputScheme : public RMGVOutputScheme {
     // RMGVOutputScheme Variablen.
     std::unique_ptr<G4GenericMessenger> fMessenger;
     void DefineCommands();
+    MyEventAction* fEventAction = nullptr;
 
     // Output Register:
     G4int optPhotonsRegister = 12130;
