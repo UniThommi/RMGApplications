@@ -1,7 +1,7 @@
 #include "MyTrackInfo.hh"
 #include "MyEventAction.hh"
 #include "MySteppingAction.hh"
-#include "MyRMGActionInitialization.hh"
+#include "MyActionInitialization.hh"
 #include "OptPhotonSensitiveSurfaceOutputScheme.hh"
 
 #include "RMGHardware.hh"
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
   }
 
   if (useSensitiveSurfaceOutputScheme) {
-    run_man->SetUserInitialization(new RMGActionInitialization());
+    // Initialize user event and stepping actions
     user_init->AddOptionalOutputScheme<OptHitsSensitiveSurfaceOutputScheme>("OptHitsSensitiveSurfaceOutputScheme");
   }
 
@@ -126,6 +126,7 @@ int main(int argc, char **argv) {
   man.EnablePersistency();
   man.SetNumberOfThreads(nThreads);
   man.Initialize();
+  man.SetUserActionInitialization(new MyActionInitialization());
   man.Run();
 
   return 0;

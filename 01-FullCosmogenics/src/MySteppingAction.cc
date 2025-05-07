@@ -20,7 +20,9 @@
 #include "G4Step.hh"
 
 MySteppingAction::MySteppingAction(MyEventAction* eventAction)
-    : fEventAction(eventAction) {}
+    : fEventAction(eventAction) {
+        this->DefineCommands();
+    }
 
 // Destructor
 MySteppingAction::~MySteppingAction() {}    
@@ -222,3 +224,6 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     }
 }
 
+void MySteppingAction::DefineCommands() {
+  
+}

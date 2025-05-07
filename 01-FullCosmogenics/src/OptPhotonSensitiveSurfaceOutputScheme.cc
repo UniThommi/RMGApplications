@@ -98,19 +98,14 @@ void OptHitsSensitiveSurfaceOutputScheme::StoreEvent(const G4Event* event) {
         auto physVolumesNTuple = rmg_man->GetNtupleID(physVolRegister);
         auto materialsNTuple = rmg_man->GetNtupleID(materialRegister);
 
-        // FIX: Hole hier die Daten aus Photon Allocator
-        G4HCofThisEvent* hce = event->GetHCofThisEvent();
-        if (!hce) return;
-
-        G4int hcID = G4SDManager::GetSDMpointer()->GetCollectionID("PhotonSD/PhotonHitsCollection");
-        auto hitsCollection = static_cast<PhotonHitsCollection*>(hce->GetHC(hcID));
-
+        auto hitsCollection = RMGManager::Instance()->GetPhotonHitsCollection();  // oder wie auch immer du es speicherst
         if (!hitsCollection) {
             G4cout << "ERROR: Keine Hits Collection für das ganze Event!" << G4endl;
             return;
         }
 
         for (size_t i = 0; i < hitsCollection->GetSize(); ++i) {
+            PhotonHit* hit = (*hitsCollection)[i];
             PhotonHit* hit = (*hitsCollection)[i];
             // Update Mappings
             int physVolumeID = -1;
@@ -161,7 +156,7 @@ void OptHitsSensitiveSurfaceOutputScheme::StoreEvent(const G4Event* event) {
             ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, materialID);
 
             ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCGammaAmount());
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCGammaTotalEnergy()/u::keV);
+            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCGammaTotalEnergy()/u::keV);
             ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCfGe77());
             
             ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getX());
@@ -169,7 +164,7 @@ void OptHitsSensitiveSurfaceOutputScheme::StoreEvent(const G4Event* event) {
             ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getZ()); 
             ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaKineticEnergy()/u::keV);
 
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetDetectorUID());
+            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetDetectorUID());
             ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonEnergy()/u::keV);
             ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonGlobalTime()/u::s);
             ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonPosition().getX()/u::m);

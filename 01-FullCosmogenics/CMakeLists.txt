@@ -19,7 +19,7 @@ add_executable(
   src/MyPhotonHit.cc
   src/MyEventAction.cc
   src/MySteppingAction.cc
-  src/MyRMGActionInitialization.cc)
+  src/MyActionInitialization.cc)
 
 target_link_libraries(FullCosmogenics PUBLIC RMG::remage)
 

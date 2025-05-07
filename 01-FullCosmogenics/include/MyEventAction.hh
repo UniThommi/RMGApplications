@@ -25,7 +25,8 @@ class MyEventAction : public G4UserEventAction {
     PhotonHitsCollection* GetPhotonHitsCollection() const { return fPhotonHitsCollection; }
 
 private:
-    PhotonHitsCollection* fPhotonHitsCollection = nullptr; // HIER   G4int fPhotonHitsCollectionID = -1; // ID der PhotonHitCollection (einmalig abgefragt)
+    void DefineCommands();
+    PhotonHitsCollection* fPhotonHitsCollection = nullptr;
 };
 
 #endif // MY_EVENT_ACTION_HH

@@ -18,6 +18,7 @@ public:
     void UserSteppingAction(const G4Step* step) override;
 
 private:
+    void DefineCommands();
     MyEventAction* fEventAction = nullptr;
 };
 
