@@ -4,7 +4,7 @@
 
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
-/RMG/Processes/OpticalPhysics false #für Neutronen generieren
+/RMG/Processes/OpticalPhysics true 
 /RMG/Output/ActivateOutputScheme OptHitsSensitiveSurfaceOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 

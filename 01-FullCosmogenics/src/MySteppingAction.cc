@@ -35,6 +35,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     const G4Track* track = step->GetTrack();
 
     if (track->GetParentID() == 0) { // Primary Particle
+        G4cout << "New Event -> Muon" << G4endl;
         auto* info = new MyTrackInfo(
             -1,                                 // TrackID
             G4ThreeVector(-1., -1., -1.),       // nC Pos
@@ -69,8 +70,10 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
     MyTrackInfo* nonConstTrackInfo = const_cast<MyTrackInfo*>(trackInfo);
     if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture") {
+        G4cout << "NeutronCapture happened" << G4endl;
         // Ensure the captured particle is a neutron
         if (track->GetParticleDefinition() == G4Neutron::Definition()) {
+            G4cout << "Neutron of NeutronCapture" << G4endl;
             // G4cout << "Neutron capture detected" << G4endl;
             // Use const_cast to remove the const qualifier and modify the object
             const G4VPhysicalVolume* physicalVolume = track->GetVolume();
@@ -120,6 +123,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     // Handling und speichern von optischen Photonen
     auto particle = step->GetTrack()->GetDefinition();
     if (particle == G4OpticalPhoton::OpticalPhotonDefinition()) {
+        G4cout << "Optisches Photon handeling" << G4endl;
         // This is actually irrelevant as optical photons do not truly carry the energy deposited
         // This yields the photon wavelength (in energy units)
         if (step->GetTotalEnergyDeposit() != 0) {
@@ -137,110 +141,107 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             auto det_cons = RMGManager::Instance()->GetDetectorConstruction();
             try {
                 auto d_type = det_cons->GetDetectorMetadata({pv_name, pv_copynr}).type;
-                if (d_type != RMGHardware::kOptical) {
-                RMGLog::OutFormatDev(RMGLog::debug,
-                    "Volume '{}' (copy nr. {} not registered as optical detector", pv_name, pv_copynr);
-                return;
-                }
-            } catch (const std::out_of_range& e) {
-                RMGLog::OutFormatDev(RMGLog::debug, "Volume '{}' (copy nr. {} not registered as detector",
-                    pv_name, pv_copynr);
-                return;
-            }
+                if (d_type = RMGHardware::kOptical) {
+                    G4cout << "Optisches Photon Hit auf optischen Detektor" << G4endl;
 
-            // retrieve data and unique id for persistency
-            G4int det_uid = det_cons->GetDetectorMetadata({pv_name, pv_copynr}).uid;
+                    // retrieve data and unique id for persistency
+                    G4int det_uid = det_cons->GetDetectorMetadata({pv_name, pv_copynr}).uid;
 
-            RMGLog::OutDev(RMGLog::debug, "Hit in optical detector nr. ", det_uid, " detected");
+                    RMGLog::OutDev(RMGLog::debug, "Hit in optical detector nr. ", det_uid, " detected");
 
-            G4double photon_energy = step->GetTotalEnergyDeposit();
-            G4double photon_global_time = step->GetPostStepPoint()->GetGlobalTime();
-            G4ThreeVector photon_position = step->GetPostStepPoint()->GetPosition();
-            G4ThreeVector photon_momentum_direction = step->GetPostStepPoint()->GetMomentumDirection();
+                    G4double photon_energy = step->GetTotalEnergyDeposit();
+                    G4double photon_global_time = step->GetPostStepPoint()->GetGlobalTime();
+                    G4ThreeVector photon_position = step->GetPostStepPoint()->GetPosition();
+                    G4ThreeVector photon_momentum_direction = step->GetPostStepPoint()->GetMomentumDirection();
 
-            G4int nCTrackID = nonConstTrackInfo->GetnCTrackID();
-            G4ThreeVector nCPos = nonConstTrackInfo->GetnCPos();
-            G4double nCTime = nonConstTrackInfo->GetnCTime();
-            G4String nCPhysVol = nonConstTrackInfo->GetnCPhysVol();
-            G4String nCMaterial = nonConstTrackInfo->GetnCMaterial();
-            G4int nCGammaAmount = nonConstTrackInfo->GetnCGammaAmount();
-            G4double nCGammaTotalEnergy = nonConstTrackInfo->GetnCGammaTotalEnergy();
-            G4bool nCfGe77 = nonConstTrackInfo->GetnCfGe77();
-            G4ThreeVector gammaMomentumDirection = nonConstTrackInfo->GetGammaMomentumDirection();
-            G4double gammaKineticEnergy = nonConstTrackInfo->GetGammaKineticEnergy();
+                    G4int nCTrackID = nonConstTrackInfo->GetnCTrackID();
+                    G4ThreeVector nCPos = nonConstTrackInfo->GetnCPos();
+                    G4double nCTime = nonConstTrackInfo->GetnCTime();
+                    G4String nCPhysVol = nonConstTrackInfo->GetnCPhysVol();
+                    G4String nCMaterial = nonConstTrackInfo->GetnCMaterial();
+                    G4int nCGammaAmount = nonConstTrackInfo->GetnCGammaAmount();
+                    G4double nCGammaTotalEnergy = nonConstTrackInfo->GetnCGammaTotalEnergy();
+                    G4bool nCfGe77 = nonConstTrackInfo->GetnCfGe77();
+                    G4ThreeVector gammaMomentumDirection = nonConstTrackInfo->GetGammaMomentumDirection();
+                    G4double gammaKineticEnergy = nonConstTrackInfo->GetGammaKineticEnergy();
 
-            auto rmg_man = RMGManager::Instance();
-            if (rmg_man->IsPersistencyEnabled()) { 
-                RMGLog::OutDev(RMGLog::debug, "Filling persistent data vectors");
-                const auto ana_man = G4AnalysisManager::Instance();
-                auto optPhotonsNTuple = rmg_man->GetNtupleID(optPhotonsRegister); 
-                auto physVolumesNTuple = rmg_man->GetNtupleID(physVolRegister);
-                auto materialsNTuple = rmg_man->GetNtupleID(materialRegister);
+                    auto rmg_man = RMGManager::Instance();
+                    if (rmg_man->IsPersistencyEnabled()) { 
+                        RMGLog::OutDev(RMGLog::debug, "Filling persistent data vectors");
+                        const auto ana_man = G4AnalysisManager::Instance();
+                        auto optPhotonsNTuple = rmg_man->GetNtupleID(optPhotonsRegister); 
+                        auto physVolumesNTuple = rmg_man->GetNtupleID(physVolRegister);
+                        auto materialsNTuple = rmg_man->GetNtupleID(materialRegister);
 
-                if (physVolumeMapping.find(nCPhysVol) == physVolumeMapping.end()) {
-                    const G4int physicalVolumeMappingID = physVolumeMapping.size();
-                    physVolumeMapping.emplace(nCPhysVol, physicalVolumeMappingID);
-                    //Speichern         
-                    int vol_col_id = 0;
-                    ana_man->FillNtupleIColumn(physVolumesNTuple, vol_col_id++, physicalVolumeMappingID);
-                    ana_man->FillNtupleSColumn(physVolumesNTuple, vol_col_id++, nCPhysVol);
-                    ana_man->AddNtupleRow(physVolumesNTuple);
+                        if (physVolumeMapping.find(nCPhysVol) == physVolumeMapping.end()) {
+                            const G4int physicalVolumeMappingID = physVolumeMapping.size();
+                            physVolumeMapping.emplace(nCPhysVol, physicalVolumeMappingID);
+                            //Speichern         
+                            int vol_col_id = 0;
+                            ana_man->FillNtupleIColumn(physVolumesNTuple, vol_col_id++, physicalVolumeMappingID);
+                            ana_man->FillNtupleSColumn(physVolumesNTuple, vol_col_id++, nCPhysVol);
+                            ana_man->AddNtupleRow(physVolumesNTuple);
+                            
+                        }
+                        G4int physVolumeID = physVolumeMapping[nCPhysVol];
+                        
                     
-                }
-                G4int physVolumeID = physVolumeMapping[nCPhysVol];
-                
-            
-                if (materialMapping.find(nCMaterial) == materialMapping.end()) {
-                    const G4int materialMappingID = materialMapping.size();
-                    materialMapping.emplace(nCMaterial, materialMappingID);
-                    // Speichern
-                    int mat_col_id = 0;
-                    ana_man->FillNtupleIColumn(materialsNTuple, mat_col_id++, materialMappingID);
-                    ana_man->FillNtupleSColumn(materialsNTuple, mat_col_id++, nCMaterial);
-                    ana_man->AddNtupleRow(materialsNTuple);
+                        if (materialMapping.find(nCMaterial) == materialMapping.end()) {
+                            const G4int materialMappingID = materialMapping.size();
+                            materialMapping.emplace(nCMaterial, materialMappingID);
+                            // Speichern
+                            int mat_col_id = 0;
+                            ana_man->FillNtupleIColumn(materialsNTuple, mat_col_id++, materialMappingID);
+                            ana_man->FillNtupleSColumn(materialsNTuple, mat_col_id++, nCMaterial);
+                            ana_man->AddNtupleRow(materialsNTuple);
 
-                }
-                G4int materialID = materialMapping[nCMaterial];
-            
-                G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
+                        }
+                        G4int materialID = materialMapping[nCMaterial];
+                    
+                        G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
 
-            
-                // -> Speicher die Infos raus (Position, Zeit, Energie, ...)
-                int col_id = 0;
-                // Output: Was Ge77 produced in this event?
-                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, eventID);
-                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, nCTrackID);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCTime/u::s);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCPos.getX()/u::m);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCPos.getY()/u::m);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCPos.getZ()/u::m); 
-                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, physVolumeID);
-                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, materialID);
+                    
+                        // -> Speicher die Infos raus (Position, Zeit, Energie, ...)
+                        int col_id = 0;
+                        // Output: Was Ge77 produced in this event?
+                        ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, eventID);
+                        ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, nCTrackID);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCTime/u::s);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCPos.getX()/u::m);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCPos.getY()/u::m);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCPos.getZ()/u::m); 
+                        ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, physVolumeID);
+                        ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, materialID);
 
-                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, nCGammaAmount);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCGammaTotalEnergy/u::keV);
-                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, nCfGe77);
-                
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaMomentumDirection.getX());
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaMomentumDirection.getY());
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaMomentumDirection.getZ()); 
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaKineticEnergy/u::keV);
+                        ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, nCGammaAmount);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCGammaTotalEnergy/u::keV);
+                        ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, nCfGe77);
+                        
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaMomentumDirection.getX());
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaMomentumDirection.getY());
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaMomentumDirection.getZ()); 
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaKineticEnergy/u::keV);
 
-                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, det_uid);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_energy/u::keV);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_global_time/u::s);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_position.getX()/u::m);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_position.getY()/u::m);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_position.getZ()/u::m);
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_momentum_direction.getX());
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_momentum_direction.getY());
-                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_momentum_direction.getZ());
+                        ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, det_uid);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_energy/u::keV);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_global_time/u::s);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_position.getX()/u::m);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_position.getY()/u::m);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_position.getZ()/u::m);
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_momentum_direction.getX());
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_momentum_direction.getY());
+                        ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_momentum_direction.getZ());
 
-                ana_man->AddNtupleRow(optPhotonsNTuple);
+                        ana_man->AddNtupleRow(optPhotonsNTuple);
+                    }
+                } 
+
             }
-        }  
+            catch (const std::out_of_range& e) {
+                G4cout << "Volume not registered as detector" << G4endl;
+            } 
+        }
     }
-
 
     // Inherit Track Info to secondary particles
     for (const auto& secTrack : *secondaries) {
@@ -264,8 +265,8 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
 
         // Set user information for the secondary track
         const_cast<G4Track*>(secTrack)->SetUserInformation(inheritedInfo);
-    }    
-}
+    }
+}    
 
 
 void MySteppingAction::DefineCommands() {
