@@ -113,6 +113,7 @@ int main(int argc, char **argv) {
   if (useSensitiveSurfaceOutputScheme) {
     // Initialize user event and stepping actions
     user_init->AddOptionalOutputScheme<OptHitsSensitiveSurfaceOutputScheme>("OptHitsSensitiveSurfaceOutputScheme");
+    run_man->SetUserInitialization(new MyActionInitialization());
   }
 
   // Interactive or batch mode?
@@ -126,7 +127,6 @@ int main(int argc, char **argv) {
   man.EnablePersistency();
   man.SetNumberOfThreads(nThreads);
   man.Initialize();
-  man.SetUserActionInitialization(new MyActionInitialization());
   man.Run();
 
   return 0;
