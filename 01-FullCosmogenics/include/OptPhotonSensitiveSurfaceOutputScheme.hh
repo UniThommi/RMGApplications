@@ -45,8 +45,8 @@ class OptHitsSensitiveSurfaceOutputScheme : public RMGVOutputScheme {
     G4int materialRegister = 12132;
 
     // Mappings: Physisches Volumen und Material
-    std::map<std::string, int> physVolumeMapping;
-    std::map<std::string, int> materialMapping;
+    // std::map<std::string, int> physVolumeMapping;
+    // std::map<std::string, int> materialMapping;
 
 };
 

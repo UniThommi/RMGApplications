@@ -109,6 +109,7 @@ int main(int argc, char **argv) {
   }
 
   if (useSensitiveSurfaceOutputScheme) {
+    user_init->AddSteppingAction<MySteppingAction>();
     user_init->AddOptionalOutputScheme<OptHitsSensitiveSurfaceOutputScheme>("OptHitsSensitiveSurfaceOutputScheme");
   }
 
@@ -123,8 +124,6 @@ int main(int argc, char **argv) {
   man.EnablePersistency();
   man.SetNumberOfThreads(nThreads);
   man.Initialize();
-  auto* steppingAction = new MySteppingAction();
-  run_man->SetUserAction(steppingAction);
   man.Run();
 
   return 0;
