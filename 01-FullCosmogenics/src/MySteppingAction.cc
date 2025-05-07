@@ -8,7 +8,6 @@
 #include "RMGManager.hh"
 #include "RMGHardware.hh"
 
-#include "G4HCofThisEvent.hh"
 #include "G4OpticalPhoton.hh"
 #include "G4SDManager.hh"
 #include "G4ParticleDefinition.hh"
@@ -18,6 +17,9 @@
 #include "G4Neutron.hh"
 #include "G4OpticalPhoton.hh"
 #include "G4Step.hh"
+#include "G4EventManager.hh"
+
+namespace u = CLHEP;
 
 MySteppingAction::MySteppingAction() {
         this->DefineCommands();
@@ -175,39 +177,38 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                 auto physVolumesNTuple = rmg_man->GetNtupleID(physVolRegister);
                 auto materialsNTuple = rmg_man->GetNtupleID(materialRegister);
 
-                if (physVolumeMapping.find(physVolumeName) == physVolumeMapping.end()) {
+                if (physVolumeMapping.find(nCPhysVol) == physVolumeMapping.end()) {
                     const G4int physicalVolumeMappingID = physVolumeMapping.size();
-                    physVolumeMapping.emplace(physVolumeName, physicalVolumeMappingID);
+                    physVolumeMapping.emplace(nCPhysVol, physicalVolumeMappingID);
                     //Speichern         
                     int vol_col_id = 0;
                     ana_man->FillNtupleIColumn(physVolumesNTuple, vol_col_id++, physicalVolumeMappingID);
-                    ana_man->FillNtupleSColumn(physVolumesNTuple, vol_col_id++, physVolumeName);
+                    ana_man->FillNtupleSColumn(physVolumesNTuple, vol_col_id++, nCPhysVol);
                     ana_man->AddNtupleRow(physVolumesNTuple);
                     
                 }
-                G4int physVolumeID = physVolumeMapping[physVolumeName];
+                G4int physVolumeID = physVolumeMapping[nCPhysVol];
                 
             
-                G4String materialName = hit->GetnCMaterial();
-            
-                if (materialMapping.find(materialName) == materialMapping.end()) {
+                if (materialMapping.find(nCMaterial) == materialMapping.end()) {
                     const G4int materialMappingID = materialMapping.size();
-                    materialMapping.emplace(materialName, materialMappingID);
+                    materialMapping.emplace(nCMaterial, materialMappingID);
                     // Speichern
                     int mat_col_id = 0;
                     ana_man->FillNtupleIColumn(materialsNTuple, mat_col_id++, materialMappingID);
-                    ana_man->FillNtupleSColumn(materialsNTuple, mat_col_id++, materialName);
+                    ana_man->FillNtupleSColumn(materialsNTuple, mat_col_id++, nCMaterial);
                     ana_man->AddNtupleRow(materialsNTuple);
 
                 }
-                G4int materialID = materialMapping[materialName];
+                G4int materialID = materialMapping[nCMaterial];
             
+                G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
 
             
                 // -> Speicher die Infos raus (Position, Zeit, Energie, ...)
                 int col_id = 0;
                 // Output: Was Ge77 produced in this event?
-                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, event->GetEventID());
+                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, eventID);
                 ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, nCTrackID);
                 ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCTime/u::s);
                 ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCPos.getX()/u::m);
