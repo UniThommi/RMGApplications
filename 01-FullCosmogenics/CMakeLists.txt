@@ -11,12 +11,9 @@ add_executable(
   FullCosmogenics
   main.cc
   src/HardwareQEOverride.cc
-  src/CustomIsotopeFilter.cc
-  src/CustomMUSUNGenerator.cc
   src/CosmogenicPhysics.cc
   src/RNGCerenkov.cc
   src/RNGTrackingAction.cc
-  src/CosmogenicOutputScheme.cc
   src/OptPhotonSensitiveSurfaceOutputScheme.cc
   src/MyTrackInfo.cc
   src/MyPhotonHit.cc

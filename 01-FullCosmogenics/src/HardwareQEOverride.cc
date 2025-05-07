@@ -12,7 +12,7 @@ namespace u = CLHEP;
 // Thanks to Manuel Huber for the suggestion
 // of this method
 G4VPhysicalVolume *HardwareQEOverride::Construct() {
-  // auto world = RMGHardware::Construct();
+  auto world = RMGHardware::Construct();
   // // Get the surface of the PMTs
   // auto st = G4SurfaceProperty::GetSurfacePropertyTable();
   // G4SurfaceProperty *s;
@@ -46,5 +46,5 @@ G4VPhysicalVolume *HardwareQEOverride::Construct() {
   // // Overwrite efficiency with new read in efficiency
   // mpt->AddProperty("EFFICIENCY", QuantumEfficiency);
   // // std::cout << (mpt != nullptr) << std::endl;
-  // return world;
+  return world;
 }

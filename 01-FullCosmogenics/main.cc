@@ -9,13 +9,10 @@
 #include "RMGManager.hh"
 
 #include "CosmogenicPhysics.hh"
-#include "CustomIsotopeFilter.hh"
-#include "CustomMUSUNGenerator.hh"
 #include "RNGTrackingAction.hh"
 #include "RMGIsotopeFilterOutputScheme.hh"
 #include "G4VUserEventInformation.hh"
 
-#include "CosmogenicOutputScheme.hh"
 #include "HardwareQEOverride.hh"
 
 #include <fstream>
@@ -60,7 +57,6 @@ int main(int argc, char **argv) {
   int nThreads = 256;
   std::string macroName;
   int rngFlag = 0;
-  bool useCosmogenicOutputScheme = false;
   bool useSensitiveSurfaceOutputScheme = false;
 
   app.add_option("-m,--macro", macroName,
@@ -68,7 +64,6 @@ int main(int argc, char **argv) {
   app.add_option("-t, --nthreads", nThreads,
                  "<number of threads to use> Default: 256");
   app.add_option("-r,--rng", rngFlag, "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
-  app.add_flag("-c,--cosmogenic", useCosmogenicOutputScheme, "Use CosmogenicOutputScheme");
   app.add_flag("-s,--sensitiveSurface", useSensitiveSurfaceOutputScheme, "Use SensitiveSurfaceOutputScheme");
 
   CLI11_PARSE(app, argc, argv);
@@ -106,20 +101,13 @@ int main(int argc, char **argv) {
   auto *run_man = man.GetG4RunManager();
 
   if (rngFlag != 0) {
-    user_init->AddOptionalOutputScheme<CustomIsotopeFilter>(
-        "CustomIsotopeFilter");
     user_init->AddTrackingAction<RNGTrackingAction>();
-    user_init->SetUserGenerator<CustomMUSUNGenerator>();
     man.SetUserInit(new CosmogenicPhysics());
     run_man->SetNumberOfThreads(nThreads);
     if(rngFlag == 1)
       outputfilename = "build/output.csv";
     else
       outputfilename = "build/RestoredOutput.hdf5";
-  }
-
-  if (useCosmogenicOutputScheme) {
-    user_init->AddOptionalOutputScheme<CosmogenicOutputScheme>("CosmogenicOutputScheme");
   }
 
   if (useSensitiveSurfaceOutputScheme) {
