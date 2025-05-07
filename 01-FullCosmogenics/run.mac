@@ -11,7 +11,7 @@
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 GrabmayrGammaCascades/156Gd-5keV-cascades.txt
 /RMG/GrabmayrGammaCascades/SetGammaCascadeRandomStartLocation 1
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 GrabmayrGammaCascades/158Gd-5keV-cascades.txt
-/control/execute gdml/MacroSensitiveSurface.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l100
+/control/execute gdml/MacroSensitiveSurface.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l1000
 /run/initialize
 
 #/process/optical/boundary/verbose 2
