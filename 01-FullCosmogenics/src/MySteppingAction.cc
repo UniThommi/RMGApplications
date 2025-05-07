@@ -1,6 +1,6 @@
-#include "MyPhotonHit.hh"
+// #include "MyPhotonHit.hh"
 #include "MyTrackInfo.hh"
-#include "MyPhotonHitsCollection.hh"
+// #include "MyPhotonHitsCollection.hh"
 #include "MySteppingAction.hh"
 
 #include "RMGOpticalDetector.hh"
@@ -19,8 +19,7 @@
 #include "G4OpticalPhoton.hh"
 #include "G4Step.hh"
 
-MySteppingAction::MySteppingAction(MyEventAction* eventAction)
-    : fEventAction(eventAction) {
+MySteppingAction::MySteppingAction() {
         this->DefineCommands();
     }
 
@@ -116,31 +115,6 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
         }           
     }
 
-
-    // Inherit Track Info to secondary particles
-    for (const auto& secTrack : *secondaries) {
-        auto* inheritedInfo = new MyTrackInfo(
-            nonConstTrackInfo->GetnCTrackID(),
-            nonConstTrackInfo->GetnCPos(),
-            nonConstTrackInfo->GetnCTime(),
-            nonConstTrackInfo->GetnCPhysVol(),
-            nonConstTrackInfo->GetnCMaterial(),
-            nonConstTrackInfo->GetnCGammaAmount(),
-            nonConstTrackInfo->GetnCGammaTotalEnergy(),
-            nonConstTrackInfo->GetnCfGe77(),
-            nonConstTrackInfo->GetGammaMomentumDirection(),
-            nonConstTrackInfo->GetGammaKineticEnergy()
-        );
-        // Wenn das Secondary ein Gamma ist, speichere Energie & Impulsrichtung
-        if (secTrack->GetParticleDefinition() == G4Gamma::Definition()) {
-            inheritedInfo->SetGammaKineticEnergy(secTrack->GetKineticEnergy());
-            inheritedInfo->SetGammaMomentumDirection(secTrack->GetMomentumDirection());
-        };
-
-        // Set user information for the secondary track
-        const_cast<G4Track*>(secTrack)->SetUserInformation(inheritedInfo);
-    }
-    
     // Handling und speichern von optischen Photonen
     auto particle = step->GetTrack()->GetDefinition();
     if (particle == G4OpticalPhoton::OpticalPhotonDefinition()) {
@@ -193,36 +167,105 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             G4ThreeVector gammaMomentumDirection = nonConstTrackInfo->GetGammaMomentumDirection();
             G4double gammaKineticEnergy = nonConstTrackInfo->GetGammaKineticEnergy();
 
-            // Saving Data To Hit Allocator
-            // Erstelle ein PhotonHit-Objekt und speichere die Daten
-            PhotonHit* hit = new PhotonHit();
-            hit->SetDetectorUID(det_uid);
-            hit->SetOptPhotonEnergy(photon_energy);
-            hit->SetOptPhotonGlobalTime(photon_global_time);
-            hit->SetOptPhotonPosition(photon_position);
-            hit->SetOptPhotonMomentumDirection(photon_momentum_direction);
-            hit->SetnCTrackID(nCTrackID);
-            hit->SetnCPos(nCPos);
-            hit->SetnCTime(nCTime);
-            hit->SetnCPhysVol(nCPhysVol);
-            hit->SetnCMaterial(nCMaterial);
-            hit->SetnCGammaAmount(nCGammaAmount);
-            hit->SetnCGammaTotalEnergy(nCGammaTotalEnergy);
-            hit->SetnCfGe77(nCfGe77);
-            hit->SetGammaMomentumDirection(gammaMomentumDirection);
-            hit->SetGammaKineticEnergy(gammaKineticEnergy);
+            auto rmg_man = RMGManager::Instance();
+            if (rmg_man->IsPersistencyEnabled()) { 
+                RMGLog::OutDev(RMGLog::debug, "Filling persistent data vectors");
+                const auto ana_man = G4AnalysisManager::Instance();
+                auto optPhotonsNTuple = rmg_man->GetNtupleID(optPhotonsRegister); 
+                auto physVolumesNTuple = rmg_man->GetNtupleID(physVolRegister);
+                auto materialsNTuple = rmg_man->GetNtupleID(materialRegister);
 
-            // Hole HitsCollection aus G4Event
-            auto hitsCollection = fEventAction->GetPhotonHitsCollection();
+                if (physVolumeMapping.find(physVolumeName) == physVolumeMapping.end()) {
+                    const G4int physicalVolumeMappingID = physVolumeMapping.size();
+                    physVolumeMapping.emplace(physVolumeName, physicalVolumeMappingID);
+                    //Speichern         
+                    int vol_col_id = 0;
+                    ana_man->FillNtupleIColumn(physVolumesNTuple, vol_col_id++, physicalVolumeMappingID);
+                    ana_man->FillNtupleSColumn(physVolumesNTuple, vol_col_id++, physVolumeName);
+                    ana_man->AddNtupleRow(physVolumesNTuple);
+                    
+                }
+                G4int physVolumeID = physVolumeMapping[physVolumeName];
+                
+            
+                G4String materialName = hit->GetnCMaterial();
+            
+                if (materialMapping.find(materialName) == materialMapping.end()) {
+                    const G4int materialMappingID = materialMapping.size();
+                    materialMapping.emplace(materialName, materialMappingID);
+                    // Speichern
+                    int mat_col_id = 0;
+                    ana_man->FillNtupleIColumn(materialsNTuple, mat_col_id++, materialMappingID);
+                    ana_man->FillNtupleSColumn(materialsNTuple, mat_col_id++, materialName);
+                    ana_man->AddNtupleRow(materialsNTuple);
 
-            if (hitsCollection)
-                hitsCollection->insert(hit);
-            else {
-                G4cout << "FEHLER: Hits Collection existiert nicht, PhotonHit wird nicht gespeichert!!!" << G4endl;
-            }           
-        }
+                }
+                G4int materialID = materialMapping[materialName];
+            
+
+            
+                // -> Speicher die Infos raus (Position, Zeit, Energie, ...)
+                int col_id = 0;
+                // Output: Was Ge77 produced in this event?
+                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, event->GetEventID());
+                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, nCTrackID);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCTime/u::s);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCPos.getX()/u::m);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCPos.getY()/u::m);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCPos.getZ()/u::m); 
+                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, physVolumeID);
+                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, materialID);
+
+                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, nCGammaAmount);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, nCGammaTotalEnergy/u::keV);
+                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, nCfGe77);
+                
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaMomentumDirection.getX());
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaMomentumDirection.getY());
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaMomentumDirection.getZ()); 
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, gammaKineticEnergy/u::keV);
+
+                ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, det_uid);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_energy/u::keV);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_global_time/u::s);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_position.getX()/u::m);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_position.getY()/u::m);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_position.getZ()/u::m);
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_momentum_direction.getX());
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_momentum_direction.getY());
+                ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, photon_momentum_direction.getZ());
+
+                ana_man->AddNtupleRow(optPhotonsNTuple);
+            }
+        }  
     }
+
+
+    // Inherit Track Info to secondary particles
+    for (const auto& secTrack : *secondaries) {
+        auto* inheritedInfo = new MyTrackInfo(
+            nonConstTrackInfo->GetnCTrackID(),
+            nonConstTrackInfo->GetnCPos(),
+            nonConstTrackInfo->GetnCTime(),
+            nonConstTrackInfo->GetnCPhysVol(),
+            nonConstTrackInfo->GetnCMaterial(),
+            nonConstTrackInfo->GetnCGammaAmount(),
+            nonConstTrackInfo->GetnCGammaTotalEnergy(),
+            nonConstTrackInfo->GetnCfGe77(),
+            nonConstTrackInfo->GetGammaMomentumDirection(),
+            nonConstTrackInfo->GetGammaKineticEnergy()
+        );
+        // Wenn das Secondary ein Gamma ist, speichere Energie & Impulsrichtung
+        if (secTrack->GetParticleDefinition() == G4Gamma::Definition()) {
+            inheritedInfo->SetGammaKineticEnergy(secTrack->GetKineticEnergy());
+            inheritedInfo->SetGammaMomentumDirection(secTrack->GetMomentumDirection());
+        };
+
+        // Set user information for the secondary track
+        const_cast<G4Track*>(secTrack)->SetUserInformation(inheritedInfo);
+    }    
 }
+
 
 void MySteppingAction::DefineCommands() {
   

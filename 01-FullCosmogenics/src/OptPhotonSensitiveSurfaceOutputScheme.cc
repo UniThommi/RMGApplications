@@ -1,7 +1,6 @@
 #include "OptPhotonSensitiveSurfaceOutputScheme.hh"
 #include "MyTrackInfo.hh"
-#include "MyPhotonHit.hh"
-#include "MyPhotonHitsCollection.hh"
+// #include "MyPhotonHitsCollection.hh"
 
 #include <set>
 #include <algorithm>
@@ -90,93 +89,92 @@ void OptHitsSensitiveSurfaceOutputScheme::AssignOutputNames(G4AnalysisManager* a
 }
 
 void OptHitsSensitiveSurfaceOutputScheme::StoreEvent(const G4Event* event) {
-    auto rmg_man = RMGManager::Instance();
-    if (rmg_man->IsPersistencyEnabled()) { 
-        RMGLog::OutDev(RMGLog::debug, "Filling persistent data vectors");
-        const auto ana_man = G4AnalysisManager::Instance();
-        auto optPhotonsNTuple = rmg_man->GetNtupleID(optPhotonsRegister); 
-        auto physVolumesNTuple = rmg_man->GetNtupleID(physVolRegister);
-        auto materialsNTuple = rmg_man->GetNtupleID(materialRegister);
+    // auto rmg_man = RMGManager::Instance();
+    // if (rmg_man->IsPersistencyEnabled()) { 
+    //     RMGLog::OutDev(RMGLog::debug, "Filling persistent data vectors");
+    //     const auto ana_man = G4AnalysisManager::Instance();
+    //     auto optPhotonsNTuple = rmg_man->GetNtupleID(optPhotonsRegister); 
+    //     auto physVolumesNTuple = rmg_man->GetNtupleID(physVolRegister);
+    //     auto materialsNTuple = rmg_man->GetNtupleID(materialRegister);
 
-        auto hitsCollection = fEventAction->GetPhotonHitsCollection();
-        if (!hitsCollection) {
-            G4cout << "ERROR: Keine Hits Collection für das ganze Event!" << G4endl;
-            return;
-        }
+    //     auto hitsCollection = fEventAction->GetPhotonHitsCollection();
+    //     if (!hitsCollection) {
+    //         G4cout << "ERROR: Keine Hits Collection für das ganze Event!" << G4endl;
+    //         return;
+    //     }
 
-        for (size_t i = 0; i < hitsCollection->GetSize(); ++i) {
-            PhotonHit* hit = (*hitsCollection)[i];
-            PhotonHit* hit = (*hitsCollection)[i];
-            // Update Mappings
-            int physVolumeID = -1;
-            int materialID = -1;
-            if (hit) {
-            // Volumenname und Materialname ermitteln
-                G4String physVolumeName = hit->GetnCPhysVol();
+    //     for (size_t i = 0; i < hitsCollection->GetSize(); ++i) {
+    //         PhotonHit* hit = (*hitsCollection)[i];
+    //         // Update Mappings
+    //         int physVolumeID = -1;
+    //         int materialID = -1;
+    //         if (hit) {
+    //         // Volumenname und Materialname ermitteln
+    //             G4String physVolumeName = hit->GetnCPhysVol();
                 
-                if (physVolumeMapping.find(physVolumeName) == physVolumeMapping.end()) {
-                    const G4int physicalVolumeMappingID = physVolumeMapping.size();
-                    physVolumeMapping.emplace(physVolumeName, physicalVolumeMappingID);
-                    //Speichern         
-                    int vol_col_id = 0;
-                    ana_man->FillNtupleIColumn(physVolumesNTuple, vol_col_id++, physicalVolumeMappingID);
-                    ana_man->FillNtupleSColumn(physVolumesNTuple, vol_col_id++, physVolumeName);
-                    ana_man->AddNtupleRow(physVolumesNTuple);
+    //             if (physVolumeMapping.find(physVolumeName) == physVolumeMapping.end()) {
+    //                 const G4int physicalVolumeMappingID = physVolumeMapping.size();
+    //                 physVolumeMapping.emplace(physVolumeName, physicalVolumeMappingID);
+    //                 //Speichern         
+    //                 int vol_col_id = 0;
+    //                 ana_man->FillNtupleIColumn(physVolumesNTuple, vol_col_id++, physicalVolumeMappingID);
+    //                 ana_man->FillNtupleSColumn(physVolumesNTuple, vol_col_id++, physVolumeName);
+    //                 ana_man->AddNtupleRow(physVolumesNTuple);
                     
-                }
-                physVolumeID = physVolumeMapping[physVolumeName];
+    //             }
+    //             physVolumeID = physVolumeMapping[physVolumeName];
                 
             
-                G4String materialName = hit->GetnCMaterial();
+    //             G4String materialName = hit->GetnCMaterial();
             
-                if (materialMapping.find(materialName) == materialMapping.end()) {
-                    const G4int materialMappingID = materialMapping.size();
-                    materialMapping.emplace(materialName, materialMappingID);
-                    // Speichern
-                    int mat_col_id = 0;
-                    ana_man->FillNtupleIColumn(materialsNTuple, mat_col_id++, materialMappingID);
-                    ana_man->FillNtupleSColumn(materialsNTuple, mat_col_id++, materialName);
-                    ana_man->AddNtupleRow(materialsNTuple);
+    //             if (materialMapping.find(materialName) == materialMapping.end()) {
+    //                 const G4int materialMappingID = materialMapping.size();
+    //                 materialMapping.emplace(materialName, materialMappingID);
+    //                 // Speichern
+    //                 int mat_col_id = 0;
+    //                 ana_man->FillNtupleIColumn(materialsNTuple, mat_col_id++, materialMappingID);
+    //                 ana_man->FillNtupleSColumn(materialsNTuple, mat_col_id++, materialName);
+    //                 ana_man->AddNtupleRow(materialsNTuple);
 
-                }
-                materialID = materialMapping[materialName];
+    //             }
+    //             materialID = materialMapping[materialName];
             
-            }
+    //         }
             
-            // -> Speicher die Infos raus (Position, Zeit, Energie, ...)
-            int col_id = 0;
-            // Output: Was Ge77 produced in this event?
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, event->GetEventID());
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCTrackID());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCTime()/u::s);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCPos().getX()/u::m);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCPos().getY()/u::m);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCPos().getZ()/u::m); 
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, physVolumeID);
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, materialID);
+    //         // -> Speicher die Infos raus (Position, Zeit, Energie, ...)
+    //         int col_id = 0;
+    //         // Output: Was Ge77 produced in this event?
+    //         ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, event->GetEventID());
+    //         ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCTrackID());
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCTime()/u::s);
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCPos().getX()/u::m);
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCPos().getY()/u::m);
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCPos().getZ()/u::m); 
+    //         ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, physVolumeID);
+    //         ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, materialID);
 
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCGammaAmount());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCGammaTotalEnergy()/u::keV);
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCfGe77());
+    //         ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCGammaAmount());
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetnCGammaTotalEnergy()/u::keV);
+    //         ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetnCfGe77());
             
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getX());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getY());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getZ()); 
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaKineticEnergy()/u::keV);
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getX());
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getY());
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaMomentumDirection().getZ()); 
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetGammaKineticEnergy()/u::keV);
 
-            ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetDetectorUID());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonEnergy()/u::keV);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonGlobalTime()/u::s);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonPosition().getX()/u::m);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonPosition().getY()/u::m);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonPosition().getZ()/u::m);
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonMomentumDirection().getX());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonMomentumDirection().getY());
-            ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonMomentumDirection().getZ());
+    //         ana_man->FillNtupleIColumn(optPhotonsNTuple, col_id++, hit->GetDetectorUID());
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonEnergy()/u::keV);
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonGlobalTime()/u::s);
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonPosition().getX()/u::m);
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonPosition().getY()/u::m);
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonPosition().getZ()/u::m);
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonMomentumDirection().getX());
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonMomentumDirection().getY());
+    //         ana_man->FillNtupleDColumn(optPhotonsNTuple, col_id++, hit->GetOptPhotonMomentumDirection().getZ());
 
-            ana_man->AddNtupleRow(optPhotonsNTuple);
-        }
-    }  
+    //         ana_man->AddNtupleRow(optPhotonsNTuple);
+    //     }
+    // }  
 }
 
 void OptHitsSensitiveSurfaceOutputScheme::DefineCommands() {

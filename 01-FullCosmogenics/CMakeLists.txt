@@ -16,10 +16,7 @@ add_executable(
   src/RNGTrackingAction.cc
   src/OptPhotonSensitiveSurfaceOutputScheme.cc
   src/MyTrackInfo.cc
-  src/MyPhotonHit.cc
-  src/MyEventAction.cc
-  src/MySteppingAction.cc
-  src/MyActionInitialization.cc)
+  src/MySteppingAction.cc)
 
 target_link_libraries(FullCosmogenics PUBLIC RMG::remage)
 

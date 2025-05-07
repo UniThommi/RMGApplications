@@ -1,7 +1,5 @@
 #include "MyTrackInfo.hh"
-#include "MyEventAction.hh"
 #include "MySteppingAction.hh"
-#include "MyActionInitialization.hh"
 #include "OptPhotonSensitiveSurfaceOutputScheme.hh"
 
 #include "RMGHardware.hh"
@@ -111,9 +109,9 @@ int main(int argc, char **argv) {
   }
 
   if (useSensitiveSurfaceOutputScheme) {
-    // Initialize user event and stepping actions
+    auto* steppingAction = new MySteppingAction();
+    run_man->SetUserAction(steppingAction);
     user_init->AddOptionalOutputScheme<OptHitsSensitiveSurfaceOutputScheme>("OptHitsSensitiveSurfaceOutputScheme");
-    run_man->SetUserInitialization(new MyActionInitialization());
   }
 
   // Interactive or batch mode?
