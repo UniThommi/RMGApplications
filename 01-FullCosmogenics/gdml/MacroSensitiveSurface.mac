@@ -1,5 +1,5 @@
 /RMG/Geometry/RegisterDetector Optical tyvek_prism_foil 1965
-/RMG/Geometry/RegisterDetector Optical tyvek__bottom_foil 1966
+/RMG/Geometry/RegisterDetector Optical tyvek_bottom_foil 1966
 /RMG/Geometry/RegisterDetector Germanium V0101 101
 /RMG/Geometry/RegisterDetector Germanium V0102 102
 /RMG/Geometry/RegisterDetector Germanium V0103 103

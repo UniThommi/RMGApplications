@@ -33,9 +33,6 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     const G4Track* track = step->GetTrack();
     G4StepPoint* postStepPoint = step->GetPostStepPoint();
 
-    const auto* userInfo = track->GetUserInformation();
-    const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
-
     // Check if the process is neutron capture (nCapture)
     const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
     if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture") {
@@ -43,7 +40,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
         // Ensure the captured particle is a neutron
         if (track->GetParticleDefinition() == G4Neutron::Definition()) {
             G4cout << "Neutron of NeutronCapture" << G4endl;
-            // G4cout << "Neutron capture detected" << G4endl;
+
             // Use const_cast to remove the const qualifier and modify the object
             const G4VPhysicalVolume* physicalVolume = track->GetVolume();
             G4String physVolumeName = "";
@@ -80,7 +77,10 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                 }
             }
 
+            const auto* userInfo = track->GetUserInformation();
+            const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
             if (!trackInfo) {
+                G4cout << "Neue TrackInfo für nC Daten" << G4endl;
                 auto* info = new MyTrackInfo(
                     track->GetTrackID(),                                 // TrackID
                     track->GetVertexPosition(),       // nC Pos
@@ -96,6 +96,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                 track->SetUserInformation(info);
             }
             else {
+                G4cout << "Überschreibe alte TrackInfo mit nC Daten" << G4endl;
                 MyTrackInfo* nonConstTrackInfo = const_cast<MyTrackInfo*>(trackInfo);
                 nonConstTrackInfo->SetnCTrackID(track->GetTrackID());
                 nonConstTrackInfo->SetnCPos(track->GetVertexPosition());
@@ -109,8 +110,9 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
         }           
     }
 
+    const auto* userInfo = track->GetUserInformation();
+    const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
     if (!trackInfo) {
-        RMGLog::OutDev(RMGLog::error, "No valid track information in user info.");
         return;
     }
 
