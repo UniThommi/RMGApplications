@@ -5,7 +5,7 @@
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
 /RMG/Processes/OpticalPhysics true 
-/RMG/Output/ActivateOutputScheme OptHitsSensitiveSurfaceOutputScheme
+/process/inactivate Scintillation      # Es sind nicht alle Szintillations Yields in Remage für L1000 definiert. Dadurch kann es zum Abbruch kommen.
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 GrabmayrGammaCascades/156Gd-5keV-cascades.txt
@@ -38,5 +38,5 @@
 #/RMG/Generator/CosmicMuons/SkyShape Plane
 #/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
 
-/run/beamOn 10
+/run/beamOn 1000
 
