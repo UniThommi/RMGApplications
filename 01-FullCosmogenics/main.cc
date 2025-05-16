@@ -1,6 +1,4 @@
-#include "MyTrackInfo.hh"
 #include "MySteppingAction.hh"
-#include "OptPhotonSensitiveSurfaceOutputScheme.hh"
 
 #include "RMGHardware.hh"
 #include "RMGLog.hh"
@@ -110,7 +108,6 @@ int main(int argc, char **argv) {
 
   if (useSensitiveSurfaceOutputScheme) {
     user_init->AddSteppingAction<MySteppingAction>();
-    user_init->AddOptionalOutputScheme<OptHitsSensitiveSurfaceOutputScheme>("OptHitsSensitiveSurfaceOutputScheme");
   }
 
   // Interactive or batch mode?

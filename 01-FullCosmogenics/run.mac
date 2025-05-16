@@ -5,7 +5,6 @@
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
 /RMG/Processes/OpticalPhysics true 
-/process/inactivate Scintillation      # Es sind nicht alle Szintillations Yields in Remage für L1000 definiert. Dadurch kann es zum Abbruch kommen.
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 GrabmayrGammaCascades/156Gd-5keV-cascades.txt
@@ -14,6 +13,7 @@
 /control/execute gdml/MacroSensitiveSurface.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l1000
 /run/initialize
 
+/process/inactivate Scintillation      # Es sind nicht alle Szintillations Yields in Remage für L1000 definiert. Dadurch kann es zum Abbruch kommen.
 #/process/optical/boundary/verbose 2
 
 #/RMG/Output/IsotopeFilter/AddIsotope 77 32 # Ge77 filter
