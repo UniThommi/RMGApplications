@@ -36,10 +36,8 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     // Check if the process is neutron capture (nCapture)
     const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
     if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture") {
-        G4cout << "NeutronCapture happened" << G4endl;
         // Ensure the captured particle is a neutron
         if (track->GetParticleDefinition() == G4Neutron::Definition()) {
-            G4cout << "Neutron of NeutronCapture" << G4endl;
 
             // Use const_cast to remove the const qualifier and modify the object
             const G4VPhysicalVolume* physicalVolume = track->GetVolume();
@@ -80,7 +78,6 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             const auto* userInfo = track->GetUserInformation();
             const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
             if (!trackInfo) {
-                G4cout << "Neue TrackInfo für nC Daten" << G4endl;
                 auto* info = new MyTrackInfo(
                     track->GetTrackID(),                                 // TrackID
                     track->GetVertexPosition(),       // nC Pos
@@ -96,7 +93,6 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                 track->SetUserInformation(info);
             }
             else {
-                G4cout << "Überschreibe alte TrackInfo mit nC Daten" << G4endl;
                 MyTrackInfo* nonConstTrackInfo = const_cast<MyTrackInfo*>(trackInfo);
                 nonConstTrackInfo->SetnCTrackID(track->GetTrackID());
                 nonConstTrackInfo->SetnCPos(track->GetVertexPosition());
@@ -133,7 +129,6 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
         );
         // Wenn das Secondary ein Gamma ist, speichere Energie & Impulsrichtung
         if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture" && secTrack->GetParticleDefinition() == G4Gamma::Definition()) {
-            G4cout << "Set Gamma Energy and Momentum Direction to Gamma" << G4endl;
             inheritedInfo->SetGammaKineticEnergy(secTrack->GetKineticEnergy());
             inheritedInfo->SetGammaMomentumDirection(secTrack->GetMomentumDirection());
         };
