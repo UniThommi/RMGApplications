@@ -18,58 +18,33 @@
 
 #include "CLI11.hpp"
 
-// The names can also be hardcoded when following a strict name convention
-// But as the number of rows and columns can change in the future this is better
-// Still the PMT name needs to start with "PMT"!
-// Not needed since no PMT is in optical Map Setup.
-// std::vector<std::string> getPMTNames(std::string filename) {
-//   std::vector<std::string> PMTnames;
-//   std::ifstream gdmlfile;
-//   gdmlfile.open(filename);
-//   std::string key = "physvol name=\"PMT"; // The physical volume names have this
-//                                           // as indicator before them
-//   if (!gdmlfile) {
-//     throw std::runtime_error("Error opening file: " + filename);
-//   }
-//   // Search the file for a physical volume that starts with "PMT"
-//   std::string line;
-//   while (std::getline(gdmlfile, line)) {
-//     size_t pos = line.find(key);
-//     if (pos != std::string::npos) {
-//       line.erase(0, pos + key.length());
-//       pos = line.find("0x"); // Start of the hexadecimal pointer that will be
-//                              // ignored by geant4
-//       std::string name =
-//           "PMT" + line.substr(0, pos); // Deleted the "PMT" out of the name
-//                                        // previously so add it again
-//       PMTnames.push_back(name);
-//     }
-//   }
-//   return PMTnames;
-// }
 
 int main(int argc, char **argv) {
   CLI::App app{"Cosmogenic Simulations"};
   int nThreads = 256;
   std::string macroName;
+  std::string gdmlFilePath;
+  std::string outputdir = "./build/";
   int rngFlag = 0;
   bool useSensitiveSurfaceOutputScheme = false;
 
   app.add_option("-m,--macro", macroName,
                  "<Geant4 macro filename> Default: None");
+  app.add_option("-g,--gdml", gdmlFilePath,
+                  "<Geant4 GDML filename> Default: None");
   app.add_option("-t, --nthreads", nThreads,
                  "<number of threads to use> Default: 256");
-  app.add_option("-r,--rng", rngFlag, "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
+  app.add_option("-o, --outputdir", outputdir,
+                 "<Output Directory> Default: ./build");
+  app.add_option("-r,--rng", rngFlag, 
+                 "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
   app.add_flag("-s,--sensitiveSurface", useSensitiveSurfaceOutputScheme, "Use SensitiveSurfaceOutputScheme");
 
   CLI11_PARSE(app, argc, argv);
 
-  // RMGLog::SetLogLevel(RMGLog::debug);
+  // std::string outputfilename = "build/output.hdf5";
 
-  // Anpassen!
-  std::string filename = "gdml/SensitiveSurfaceMaxDistance.gdml";
-
-  std::string outputfilename = "build/output.hdf5";
+  std::string outputfilename = outputdir + std::string("/") + std::string("output.hdf5");
 
   RMGManager man("FullCosmogenics", argc, argv);  // RMGManager ist ein singleton.
   // Overwrite the standard Hardware with one that reads
@@ -77,20 +52,7 @@ int main(int argc, char **argv) {
   man.SetUserInit(new HardwareQEOverride());
 
   // Overwrite RMGPhysics to use own Optical Processes
-  man.GetDetectorConstruction()->IncludeGDMLFile(filename);
-
-  // Get the physical volume names of the PMTs to register them
-  // std::vector<std::string> PMTnames = getPMTNames(filename);
-  //int id = 0;
-  // Register all of the PMTs
-  // for (const auto &name : PMTnames) {
-  //   man.GetDetectorConstruction()->RegisterDetector(RMGHardware::kOptical,
-  //                                                       name, id);
-  //   id++;
-  // }
-
-  // Register optical Sensitive Surface Detector -> Done by run.mac
-  
+  man.GetDetectorConstruction()->IncludeGDMLFile(gdmlFilePath);
 
   // Custom User init
   auto user_init = man.GetUserInit();
