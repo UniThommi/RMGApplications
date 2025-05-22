@@ -14480,22 +14480,22 @@
 			<rzpoint r="0" z="10020.599999999999"/>
 		</genericPolycone>
 		<polyhedra name="myPrisma" startphi="0" deltaphi="6.283185307179586" numsides="15" lunit="mm" aunit="rad">
-			<zplane rmin="3950" rmax="5859" z="820.0"/>
-			<zplane rmin="5858" rmax="5859" z="821.0"/>
-			<zplane rmin="5858" rmax="5859" z="8919.7"/>
-			<zplane rmin="1200" rmax="5859" z="8920.7"/>
+			<zplane rmin="3950" rmax="4351" z="20.0"/>
+			<zplane rmin="4350" rmax="4351" z="21.0"/>
+			<zplane rmin="4350" rmax="4351" z="8939.7"/>
+			<zplane rmin="1200" rmax="4351" z="8940.7"/>
 		</polyhedra>
 		<tube name="cyl1" rmin="0" rmax="3950" z="1" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
 		<tube name="cyl3" rmin="0" rmax="1200" z="1" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
 		<subtraction name="sub1">
 			<first ref="myPrisma"/>
 			<second ref="cyl1"/>
-			<position name="sub1_translation" x="0.000000000000000" y="0.000000000000000" z="820.500000000000000" unit="mm"/>
+			<position name="sub1_translation" x="0.000000000000000" y="0.000000000000000" z="20.500000000000000" unit="mm"/>
 		</subtraction>
 		<subtraction name="final">
 			<first ref="sub1"/>
 			<second ref="cyl3"/>
-			<position name="final_translation" x="0.000000000000000" y="0.000000000000000" z="8920.200000000000728" unit="mm"/>
+			<position name="final_translation" x="0.000000000000000" y="0.000000000000000" z="8940.200000000000728" unit="mm"/>
 		</subtraction>
 		<opticalsurface name="pmt_cathode_surface" model="unified" finish="polished" type="dielectric_metal" value="0.01">
 			<property name="EFFICIENCY" ref="pmt_cathode_surface_EFFICIENCY"/>

@@ -14480,10 +14480,10 @@
 			<rzpoint r="0" z="10020.599999999999"/>
 		</genericPolycone>
 		<polyhedra name="myPrisma" startphi="0" deltaphi="6.283185307179586" numsides="15" lunit="mm" aunit="rad">
-			<zplane rmin="3950" rmax="4051" z="20.0"/>
-			<zplane rmin="4050" rmax="4051" z="21.0"/>
-			<zplane rmin="4050" rmax="4051" z="8939.7"/>
-			<zplane rmin="1200" rmax="4051" z="8940.7"/>
+			<zplane rmin="3950" rmax="3952" z="20.0"/>
+			<zplane rmin="3951" rmax="3952" z="21.0"/>
+			<zplane rmin="3951" rmax="3952" z="8939.7"/>
+			<zplane rmin="1200" rmax="3952" z="8940.7"/>
 		</polyhedra>
 		<tube name="cyl1" rmin="0" rmax="3950" z="1" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
 		<tube name="cyl3" rmin="0" rmax="1200" z="1" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
