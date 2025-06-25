@@ -20,10 +20,19 @@
 #/RMG/Output/IsotopeFilter/DiscardPhotonsIfIsotopeNotProduced true
 /RMG/Output/NtuplePerDetector false
 
-/RMG/Generator/Confine UnConfined
+/RMG/Generator/Confine Volume   ### Wähle alle relevanten Volumen von tank_water
+/RMG/Generator/Confinement/Physical/AddVolume water
+/RMG/Generator/Confinement/Physical/AddVolume skirt
+/RMG/Generator/Confinement/Physical/AddVolume foot
+/RMG/Generator/Confinement/Physical/AddVolume outercryostat
+/RMG/Generator/Select GPS
+/gps/particle neutron
+/gps/energy 0 eV
 
-/RMG/Generator/Select MUSUNCosmicMuons
-/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
+
+#/RMG/Generator/Confine UnConfined
+#/RMG/Generator/Select MUSUNCosmicMuons
+#/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
 #/RMG/Generator/Select CustomMUSUN
 #/Cosmogenics/Generator/SetMUSUNFile musun/combined_file.dat
@@ -38,5 +47,5 @@
 #/RMG/Generator/CosmicMuons/SkyShape Plane
 #/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
 
-/run/beamOn 100000
+/run/beamOn 10000
 

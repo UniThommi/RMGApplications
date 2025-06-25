@@ -1,0 +1,28 @@
+{
+    "default": {
+        "focus": [0, 0, 0],
+        "up": [1, 0, 0],
+        "camera": [0, 0, 300]
+    },
+    "scenes": [
+        {
+            "focus": [0, 0, 0],
+            "up": [0, 0, 1],
+            "camera": [-300, 0, 0]
+        }
+    ],
+    "clipper": [
+        {
+            "origin": [0, 0, 0],
+            "normal": [-1, 0, 0]
+        }
+    ],
+    "points": [
+        {
+            "file": "build/output_t1.hdf5",
+            "table": "hit/vertices",
+            "columns": ["xloc_in_m", "yloc_in_m", "zloc_in_m"],
+            "color": [0, 1, 0, 0]
+        }
+    ]
+}
