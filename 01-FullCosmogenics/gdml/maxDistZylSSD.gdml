@@ -14479,29 +14479,14 @@
 			<rzpoint r="1675.0" z="10020.599999999999"/>
 			<rzpoint r="0" z="10020.599999999999"/>
 		</genericPolycone>
-		<polyhedra name="myPrisma" startphi="0" deltaphi="6.283185307179586" numsides="15" lunit="mm" aunit="rad">
-			<zplane rmin="3950" rmax="5054.685212807628" z="820.0"/>
-			<zplane rmin="5053.685212807628" rmax="5054.685212807628" z="821.0"/>
-			<zplane rmin="5053.685212807628" rmax="5054.685212807628" z="8919.7"/>
-			<zplane rmin="1200" rmax="5054.685212807628" z="8920.7"/>
-		</polyhedra>
-		<tube name="cyl1" rmin="0" rmax="3950" z="1" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
-		<tube name="cyl3" rmin="0" rmax="1200" z="1" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
-		<subtraction name="sub1">
-			<first ref="myPrisma"/>
-			<second ref="cyl1"/>
-			<position name="sub1_translation" x="0.000000000000000" y="0.000000000000000" z="820.500000000000000" unit="mm"/>
-		</subtraction>
-		<subtraction name="final">
-			<first ref="sub1"/>
-			<second ref="cyl3"/>
-			<position name="final_translation" x="0.000000000000000" y="0.000000000000000" z="8920.200000000000728" unit="mm"/>
-		</subtraction>
+		<tube name="tykev_foil_zyl" rmin="5858" rmax="5859" z="8080.0" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
 		<opticalsurface name="pmt_cathode_surface" model="unified" finish="polished" type="dielectric_metal" value="0.01">
 			<property name="EFFICIENCY" ref="pmt_cathode_surface_EFFICIENCY"/>
 			<property name="REFLECTIVITY" ref="pmt_cathode_surface_REFLECTIVITY"/>
 		</opticalsurface>
-		<tube name="tykev_foil_bottom" rmin="0" rmax="3800" z="100" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
+		<tube name="tykev_foil_bot" rmin="3950" rmax="5858" z="1" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
+		<tube name="tykev_foil_top" rmin="1200" rmax="5858" z="1" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
+		<tube name="tykev_foil_pit" rmin="0" rmax="3800" z="1" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
 		<tube name="skirt_sol" rmin="3740" rmax="3800" z="1605.75" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
 		<tube name="foot_sol" rmin="3800" rmax="3950" z="150" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
 		<genericPolycone name="ocryo_sol" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad">
@@ -50871,14 +50856,24 @@
 		</opticalsurface>
 	</solids>
 	<structure>
-		<volume name="tykev_prisma">
+		<volume name="tykev_zyl">
 			<materialref ref="tyvek"/>
-			<solidref ref="final"/>
+			<solidref ref="tykev_foil_zyl"/>
 			<auxiliary auxtype="rmg_color" auxvalue="1,1,1,0.2"/>
 		</volume>
-		<volume name="tyvek_bottom">
+		<volume name="tykev_bot">
 			<materialref ref="tyvek"/>
-			<solidref ref="tykev_foil_bottom"/>
+			<solidref ref="tykev_foil_bot"/>
+			<auxiliary auxtype="rmg_color" auxvalue="1,1,1,0.2"/>
+		</volume>
+		<volume name="tykev_top">
+			<materialref ref="tyvek"/>
+			<solidref ref="tykev_foil_top"/>
+			<auxiliary auxtype="rmg_color" auxvalue="1,1,1,0.2"/>
+		</volume>
+		<volume name="tyvek_pit">
+			<materialref ref="tyvek"/>
+			<solidref ref="tykev_foil_pit"/>
 			<auxiliary auxtype="rmg_color" auxvalue="1,1,1,0.2"/>
 		</volume>
 		<volume name="skirt">
@@ -90108,12 +90103,21 @@
 			<materialref ref="Water"/>
 			<solidref ref="water_base"/>
 			<auxiliary auxtype="rmg_color" auxvalue="0,0,1,0.2"/>
-			<physvol name="tyvek_prism_foil">
-				<volumeref ref="tykev_prisma"/>
+			<physvol name="tyvek_zyl_foil">
+				<volumeref ref="tykev_zyl"/>
+				<position name="tyvek_zyl_foil_pos" x="0.000000000000000" y="0.000000000000000" z="4860.000000000000000" unit="mm"/>
 			</physvol>
-			<physvol name="tyvek_bottom_foil">
-				<volumeref ref="tyvek_bottom"/>
-				<position name="tyvek_bottom_foil_pos" x="0.000000000000000" y="0.000000000000000" z="70.000000000000000" unit="mm"/>
+			<physvol name="tyvek_bot_foil">
+				<volumeref ref="tykev_bot"/>
+				<position name="tyvek_bot_foil_pos" x="0.000000000000000" y="0.000000000000000" z="820.500000000000000" unit="mm"/>
+			</physvol>
+			<physvol name="tyvek_top_foil">
+				<volumeref ref="tykev_top"/>
+				<position name="tyvek_top_foil_pos" x="0.000000000000000" y="0.000000000000000" z="8899.500000000000000" unit="mm"/>
+			</physvol>
+			<physvol name="tyvek_pit_foil">
+				<volumeref ref="tyvek_pit"/>
+				<position name="tyvek_pit_foil_pos" x="0.000000000000000" y="0.000000000000000" z="20.500000000000000" unit="mm"/>
 			</physvol>
 			<physvol name="skirt">
 				<volumeref ref="skirt"/>
@@ -90147,11 +90151,17 @@
 		<skinsurface name="tank_steel_surface" surfaceproperty="pmt_steel_surface">
 			<volumeref ref="tank"/>
 		</skinsurface>
-		<skinsurface name="tyvek_prism_surface" surfaceproperty="pmt_cathode_surface">
-			<volumeref ref="tykev_prisma"/>
+		<skinsurface name="tyvek_zyl_surface" surfaceproperty="pmt_cathode_surface">
+			<volumeref ref="tykev_zyl"/>
 		</skinsurface>
-		<skinsurface name="tyvek_bottom_surface" surfaceproperty="pmt_cathode_surface">
-			<volumeref ref="tyvek_bottom"/>
+		<skinsurface name="tyvek_bot_surface" surfaceproperty="pmt_cathode_surface">
+			<volumeref ref="tykev_bot"/>
+		</skinsurface>
+		<skinsurface name="tyvek_top_surface" surfaceproperty="pmt_cathode_surface">
+			<volumeref ref="tykev_top"/>
+		</skinsurface>
+		<skinsurface name="tyvek_pit_surface" surfaceproperty="pmt_cathode_surface">
+			<volumeref ref="tyvek_pit"/>
 		</skinsurface>
 		<bordersurface name="bsurface_lar_ge_V0101" surfaceproperty="surface_to_germanium">
 			<physvolref ref="undergroundlar"/>
@@ -105277,10 +105287,6 @@
 			<auxiliary auxtype="V4207" auxvalue="{&quot;name&quot;: &quot;V4207&quot;, &quot;system&quot;: &quot;geds&quot;, &quot;location&quot;: {&quot;string&quot;: 42, &quot;position&quot;: 7}, &quot;daq&quot;: {&quot;crate&quot;: 0, &quot;card&quot;: {&quot;id&quot;: 10, &quot;address&quot;: &quot;0x4a0&quot;, &quot;serialno&quot;: null}, &quot;channel&quot;: 4, &quot;fc_channel&quot;: 62, &quot;rawid&quot;: 4207}, &quot;voltage&quot;: {&quot;card&quot;: {&quot;id&quot;: 4, &quot;serialno&quot;: null}, &quot;channel&quot;: 0, &quot;filter&quot;: {&quot;id&quot;: &quot;11&quot;, &quot;channel&quot;: null}, &quot;flange&quot;: {&quot;bundle&quot;: &quot;C&quot;, &quot;sub_bundle&quot;: &quot;1&quot;, &quot;channel&quot;: &quot;2&quot;}}, &quot;electronics&quot;: {&quot;cc4&quot;: {&quot;id&quot;: &quot;D2&quot;, &quot;channel&quot;: 2}, &quot;buffer_card&quot;: {&quot;raspberry_pi&quot;: 0, &quot;address&quot;: 6, &quot;channel&quot;: 2}}, &quot;type&quot;: &quot;icpc&quot;, &quot;production&quot;: {&quot;manufacturer&quot;: &quot;Mirion&quot;, &quot;order&quot;: 4, &quot;crystal&quot;: &quot;199&quot;, &quot;slice&quot;: &quot;A&quot;, &quot;enrichment&quot;: {&quot;val&quot;: 0.913, &quot;unc&quot;: 0.005}, &quot;passivation&quot;: true, &quot;reprocessing&quot;: false, &quot;mass_in_g&quot;: 2987.0, &quot;impcc&quot;: {&quot;array&quot;: {&quot;value_in_1e9e/cm3&quot;: [17.0, 12.0, 11.0, 10.0, 10.0], &quot;dist_from_contact_in_mm&quot;: [0.0, 30, 70, 90, 100]}, &quot;function_pars&quot;: {&quot;z0_in_1e10e/cm3&quot;: 0, &quot;gradient_in_1e10e/cm4&quot;: 0, &quot;quadratic_in_1e10e/cm5&quot;: 0}}, &quot;delivered&quot;: &quot;2020-06-30&quot;}, &quot;geometry&quot;: {&quot;height_in_mm&quot;: 100.4, &quot;radius_in_mm&quot;: 42.0, &quot;borehole&quot;: {&quot;radius_in_mm&quot;: 4.0, &quot;depth_in_mm&quot;: 70.0}, &quot;groove&quot;: {&quot;depth_in_mm&quot;: 2.0, &quot;radius_in_mm&quot;: {&quot;outer&quot;: 14, &quot;inner&quot;: 10.0}}, &quot;pp_contact&quot;: {&quot;radius_in_mm&quot;: 10.0, &quot;depth_in_mm&quot;: 0.0}, &quot;taper&quot;: {&quot;top&quot;: {&quot;angle_in_deg&quot;: 2.9, &quot;height_in_mm&quot;: 20}, &quot;bottom&quot;: {&quot;angle_in_deg&quot;: 0, &quot;height_in_mm&quot;: 0}, &quot;borehole&quot;: {&quot;angle_in_deg&quot;: 5, &quot;height_in_mm&quot;: 70}}}, &quot;characterization&quot;: {&quot;manufacturer&quot;: {&quot;depletion_voltage_in_V&quot;: 4000.0, &quot;recommended_voltage_in_V&quot;: 4500.0, &quot;fwhm_co57fep_in_keV&quot;: 0.74, &quot;fwhm_co60fep_in_keV&quot;: 2.19, &quot;dl_thickness_in_mm&quot;: 1.0}, &quot;l200_site&quot;: {&quot;daq&quot;: &quot;flashcam&quot;, &quot;depletion_voltage_in_V&quot;: 3600.0, &quot;recommended_voltage_in_V&quot;: 4100.0, &quot;fwhm_in_keV&quot;: {&quot;co60fep&quot;: 2.27, &quot;tl208fep&quot;: 2.35, &quot;qbb&quot;: 2.14}, &quot;survival_fraction&quot;: {&quot;tl208dep&quot;: 0.9, &quot;qbb&quot;: 0.292, &quot;tl208sep&quot;: 0.046, &quot;tl208fep&quot;: 0.061}, &quot;fccd_in_mm&quot;: {&quot;am241&quot;: {&quot;value&quot;: 1.09, &quot;uncertainty&quot;: {&quot;uncorr&quot;: {&quot;pos&quot;: 0.013474094065907, &quot;neg&quot;: 0.0133356657387939}, &quot;corr&quot;: {&quot;pos&quot;: 0.0332626091146366, &quot;neg&quot;: 0.0341374283798212}}}, &quot;ba133&quot;: {&quot;value&quot;: 1.16, &quot;uncertainty&quot;: {&quot;uncorr&quot;: {&quot;pos&quot;: 0.0147544906397871, &quot;neg&quot;: 0.0266251468063893}, &quot;corr&quot;: {&quot;pos&quot;: 0.0466109716440026, &quot;neg&quot;: 0.0595242667378299}}}}}, &quot;combined_0vbb_analysis&quot;: {&quot;fccd_in_mm&quot;: {&quot;value&quot;: 1.11, &quot;uncertainty&quot;: {&quot;pos&quot;: 0.053, &quot;neg&quot;: 0.089}}}}, &quot;analysis&quot;: {&quot;processable&quot;: true, &quot;usability&quot;: &quot;on&quot;}}"/>
 			<auxiliary auxtype="V4208" auxvalue="{&quot;name&quot;: &quot;V4208&quot;, &quot;system&quot;: &quot;geds&quot;, &quot;location&quot;: {&quot;string&quot;: 42, &quot;position&quot;: 8}, &quot;daq&quot;: {&quot;crate&quot;: 0, &quot;card&quot;: {&quot;id&quot;: 10, &quot;address&quot;: &quot;0x4a0&quot;, &quot;serialno&quot;: null}, &quot;channel&quot;: 4, &quot;fc_channel&quot;: 62, &quot;rawid&quot;: 4208}, &quot;voltage&quot;: {&quot;card&quot;: {&quot;id&quot;: 4, &quot;serialno&quot;: null}, &quot;channel&quot;: 0, &quot;filter&quot;: {&quot;id&quot;: &quot;11&quot;, &quot;channel&quot;: null}, &quot;flange&quot;: {&quot;bundle&quot;: &quot;C&quot;, &quot;sub_bundle&quot;: &quot;1&quot;, &quot;channel&quot;: &quot;2&quot;}}, &quot;electronics&quot;: {&quot;cc4&quot;: {&quot;id&quot;: &quot;D2&quot;, &quot;channel&quot;: 2}, &quot;buffer_card&quot;: {&quot;raspberry_pi&quot;: 0, &quot;address&quot;: 6, &quot;channel&quot;: 2}}, &quot;type&quot;: &quot;icpc&quot;, &quot;production&quot;: {&quot;manufacturer&quot;: &quot;Mirion&quot;, &quot;order&quot;: 4, &quot;crystal&quot;: &quot;199&quot;, &quot;slice&quot;: &quot;A&quot;, &quot;enrichment&quot;: {&quot;val&quot;: 0.913, &quot;unc&quot;: 0.005}, &quot;passivation&quot;: true, &quot;reprocessing&quot;: false, &quot;mass_in_g&quot;: 2987.0, &quot;impcc&quot;: {&quot;array&quot;: {&quot;value_in_1e9e/cm3&quot;: [17.0, 12.0, 11.0, 10.0, 10.0], &quot;dist_from_contact_in_mm&quot;: [0.0, 30, 70, 90, 100]}, &quot;function_pars&quot;: {&quot;z0_in_1e10e/cm3&quot;: 0, &quot;gradient_in_1e10e/cm4&quot;: 0, &quot;quadratic_in_1e10e/cm5&quot;: 0}}, &quot;delivered&quot;: &quot;2020-06-30&quot;}, &quot;geometry&quot;: {&quot;height_in_mm&quot;: 100.4, &quot;radius_in_mm&quot;: 42.0, &quot;borehole&quot;: {&quot;radius_in_mm&quot;: 4.0, &quot;depth_in_mm&quot;: 70.0}, &quot;groove&quot;: {&quot;depth_in_mm&quot;: 2.0, &quot;radius_in_mm&quot;: {&quot;outer&quot;: 14, &quot;inner&quot;: 10.0}}, &quot;pp_contact&quot;: {&quot;radius_in_mm&quot;: 10.0, &quot;depth_in_mm&quot;: 0.0}, &quot;taper&quot;: {&quot;top&quot;: {&quot;angle_in_deg&quot;: 2.9, &quot;height_in_mm&quot;: 20}, &quot;bottom&quot;: {&quot;angle_in_deg&quot;: 0, &quot;height_in_mm&quot;: 0}, &quot;borehole&quot;: {&quot;angle_in_deg&quot;: 5, &quot;height_in_mm&quot;: 70}}}, &quot;characterization&quot;: {&quot;manufacturer&quot;: {&quot;depletion_voltage_in_V&quot;: 4000.0, &quot;recommended_voltage_in_V&quot;: 4500.0, &quot;fwhm_co57fep_in_keV&quot;: 0.74, &quot;fwhm_co60fep_in_keV&quot;: 2.19, &quot;dl_thickness_in_mm&quot;: 1.0}, &quot;l200_site&quot;: {&quot;daq&quot;: &quot;flashcam&quot;, &quot;depletion_voltage_in_V&quot;: 3600.0, &quot;recommended_voltage_in_V&quot;: 4100.0, &quot;fwhm_in_keV&quot;: {&quot;co60fep&quot;: 2.27, &quot;tl208fep&quot;: 2.35, &quot;qbb&quot;: 2.14}, &quot;survival_fraction&quot;: {&quot;tl208dep&quot;: 0.9, &quot;qbb&quot;: 0.292, &quot;tl208sep&quot;: 0.046, &quot;tl208fep&quot;: 0.061}, &quot;fccd_in_mm&quot;: {&quot;am241&quot;: {&quot;value&quot;: 1.09, &quot;uncertainty&quot;: {&quot;uncorr&quot;: {&quot;pos&quot;: 0.013474094065907, &quot;neg&quot;: 0.0133356657387939}, &quot;corr&quot;: {&quot;pos&quot;: 0.0332626091146366, &quot;neg&quot;: 0.0341374283798212}}}, &quot;ba133&quot;: {&quot;value&quot;: 1.16, &quot;uncertainty&quot;: {&quot;uncorr&quot;: {&quot;pos&quot;: 0.0147544906397871, &quot;neg&quot;: 0.0266251468063893}, &quot;corr&quot;: {&quot;pos&quot;: 0.0466109716440026, &quot;neg&quot;: 0.0595242667378299}}}}}, &quot;combined_0vbb_analysis&quot;: {&quot;fccd_in_mm&quot;: {&quot;value&quot;: 1.11, &quot;uncertainty&quot;: {&quot;pos&quot;: 0.053, &quot;neg&quot;: 0.089}}}}, &quot;analysis&quot;: {&quot;processable&quot;: true, &quot;usability&quot;: &quot;on&quot;}}"/>
 		</auxiliary>
-		<auxiliary auxtype="RMG_detector" auxvalue="optical">
-			<auxiliary auxtype="tyvek_prism_foil" auxvalue="1965"/>
-			<auxiliary auxtype="tyvek_bottom_foil" auxvalue="1966"/>
-		</auxiliary>
 		<auxiliary auxtype="RMG_detector" auxvalue="germanium">
 			<auxiliary auxtype="V0101" auxvalue="101"/>
 			<auxiliary auxtype="V0102" auxvalue="102"/>
@@ -105620,6 +105626,10 @@
 			<auxiliary auxtype="V4208" auxvalue="4208"/>
 		</auxiliary>
 		<auxiliary auxtype="RMG_detector" auxvalue="optical">
+			<auxiliary auxtype="tyvek_zyl_foil" auxvalue="1965"/>
+			<auxiliary auxtype="tyvek_bot_foil" auxvalue="1967"/>
+			<auxiliary auxtype="tyvek_top_foil" auxvalue="1968"/>
+			<auxiliary auxtype="tyvek_pit_foil" auxvalue="1966"/>
 			<auxiliary auxtype="S0101T" auxvalue="1052802"/>
 			<auxiliary auxtype="S0101B" auxvalue="1052802"/>
 			<auxiliary auxtype="S0102T" auxvalue="1052802"/>

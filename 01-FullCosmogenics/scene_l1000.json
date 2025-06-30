@@ -13,16 +13,22 @@
     ],
     "clipper": [
         {
-            "origin": [0, 0, 0],
+            "origin": [-10000, 0, 0],
             "normal": [-1, 0, 0]
         }
     ],
     "points": [
         {
-            "file": "build/output_t1.hdf5",
+            "file": "/home/tbueger/code/sim/RMGApplications/01-FullCosmogenics/build/output_t2.lh5",
             "table": "hit/vertices",
-            "columns": ["xloc_in_m", "yloc_in_m", "zloc_in_m"],
-            "color": [0, 1, 0, 0]
+            "columns": ["xloc", "yloc", "zloc"],
+            "color": [0, 1, 0, 1]
+        },
+        {
+            "file": "/home/tbueger/code/sim/RMGApplications/01-FullCosmogenics/build/output_t2.lh5",
+            "table": "hit/optical",
+            "columns": ["nC_x_position", "nC_y_position", "nC_z_position"],
+            "color": [1, 0, 0, 1]
         }
     ]
 }

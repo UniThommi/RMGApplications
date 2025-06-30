@@ -10,7 +10,7 @@
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 GrabmayrGammaCascades/156Gd-5keV-cascades.txt
 /RMG/GrabmayrGammaCascades/SetGammaCascadeRandomStartLocation 1
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 GrabmayrGammaCascades/158Gd-5keV-cascades.txt
-/control/execute gdml/MacroSensitiveSurface.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l1000
+/control/execute gdml/macroZylSSD.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l1000
 /run/initialize
 
 /process/inactivate Scintillation      # Es sind nicht alle Szintillations Yields in Remage für L1000 definiert. Dadurch kann es zum Abbruch kommen.
@@ -26,8 +26,9 @@
 /RMG/Generator/Confinement/Physical/AddVolume foot
 /RMG/Generator/Confinement/Physical/AddVolume outercryostat
 /RMG/Generator/Select GPS
+/RMG/Generator/Confinement/MaxSamplingTrials 10000
 /gps/particle neutron
-/gps/energy 0 eV
+/gps/energy 0.1 eV
 
 
 #/RMG/Generator/Confine UnConfined
@@ -47,5 +48,5 @@
 #/RMG/Generator/CosmicMuons/SkyShape Plane
 #/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
 
-/run/beamOn 10000
+/run/beamOn 1000000
 
