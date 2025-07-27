@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
   bool useSensitiveSurfaceOutputScheme = false;
 
   app.add_option("-m,--macro", macroName,
-                 "<Geant4 macro filename> Default: None");
+                 "<Geant4 macro filename> Default: None")
       ->required();
   app.add_option("-g,--gdml", gdmlFilePath,
                   "<Geant4 GDML filename> Default: None")
