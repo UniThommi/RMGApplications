@@ -13,15 +13,25 @@ namespace u = CLHEP;
 // of this method
 G4VPhysicalVolume *HardwareQEOverride::Construct() {
   auto world = RMGHardware::Construct();
-  // Get the surface of the PMTs
+  Get the surface of the PMTs
   auto st = G4SurfaceProperty::GetSurfacePropertyTable();
   G4SurfaceProperty *s;
   for (auto x : *st) {
     if (x->GetName().find("PMTSurface") != std::string::npos)
       s = x;
   }
+  if (!s) {
+    G4cout << "[WARNING] No surface with name containing 'PMTSurface' found!" << G4endl;
+    return; // oder throw, exit, assert – je nach Design
+  }
+x
   // Get the MPT
   auto mpt = dynamic_cast<G4OpticalSurface *>(s)->GetMaterialPropertiesTable();
+
+  if (!mpt) {
+    G4cout << "[WARNING] MaterialPropertiesTable is null!" << G4endl;
+    return;
+  }
 
   // New vector to store the efficiency
   // This vector might never be deleted, but it should be only generated once so
