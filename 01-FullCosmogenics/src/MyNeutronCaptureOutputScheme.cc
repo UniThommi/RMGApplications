@@ -45,7 +45,7 @@ void MyNeutronCaptureOutputScheme::TrackingActionPre(const G4Track* aTrack) {
         const auto* userInfo = aTrack->GetUserInformation();
         const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
 
-        if (trackInfo && trackInfo->GetnCTrackID() != -1) {
+        if (trackInfo) {
             G4int nCTrackID = trackInfo->GetnCTrackID();
             std::pair<G4int, G4int> candidate = {muonID, nCTrackID};
             if (muonTrackPairs.find(candidate) == muonTrackPairs.end()) {
@@ -61,9 +61,6 @@ void MyNeutronCaptureOutputScheme::TrackingActionPre(const G4Track* aTrack) {
             nCGammaAmounts.push_back(trackInfo->GetnCGammaAmount());
             nCGammaTotalEnergies.push_back(trackInfo->GetnCGammaTotalEnergy());
             nCfGe77s.push_back(trackInfo->GetnCfGe77());
-            } else {
-                // Schon vorhanden 👉 nichts tun oder debuggen
-                G4cout << "Pair already exists: (" << muonID << ", " << nCTrackID << ")" << G4endl;
             }
         }
     }
@@ -163,7 +160,7 @@ void MyNeutronCaptureOutputScheme::StoreEvent(const G4Event* event) {
             ana_man->AddNtupleRow(ntupleid);
         }
     }
-    }
+}
 
 
     void MyNeutronCaptureOutputScheme::DefineCommands() {

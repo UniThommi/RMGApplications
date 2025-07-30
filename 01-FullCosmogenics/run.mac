@@ -5,6 +5,7 @@
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
 /RMG/Processes/OpticalPhysics true 
+/RMG/Output/ActivateOutputScheme MyNeutronCaptureOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 GrabmayrGammaCascades/156Gd-5keV-cascades.txt
