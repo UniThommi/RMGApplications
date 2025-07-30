@@ -8,6 +8,7 @@
 #include "RNGTrackingAction.hh"
 #include "RMGIsotopeFilterOutputScheme.hh"
 #include "G4VUserEventInformation.hh"
+#include "MyNeutronCaptureOutputScheme.hh"
 
 #include "HardwareQEOverride.hh"
 
@@ -76,6 +77,7 @@ int main(int argc, char **argv) {
 
   if (useSensitiveSurfaceOutputScheme) {
     user_init->AddSteppingAction<MySteppingAction>();
+    user_init->AddOptionalOutputScheme<MyNeutronCaptureOutputScheme>("MyNeutronCaptureOutputScheme");
   }
 
   // Interactive or batch mode?
