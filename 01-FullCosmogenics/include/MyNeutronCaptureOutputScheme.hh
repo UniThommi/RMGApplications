@@ -44,7 +44,7 @@ class MyNeutronCaptureOutputScheme : public RMGVOutputScheme {
     std::set<std::pair<G4int, G4int>> muonTrackPairs;
 
     // Output Register:
-    G4int neutronsRegister = 12120;
+    G4int NCsRegisterID = 12120;
     G4int physVolRegister = 12121;
     G4int materialRegister = 12122;
 
@@ -55,8 +55,8 @@ class MyNeutronCaptureOutputScheme : public RMGVOutputScheme {
     // Neutron Parameter
     std::vector<G4int> nCTrackIDs;
     std::vector<G4ThreeVector> nCPositions;
-    std::vector<G4int> nCPhysVolumes;
-    std::vector<G4int> nCMaterials;
+    std::vector<G4String> nCPhysVolumes;
+    std::vector<G4String> nCMaterials;
     std::vector<G4double> nCGlobTimes;
     std::vector<G4double> nCGammaTotalEnergies;
     std::vector<G4int> nCGammaAmounts;
