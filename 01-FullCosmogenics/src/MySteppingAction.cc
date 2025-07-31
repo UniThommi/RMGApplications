@@ -102,6 +102,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                     gammaCount,                                 // nC Gamma Amount
                     totalGammaEnergy,                           // nC Gamma Total Energy
                     fGe77,                                      // nC fGe77
+                    -1.,                                        // PhotonGammaKineticEnergy
                     gammas[0].dir, gammas[0].energy,
                     gammas[1].dir, gammas[1].energy,
                     gammas[2].dir, gammas[2].energy,
@@ -149,6 +150,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             nonConstTrackInfo->GetnCGammaAmount(),
             nonConstTrackInfo->GetnCGammaTotalEnergy(),
             nonConstTrackInfo->GetnCfGe77(),
+            nonConstTrackInfo->GetPhotonGammaKineticEnergy(),
             nonConstTrackInfo->GetGammaMomentumDirection(0), nonConstTrackInfo->GetGammaKineticEnergy(0),
             nonConstTrackInfo->GetGammaMomentumDirection(1), nonConstTrackInfo->GetGammaKineticEnergy(1),
             nonConstTrackInfo->GetGammaMomentumDirection(2), nonConstTrackInfo->GetGammaKineticEnergy(2),
