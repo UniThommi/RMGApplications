@@ -4,7 +4,7 @@
 
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
-/RMG/Processes/OpticalPhysics true 
+/RMG/Processes/OpticalPhysics true
 /RMG/Output/ActivateOutputScheme MyNeutronCaptureOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 

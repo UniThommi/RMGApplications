@@ -41,7 +41,7 @@ class MyNeutronCaptureOutputScheme : public RMGVOutputScheme {
     void DefineCommands();
 
     // Saved NCs
-    std::set<std::pair<G4int, G4int>> muonTrackPairs;
+    std::set<std::pair<G4int, G4int>> eventTrackPairs;
 
     // Output Register:
     G4int NCsRegisterID = 12120;

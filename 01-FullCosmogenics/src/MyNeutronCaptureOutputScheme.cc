@@ -40,31 +40,30 @@ void MyNeutronCaptureOutputScheme::ClearBeforeEvent() {
 };
 
 void MyNeutronCaptureOutputScheme::TrackingActionPre(const G4Track* aTrack) {
-    if (aTrack->GetParticleDefinition() == G4Gamma::Definition()) {
-        G4int muonID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
-        const auto* userInfo = aTrack->GetUserInformation();
-        const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
+    // if (aTrack->GetParticleDefinition() == G4Gamma::Definition()) {        
+    const auto* userInfo = aTrack->GetUserInformation();
+    const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
 
-        if (trackInfo) {
-            G4int nCTrackID = trackInfo->GetnCTrackID();
-            std::pair<G4int, G4int> candidate = {muonID, nCTrackID};
-            if (muonTrackPairs.find(candidate) == muonTrackPairs.end()) {
-            // Paar ist noch nicht drin 👉 hinzufügen
-            muonTrackPairs.insert(candidate);
-            G4cout << "Added pair: (" << muonID << ", " << nCTrackID << ")" << G4endl;
+    if (trackInfo) {
+        G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
+        G4int nCTrackID = trackInfo->GetnCTrackID();
+        std::pair<G4int, G4int> candidate = {eventID, nCTrackID};
+        if (eventTrackPairs.find(candidate) == eventTrackPairs.end()) {
+        // Paar ist noch nicht drin 👉 hinzufügen
+        eventTrackPairs.insert(candidate);
 
-            nCTrackIDs.push_back(nCTrackID);
-            nCPositions.push_back(trackInfo->GetnCPos());
-            nCGlobTimes.push_back(trackInfo->GetnCTime());
-            nCPhysVolumes.push_back(trackInfo->GetnCPhysVol());
-            nCMaterials.push_back(trackInfo->GetnCMaterial());
-            nCGammaAmounts.push_back(trackInfo->GetnCGammaAmount());
-            nCGammaTotalEnergies.push_back(trackInfo->GetnCGammaTotalEnergy());
-            nCfGe77s.push_back(trackInfo->GetnCfGe77());
-            }
+        nCTrackIDs.push_back(nCTrackID);
+        nCPositions.push_back(trackInfo->GetnCPos());
+        nCGlobTimes.push_back(trackInfo->GetnCTime());
+        nCPhysVolumes.push_back(trackInfo->GetnCPhysVol());
+        nCMaterials.push_back(trackInfo->GetnCMaterial());
+        nCGammaAmounts.push_back(trackInfo->GetnCGammaAmount());
+        nCGammaTotalEnergies.push_back(trackInfo->GetnCGammaTotalEnergy());
+        nCfGe77s.push_back(trackInfo->GetnCfGe77());
         }
     }
 }
+// }
 
 // invoked in RMGRunAction::SetupAnalysisManager()
 void MyNeutronCaptureOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {  
@@ -141,7 +140,6 @@ void MyNeutronCaptureOutputScheme::StoreEvent(const G4Event* event) {
             }
 
             G4int materialID = materialMapping[nCMaterial];
-
 
             int col_id = 0;
             ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID()); // Gleichzeitig Neutron ID

@@ -36,7 +36,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     // Check if the process is neutron capture (nCapture)
     const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
     if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture") {
-        // Ensure the captured particle is a neutron
+    // Ensure the captured particle is a neutron
         if (track->GetParticleDefinition() == G4Neutron::Definition()) {
 
             // Use const_cast to remove the const qualifier and modify the object
