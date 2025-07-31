@@ -55,6 +55,12 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             G4double totalGammaEnergy = 0.0;
             G4bool fGe77 = false;
 
+            struct GammaInfo {
+                G4ThreeVector dir;
+                G4double energy;
+            };
+            std::vector<GammaInfo> gammas;
+
             // Flag set if Ge77 was produced.
             for (const auto& secTrack : *secondaries) {
                 const auto particle = secTrack->GetParticleDefinition();
@@ -72,23 +78,34 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                 if (particle == G4Gamma::Definition()) {
                     gammaCount++;
                     totalGammaEnergy += secTrack->GetKineticEnergy();
+                    gammas.push_back({secTrack->GetMomentumDirection(), secTrack->GetKineticEnergy()});
                 }
+            }
+
+            std::sort(gammas.begin(), gammas.end(), [](const GammaInfo& a, const GammaInfo& b) {
+                return a.energy > b.energy;
+            });
+
+            while (gammas.size() < 4) {
+                gammas.push_back({G4ThreeVector(0., 0., 0.), 0.});
             }
 
             const auto* userInfo = track->GetUserInformation();
             const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
             if (!trackInfo) {
                 auto* info = new MyTrackInfo(
-                    track->GetTrackID(),                                 // TrackID
-                    track->GetVertexPosition(),       // nC Pos
-                    track->GetGlobalTime(),                                // nC Time
-                    physVolumeName,                                 // nC Phys Vol
-                    materialName,                                 // nC Material
+                    track->GetTrackID(),                        // TrackID
+                    track->GetVertexPosition(),                 // nC Pos
+                    track->GetGlobalTime(),                     // nC Time
+                    physVolumeName,                             // nC Phys Vol
+                    materialName,                               // nC Material
                     gammaCount,                                 // nC Gamma Amount
-                    totalGammaEnergy,                                // nC Gamma Total Energy
-                    fGe77,                              // nC fGe77
-                    G4ThreeVector(-1., -1., -1.),       // Gamma Momentum Direction
-                    -1.                                 // Gamma Kinetic Energy
+                    totalGammaEnergy,                           // nC Gamma Total Energy
+                    fGe77,                                      // nC fGe77
+                    gammas[0].dir, gammas[0].energy,
+                    gammas[1].dir, gammas[1].energy,
+                    gammas[2].dir, gammas[2].energy,
+                    gammas[3].dir, gammas[3].energy       
                 );
                 track->SetUserInformation(info);
             }
@@ -102,6 +119,14 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                 nonConstTrackInfo->SetnCGammaAmount(gammaCount);
                 nonConstTrackInfo->SetnCGammaTotalEnergy(totalGammaEnergy);
                 nonConstTrackInfo->SetnCfGe77(fGe77);
+                nonConstTrackInfo->SetGammaMomentumDirection(0, gammas[0].dir);
+                nonConstTrackInfo->SetGammaKineticEnergy(0, gammas[0].energy);
+                nonConstTrackInfo->SetGammaMomentumDirection(1, gammas[1].dir);
+                nonConstTrackInfo->SetGammaKineticEnergy(1, gammas[1].energy);
+                nonConstTrackInfo->SetGammaMomentumDirection(2, gammas[2].dir);
+                nonConstTrackInfo->SetGammaKineticEnergy(2, gammas[2].energy);
+                nonConstTrackInfo->SetGammaMomentumDirection(3, gammas[3].dir);
+                nonConstTrackInfo->SetGammaKineticEnergy(3, gammas[3].energy);
             }            
         }           
     }
@@ -124,13 +149,15 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             nonConstTrackInfo->GetnCGammaAmount(),
             nonConstTrackInfo->GetnCGammaTotalEnergy(),
             nonConstTrackInfo->GetnCfGe77(),
-            nonConstTrackInfo->GetGammaMomentumDirection(),
-            nonConstTrackInfo->GetGammaKineticEnergy()
+            nonConstTrackInfo->GetGammaMomentumDirection(0), nonConstTrackInfo->GetGammaKineticEnergy(0),
+            nonConstTrackInfo->GetGammaMomentumDirection(1), nonConstTrackInfo->GetGammaKineticEnergy(1),
+            nonConstTrackInfo->GetGammaMomentumDirection(2), nonConstTrackInfo->GetGammaKineticEnergy(2),
+            nonConstTrackInfo->GetGammaMomentumDirection(3), nonConstTrackInfo->GetGammaKineticEnergy(3)
         );
-        // Wenn das Secondary ein Gamma ist, speichere Energie & Impulsrichtung
+
+        // Wenn das Secondary ein Gamma ist, speichere Energie für Gamma Zuordnung
         if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture" && secTrack->GetParticleDefinition() == G4Gamma::Definition()) {
-            inheritedInfo->SetGammaKineticEnergy(secTrack->GetKineticEnergy());
-            inheritedInfo->SetGammaMomentumDirection(secTrack->GetMomentumDirection());
+            inheritedInfo->SetPhotonGammaKineticEnergy(secTrack->GetKineticEnergy());
         };
 
         // Set user information for the secondary track

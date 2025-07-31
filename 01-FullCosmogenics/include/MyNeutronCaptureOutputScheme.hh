@@ -61,6 +61,9 @@ class MyNeutronCaptureOutputScheme : public RMGVOutputScheme {
     std::vector<G4double> nCGammaTotalEnergies;
     std::vector<G4int> nCGammaAmounts;
     std::vector<G4bool> nCfGe77s; // True -> Ge77 wurde produziert.
+    std::vector<G4ThreeVector> gammaDirs1, gammaDirs2, gammaDirs3, gammaDirs4;
+    std::vector<G4double> gammaEs1, gammaEs2, gammaEs3, gammaEs4;
+
 };
 
 #endif

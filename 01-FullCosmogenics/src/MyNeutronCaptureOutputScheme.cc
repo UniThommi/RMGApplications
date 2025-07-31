@@ -28,15 +28,20 @@ MyNeutronCaptureOutputScheme::MyNeutronCaptureOutputScheme() {
 MyNeutronCaptureOutputScheme::~MyNeutronCaptureOutputScheme() {};
 
 void MyNeutronCaptureOutputScheme::ClearBeforeEvent() {
-  // Neutron Capture Info
-  nCTrackIDs.clear();
-  nCPositions.clear();
-  nCPhysVolumes.clear();
-  nCMaterials.clear();
-  nCGlobTimes.clear();
-  nCGammaTotalEnergies.clear();
-  nCGammaAmounts.clear();
-  nCfGe77s.clear();
+    // Neutron Capture Info
+    nCTrackIDs.clear();
+    nCPositions.clear();
+    nCPhysVolumes.clear();
+    nCMaterials.clear();
+    nCGlobTimes.clear();
+    nCGammaTotalEnergies.clear();
+    nCGammaAmounts.clear();
+    nCfGe77s.clear();
+    gammaDirs1.clear(); gammaEs1.clear();
+    gammaDirs2.clear(); gammaEs2.clear();
+    gammaDirs3.clear(); gammaEs3.clear();
+    gammaDirs4.clear(); gammaEs4.clear();
+
 };
 
 void MyNeutronCaptureOutputScheme::TrackingActionPre(const G4Track* aTrack) {
@@ -60,6 +65,14 @@ void MyNeutronCaptureOutputScheme::TrackingActionPre(const G4Track* aTrack) {
         nCGammaAmounts.push_back(trackInfo->GetnCGammaAmount());
         nCGammaTotalEnergies.push_back(trackInfo->GetnCGammaTotalEnergy());
         nCfGe77s.push_back(trackInfo->GetnCfGe77());
+        gammaDirs1.push_back(trackInfo->GetGammaMomentumDirection(0));
+        gammaEs1.push_back(trackInfo->GetGammaKineticEnergy(0));
+        gammaDirs2.push_back(trackInfo->GetGammaMomentumDirection(1));
+        gammaEs2.push_back(trackInfo->GetGammaKineticEnergy(1));
+        gammaDirs3.push_back(trackInfo->GetGammaMomentumDirection(2));
+        gammaEs3.push_back(trackInfo->GetGammaKineticEnergy(2));
+        gammaDirs4.push_back(trackInfo->GetGammaMomentumDirection(3));
+        gammaEs4.push_back(trackInfo->GetGammaKineticEnergy(3));
         }
     }
 }
@@ -85,6 +98,13 @@ void MyNeutronCaptureOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man)
     ana_man->CreateNtupleDColumn(neutronsNTuple, "nC_gamma_total_energy_in_keV");
     ana_man->CreateNtupleIColumn(neutronsNTuple, "nC_flag_Ge77");
     ana_man->CreateNtupleIColumn(neutronsNTuple, "nC_gamma_amount");
+    for (int i = 1; i <= 4; ++i) {
+        ana_man->CreateNtupleDColumn(neutronsNTuple, "gamma" + std::to_string(i) + "_px");
+        ana_man->CreateNtupleDColumn(neutronsNTuple, "gamma" + std::to_string(i) + "_py");
+        ana_man->CreateNtupleDColumn(neutronsNTuple, "gamma" + std::to_string(i) + "_pz");
+        ana_man->CreateNtupleDColumn(neutronsNTuple, "gamma" + std::to_string(i) + "_E");
+    }
+
 
     // Speichern der Mappings
     auto physVol = rmg_man->RegisterNtuple(physVolRegister,
@@ -153,7 +173,28 @@ void MyNeutronCaptureOutputScheme::StoreEvent(const G4Event* event) {
             ana_man->FillNtupleDColumn(ntupleid, col_id++, nCGlobTimes[i]);
             ana_man->FillNtupleDColumn(ntupleid, col_id++, nCGammaTotalEnergies[i]/u::keV);
             ana_man->FillNtupleIColumn(ntupleid, col_id++, nCfGe77s[i]);
-            ana_man->FillNtupleIColumn(ntupleid, col_id++, nCGammaAmounts[i]);           
+            ana_man->FillNtupleIColumn(ntupleid, col_id++, nCGammaAmounts[i]);
+            // Gamma 1
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs1[i].x());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs1[i].y());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs1[i].z());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaEs1[i]/u::keV);
+            // Gamma 2
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs2[i].x());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs2[i].y());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs2[i].z());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaEs2[i]/u::keV);
+            // Gamma 3
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs3[i].x());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs3[i].y());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs3[i].z());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaEs3[i]/u::keV);
+            // Gamma 4
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs4[i].x());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs4[i].y());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs4[i].z());
+            ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaEs4[i]/u::keV);
+           
             // Startet neue Reihe in Output
             ana_man->AddNtupleRow(ntupleid);
         }
