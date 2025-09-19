@@ -21,15 +21,20 @@
 #/RMG/Output/IsotopeFilter/DiscardPhotonsIfIsotopeNotProduced true
 /RMG/Output/NtuplePerDetector false
 
-/RMG/Generator/Confine Volume   ### Wähle alle relevanten Volumen von tank_water
-/RMG/Generator/Confinement/Physical/AddVolume water
-/RMG/Generator/Confinement/Physical/AddVolume skirt
-/RMG/Generator/Confinement/Physical/AddVolume foot
-/RMG/Generator/Confinement/Physical/AddVolume outercryostat
-/RMG/Generator/Select GPS
-/RMG/Generator/Confinement/MaxSamplingTrials 10000
-/gps/particle neutron
-/gps/energy 0.1 eV
+#/RMG/Generator/Confine Volume   ### Wähle alle relevanten Volumen von tank_water
+#/RMG/Generator/Confinement/Physical/AddVolume water
+#/RMG/Generator/Confinement/Physical/AddVolume skirt
+#/RMG/Generator/Confinement/Physical/AddVolume foot
+#/RMG/Generator/Confinement/Physical/AddVolume outercryostat
+#/RMG/Generator/Select GPS
+#/RMG/Generator/Confinement/MaxSamplingTrials 10000
+#/gps/particle neutron
+#/gps/energy 0.1 eV
+
+/gps/particle opticalphoton
+/gps/position 4000 0 0 mm
+/gps/energy 3.095 eV
+/gps/direction 1 0 0
 
 
 #/RMG/Generator/Confine UnConfined
@@ -49,5 +54,5 @@
 #/RMG/Generator/CosmicMuons/SkyShape Plane
 #/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
 
-/run/beamOn 10000000
+/run/beamOn 100
 
