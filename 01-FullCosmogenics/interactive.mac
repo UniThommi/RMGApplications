@@ -1,0 +1,18 @@
+/RMG/Processes/HadronicPhysics Shielding
+/RMG/Processes/Realm CosmicRays
+/RMG/Processes/OpticalPhysics true
+
+/run/initialize
+
+/vis/open OGL
+
+/vis/scene/create
+/vis/sceneHandler/attach
+
+/vis/drawVolume
+
+/vis/scene/add/trajectories smooth
+/vis/scene/add/hits
+/vis/scene/endOfEventAction accumulate
+
+/process/optical/boundary/verbose

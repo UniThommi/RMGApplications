@@ -31,10 +31,12 @@
 #/gps/particle neutron
 #/gps/energy 0.1 eV
 
+/RMG/Generator/Select GPS
 /gps/particle opticalphoton
 /gps/position 4000 0 0 mm
 /gps/energy 3.095 eV
 /gps/direction 1 0 0
+
 
 
 #/RMG/Generator/Confine UnConfined
@@ -54,5 +56,5 @@
 #/RMG/Generator/CosmicMuons/SkyShape Plane
 #/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
 
-/run/beamOn 100
+/run/beamOn 1000000
 
