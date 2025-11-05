@@ -90181,6 +90181,9 @@
 		<skinsurface name="tyvek_pit_surface" surfaceproperty="tyvek_foil_surface">
 			<volumeref ref="tyvek_pit"/>
 		</skinsurface>
+		<skinsurface name="outercryo_surface" surfaceproperty="pmt_steel_surface">
+			<volumeref ref="outercryostat"/>
+		</skinsurface>
 		<bordersurface name="bsurface_lar_ge_V0101" surfaceproperty="surface_to_germanium">
 			<physvolref ref="undergroundlar"/>
 			<physvolref ref="V0101"/>

@@ -1,6 +1,13 @@
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
 /RMG/Processes/OpticalPhysics true
+/RMG/Geometry/RegisterDetector Optical Wall_phys 1000
+
+#/RMG/Geometry/RegisterDetector Optical PMT0202 10202
+#/RMG/Geometry/RegisterDetector Optical PMT0208 10208
+#/RMG/Geometry/RegisterDetector Optical PMT0505 10505
+#/RMG/Geometry/RegisterDetector Optical PMT0802 10802
+#/RMG/Geometry/RegisterDetector Optical PMT0808 10808
 
 /run/initialize
 
@@ -15,4 +22,16 @@
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate
 
-/process/optical/boundary/verbose
+/process/optical/boundary/verbose 2
+
+/RMG/Generator/Select GPS
+/gps/particle opticalphoton
+/gps/energy 3.095 eV
+/gps/pos/type Plane
+/gps/pos/shape Square
+/gps/pos/centre 0 0 -1000 mm   # Position: 3 m "vor" der Wand, links auf der x-Achse
+/gps/pos/halfx 975 mm          # Halbachse X: Hälfte der 1950 mm
+/gps/pos/halfy 975 mm          # Halbachse Y: Hälfte der 1950 mm
+/gps/direction 0 0 1           # Richtung: +x, also direkt auf die Wand
+
+/run/beamOn 10

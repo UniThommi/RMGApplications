@@ -10,8 +10,6 @@
 #include "G4VUserEventInformation.hh"
 #include "MyNeutronCaptureOutputScheme.hh"
 
-#include "HardwareQEOverride.hh"
-
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -25,7 +23,6 @@ int main(int argc, char **argv) {
   int nThreads = 256;
   std::string macroName;
   std::string gdmlFilePath;
-  std::string surfaceType = "";
   std::string outputdir = "./build/";
   int rngFlag = 0;
   bool useSensitiveSurfaceOutputScheme = false;
@@ -42,9 +39,6 @@ int main(int argc, char **argv) {
                  "<Output Directory> Default: ./build");
   app.add_option("-r,--rng", rngFlag, 
                  "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
-  app.add_option("--surface", surfaceType, "Surface type to override (SSD or PMT)")
-      ->check(CLI::IsMember({"SSD", "PMT"}))
-      ->required();
   app.add_flag("-s,--sensitiveSurface", useSensitiveSurfaceOutputScheme, "Use SensitiveSurfaceOutputScheme");
 
   CLI11_PARSE(app, argc, argv);
@@ -56,7 +50,6 @@ int main(int argc, char **argv) {
   RMGManager man("FullCosmogenics", argc, argv);  // RMGManager ist ein singleton.
   // Overwrite the standard Hardware with one that reads
   // in the PMT QE from datasheet
-  man.SetUserInit(new HardwareQEOverride(surfaceType));
 
   // Overwrite RMGPhysics to use own Optical Processes
   man.GetDetectorConstruction()->IncludeGDMLFile(gdmlFilePath);

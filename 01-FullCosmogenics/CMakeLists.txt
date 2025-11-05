@@ -10,7 +10,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 add_executable(
   FullCosmogenics
   main.cc
-  src/HardwareQEOverride.cc
   src/CosmogenicPhysics.cc
   src/RNGCerenkov.cc
   src/RNGTrackingAction.cc
