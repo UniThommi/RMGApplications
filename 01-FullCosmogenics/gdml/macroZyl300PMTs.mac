@@ -638,4 +638,6 @@
 /RMG/Geometry/RegisterDetector Optical PMT304442 10304442
 /RMG/Geometry/RegisterDetector Optical PMT304404 10304404
 /RMG/Geometry/RegisterDetector Optical PMT304466 10304466
+/RMG/Geometry/RegisterDetector Optical skirt 9001
+/RMG/Geometry/RegisterDetector Optical foot 9002
 /RMG/Geometry/RegisterDetector Optical outercryostat 9000
