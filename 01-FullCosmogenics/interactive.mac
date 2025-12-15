@@ -34,4 +34,4 @@
 /gps/pos/halfy 975 mm          # Halbachse Y: Hälfte der 1950 mm
 /gps/direction 0 0 1           # Richtung: +x, also direkt auf die Wand
 
-/run/beamOn 10
+/run/beamOn 100
