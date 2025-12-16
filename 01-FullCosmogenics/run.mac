@@ -8,14 +8,11 @@
 /RMG/Output/ActivateOutputScheme MyNeutronCaptureOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 
-/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 GrabmayrGammaCascades/156Gd-5keV-cascades.txt
+/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 /global/cfs/projectdirs/legend/users/tbuerger/sim/RMGApplications/01-FullCosmogenics/GrabmayrGammaCascades/156Gd-5keV-cascades.txt
 /RMG/GrabmayrGammaCascades/SetGammaCascadeRandomStartLocation 1
-/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 GrabmayrGammaCascades/158Gd-5keV-cascades.txt
+/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 /global/cfs/projectdirs/legend/users/tbuerger/sim/RMGApplications/01-FullCosmogenics/GrabmayrGammaCascades/158Gd-5keV-cascades.txt
 
-#/control/execute gdml/macroZylSSD.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l1000
-#/RMG/Geometry/RegisterDetector Optical Wall_phys 1000
-
-/RMG/Geometry/RegisterDetector Optical PMT000000 10000
+/control/execute /global/cfs/projectdirs/legend/users/tbuerger/sim/RMGApplications/01-FullCosmogenics/gdml/macroZylSSD.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l1000
 
 /run/initialize
 
@@ -36,23 +33,22 @@
 #/gps/particle neutron
 #/gps/energy 0.1 eV
 
-#/RMG/Generator/Select GPS
-#/gps/particle opticalphoton
-#/gps/energy 3.095 eV
-#/gps/pos/type Plane
-#/gps/pos/shape Square
-#/gps/pos/centre 0 0 -1000 mm   # Position: 1 m "vor" der Wand, links auf der x-Achse
-#/gps/pos/halfx 975 mm          # Halbachse X: Hälfte der 1950 mm
-#/gps/pos/halfy 975 mm          # Halbachse Y: Hälfte der 1950 mm
-#/gps/direction 0 0 1           # Richtung: +x, also direkt auf die Wand
 
 /RMG/Generator/Select GPS
-/gps/particle opticalphoton
-/gps/energy 3.095 eV
-/gps/pos/type Volume
-/gps/pos/shape Sphere
-/gps/pos/centre 0 0 0 mm  # Zentrum der Kugel 
-/gps/pos/radius 1739 mm
+/RMG/Generator/Confine Volume
+/RMG/Generator/Confinement/SamplingMode UnionAll
+/RMG/Generator/Confinement/Geometrical/AddSolid Cylinder
+/RMG/Generator/Confinement/Geometrical/CenterPositionX 0 mm
+/RMG/Generator/Confinement/Geometrical/CenterPositionY 0 mm
+/RMG/Generator/Confinement/Geometrical/CenterPositionZ -550 mm
+/RMG/Generator/Confinement/Geometrical/Cylinder/InnerRadius 0 mm
+/RMG/Generator/Confinement/Geometrical/Cylinder/OuterRadius 4300 mm
+/RMG/Generator/Confinement/Geometrical/Cylinder/Height 8900 mm
+/RMG/Generator/Confinement/Geometrical/Cylinder/StartingAngle 0 deg
+/RMG/Generator/Confinement/Geometrical/Cylinder/SpanningAngle 360 deg
+/RMG/Generator/Confinement/MaxSamplingTrials 10000
+/gps/particle neutron
+/gps/energy 0.1 eV
 /gps/ang/type iso
 
 
@@ -60,18 +56,6 @@
 #/RMG/Generator/Select MUSUNCosmicMuons
 #/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
-#/RMG/Generator/Select CustomMUSUN
-#/Cosmogenics/Generator/SetMUSUNFile musun/combined_file.dat
 
-#/RMG/Generator/Select GPS
-#/gps/particle mu-
-#/gps/direction -0.077055 -0.874746 -0.478416
-#/gps/position 38.0   800.0   225.8 cm
-#/gps/energy 549.4 GeV
-
-#/RMG/Generator/Select CosmicMuons
-#/RMG/Generator/CosmicMuons/SkyShape Plane
-#/RMG/Generator/CosmicMuons/SkyPlaneHeight 10
-
-/run/beamOn 1000000
+/run/beamOn 10000
 
