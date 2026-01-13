@@ -38,100 +38,88 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture") {
     // Ensure the captured particle is a neutron
         if (track->GetParticleDefinition() == G4Neutron::Definition()) {
-
-            // Use const_cast to remove the const qualifier and modify the object
-            const G4VPhysicalVolume* physicalVolume = track->GetVolume();
-            G4String physVolumeName = "";
-            G4String materialName = "";
-            if (physicalVolume) {
-                physVolumeName = physicalVolume->GetName();
-                G4Material* material = physicalVolume->GetLogicalVolume()->GetMaterial();
-                if (material) {
-                    materialName = material->GetName();
-                }
+            // Prüfe ob bereits NC-Info existiert (= sekundärer NC)
+            const auto* userInfo = track->GetUserInformation();
+            const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
+            
+            // WENN trackInfo existiert → sekundärer NC → NICHT überschreiben!
+            if (trackInfo) {
+                G4cout << "⚠ Sekundärer NC detektiert (Track " << track->GetTrackID() 
+                    << "), behalte primären NC (Track " << trackInfo->GetnCTrackID() << ")" << G4endl;
+                // Nichts tun - primäre NC-Info bleibt erhalten
             }
-
-            G4int gammaCount = 0;
-            G4double totalGammaEnergy = 0.0;
-            G4bool fGe77 = false;
-
-            struct GammaInfo {
-                G4ThreeVector dir;
-                G4double energy;
-            };
-            std::vector<GammaInfo> gammas;
-
-            // Flag set if Ge77 was produced.
-            for (const auto& secTrack : *secondaries) {
-                const auto particle = secTrack->GetParticleDefinition();
-                if (particle->IsGeneralIon()) {
-                    int z = particle->GetAtomicNumber();
-                    int a = particle->GetAtomicMass();
-                    if (z == 32 && a == 77) { // Ge77?
-                        // Remove const qualifier to modify nCfGe77
-                        fGe77 = true;
-                        G4cout << "Ge-77 erzeugt! 🎉" << G4endl;
+            else{
+                const G4VPhysicalVolume* physicalVolume = track->GetVolume();
+                G4String physVolumeName = "";
+                G4String materialName = "";
+                if (physicalVolume) {
+                    physVolumeName = physicalVolume->GetName();
+                    G4Material* material = physicalVolume->GetLogicalVolume()->GetMaterial();
+                    if (material) {
+                        materialName = material->GetName();
                     }
                 }
 
-                // Zähle erzeugte Gammas
-                if (particle == G4Gamma::Definition()) {
-                    gammaCount++;
-                    totalGammaEnergy += secTrack->GetKineticEnergy();
-                    gammas.push_back({secTrack->GetMomentumDirection(), secTrack->GetKineticEnergy()});
+                G4int gammaCount = 0;
+                G4double totalGammaEnergy = 0.0;
+                G4bool fGe77 = false;
+
+                struct GammaInfo {
+                    G4ThreeVector dir;
+                    G4double energy;
+                };
+                std::vector<GammaInfo> gammas;
+
+                // Flag set if Ge77 was produced.
+                for (const auto& secTrack : *secondaries) {
+                    const auto particle = secTrack->GetParticleDefinition();
+                    if (particle->IsGeneralIon()) {
+                        int z = particle->GetAtomicNumber();
+                        int a = particle->GetAtomicMass();
+                        if (z == 32 && a == 77) { // Ge77?
+                            // Remove const qualifier to modify nCfGe77
+                            fGe77 = true;
+                            G4cout << "Ge-77 erzeugt! 🎉" << G4endl;
+                        }
+                    }
+
+                    // Zähle erzeugte Gammas
+                    if (particle == G4Gamma::Definition()) {
+                        gammaCount++;
+                        totalGammaEnergy += secTrack->GetKineticEnergy();
+                        gammas.push_back({secTrack->GetMomentumDirection(), secTrack->GetKineticEnergy()});
+                    }
                 }
-            }
 
-            std::sort(gammas.begin(), gammas.end(), [](const GammaInfo& a, const GammaInfo& b) {
-                return a.energy > b.energy;
-            });
+                std::sort(gammas.begin(), gammas.end(), [](const GammaInfo& a, const GammaInfo& b) {
+                    return a.energy > b.energy;
+                });
 
-            while (gammas.size() < 4) {
-                gammas.push_back({G4ThreeVector(0., 0., 0.), 0.});
-            }
+                while (gammas.size() < 4) {
+                    gammas.push_back({G4ThreeVector(0., 0., 0.), 0.});
+                }
 
-            const auto* userInfo = track->GetUserInformation();
-            const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
-            if (!trackInfo) {
                 auto* info = new MyTrackInfo(
-                    track->GetTrackID(),                        // TrackID
-                    track->GetVertexPosition(),                 // nC Pos
-                    track->GetGlobalTime(),                     // nC Time
-                    physVolumeName,                             // nC Phys Vol
-                    materialName,                               // nC Material
-                    gammaCount,                                 // nC Gamma Amount
-                    totalGammaEnergy,                           // nC Gamma Total Energy
-                    fGe77,                                      // nC fGe77
-                    -1.,                                        // PhotonGammaKineticEnergy
+                    track->GetTrackID(),                        
+                    track->GetVertexPosition(),                 
+                    track->GetGlobalTime(),                     
+                    physVolumeName,                             
+                    materialName,                               
+                    gammaCount,                                 
+                    totalGammaEnergy,                           
+                    fGe77,                                      
+                    -1.,                                        
                     gammas[0].dir, gammas[0].energy,
                     gammas[1].dir, gammas[1].energy,
                     gammas[2].dir, gammas[2].energy,
                     gammas[3].dir, gammas[3].energy       
                 );
                 track->SetUserInformation(info);
-            }
-            else {
-                MyTrackInfo* nonConstTrackInfo = const_cast<MyTrackInfo*>(trackInfo);
-                nonConstTrackInfo->SetnCTrackID(track->GetTrackID());
-                nonConstTrackInfo->SetnCPos(track->GetVertexPosition());
-                nonConstTrackInfo->SetnCTime(track->GetGlobalTime());
-                nonConstTrackInfo->SetnCPhysVol(physVolumeName);
-                nonConstTrackInfo->SetnCMaterial(materialName);
-                nonConstTrackInfo->SetnCGammaAmount(gammaCount);
-                nonConstTrackInfo->SetnCGammaTotalEnergy(totalGammaEnergy);
-                nonConstTrackInfo->SetnCfGe77(fGe77);
-                nonConstTrackInfo->SetGammaMomentumDirection(0, gammas[0].dir);
-                nonConstTrackInfo->SetGammaKineticEnergy(0, gammas[0].energy);
-                nonConstTrackInfo->SetGammaMomentumDirection(1, gammas[1].dir);
-                nonConstTrackInfo->SetGammaKineticEnergy(1, gammas[1].energy);
-                nonConstTrackInfo->SetGammaMomentumDirection(2, gammas[2].dir);
-                nonConstTrackInfo->SetGammaKineticEnergy(2, gammas[2].energy);
-                nonConstTrackInfo->SetGammaMomentumDirection(3, gammas[3].dir);
-                nonConstTrackInfo->SetGammaKineticEnergy(3, gammas[3].energy);
-            }            
+            }  
         }           
     }
 
+    // Inheritance nur wenn NC-Info existiert
     const auto* userInfo = track->GetUserInformation();
     const auto* trackInfo = dynamic_cast<const MyTrackInfo*>(userInfo);
     if (!trackInfo) {
@@ -139,8 +127,9 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
     }
 
     MyTrackInfo* nonConstTrackInfo = const_cast<MyTrackInfo*>(trackInfo);
-    // Inherit Track Info to secondary particles
-    for (const auto& secTrack : *secondaries) {
+    
+    // Vererbe NC-Info zu secondaries (außer Neutronen)
+    for (const auto& secTrack : *secondaries) {        
         auto* inheritedInfo = new MyTrackInfo(
             nonConstTrackInfo->GetnCTrackID(),
             nonConstTrackInfo->GetnCPos(),
@@ -157,12 +146,12 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             nonConstTrackInfo->GetGammaMomentumDirection(3), nonConstTrackInfo->GetGammaKineticEnergy(3)
         );
 
-        // Wenn das Secondary ein Gamma ist, speichere Energie für Gamma Zuordnung
-        if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture" && secTrack->GetParticleDefinition() == G4Gamma::Definition()) {
+        // Gammas vom NC: Speichere ihre spezifische Energie
+        if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture" 
+            && secTrack->GetParticleDefinition() == G4Gamma::Definition()) {
             inheritedInfo->SetPhotonGammaKineticEnergy(secTrack->GetKineticEnergy());
-        };
+        }
 
-        // Set user information for the secondary track
         const_cast<G4Track*>(secTrack)->SetUserInformation(inheritedInfo);
     }
 }    

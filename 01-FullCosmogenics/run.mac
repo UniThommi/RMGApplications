@@ -57,5 +57,5 @@
 #/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
 
-/run/beamOn 10000
+/run/beamOn 1000000
 
