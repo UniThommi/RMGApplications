@@ -338,6 +338,3 @@
 /RMG/Geometry/RegisterDetector Optical my_tyvek_bot_foil 1967
 /RMG/Geometry/RegisterDetector Optical my_tyvek_top_foil 1968
 /RMG/Geometry/RegisterDetector Optical my_tyvek_pit_foil 1966
-/RMG/Geometry/RegisterDetector Optical skirt 9001
-/RMG/Geometry/RegisterDetector Optical foot 9002
-/RMG/Geometry/RegisterDetector Optical outercryostat 9000
