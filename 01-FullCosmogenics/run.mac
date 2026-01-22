@@ -8,7 +8,7 @@
 /RMG/Output/ActivateOutputScheme MyNeutronCaptureOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 
-/RMG/Processes/UseGrabmayrsGammaCascades
+/RMG/Processes/UseGrabmayrsGammaCascades true
 
 /control/execute /global/cfs/projectdirs/legend/users/tbuerger/sim/RMGApplications/01-FullCosmogenics/gdml/macroZylSSD.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l1000
 
@@ -60,5 +60,5 @@
 #/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
 
-/run/beamOn 1000
+/run/beamOn 100000
 

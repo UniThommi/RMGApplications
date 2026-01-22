@@ -35,7 +35,8 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
 
     // Check if the process is neutron capture (nCapture)
     const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
-    if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture") {
+    // if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture") {  // Nur korrekt wenn Grabmayr Kaskaden nicht aktiv
+    if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "RMGnCapture") {
     // Ensure the captured particle is a neutron
         if (track->GetParticleDefinition() == G4Neutron::Definition()) {
             // Prüfe ob bereits NC-Info existiert (= sekundärer NC)
