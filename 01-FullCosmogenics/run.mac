@@ -8,13 +8,16 @@
 /RMG/Output/ActivateOutputScheme MyNeutronCaptureOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 
-/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 /global/cfs/projectdirs/legend/users/tbuerger/sim/RMGApplications/01-FullCosmogenics/GrabmayrGammaCascades/156Gd-5keV-cascades.txt
-/RMG/GrabmayrGammaCascades/SetGammaCascadeRandomStartLocation 1
-/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 /global/cfs/projectdirs/legend/users/tbuerger/sim/RMGApplications/01-FullCosmogenics/GrabmayrGammaCascades/158Gd-5keV-cascades.txt
+/RMG/Processes/UseGrabmayrsGammaCascades
 
 /control/execute /global/cfs/projectdirs/legend/users/tbuerger/sim/RMGApplications/01-FullCosmogenics/gdml/macroZylSSD.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l1000
 
 /run/initialize
+
+/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 /global/cfs/projectdirs/legend/users/tbuerger/sim/RMGApplications/01-FullCosmogenics/GrabmayrGammaCascades/156Gd-5keV-cascades.txt
+/RMG/GrabmayrGammaCascades/SetGammaCascadeRandomStartLocation 1
+/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 /global/cfs/projectdirs/legend/users/tbuerger/sim/RMGApplications/01-FullCosmogenics/GrabmayrGammaCascades/158Gd-5keV-cascades.txt
+/RMG/GrabmayrGammaCascades/SetGammaCascadeFile 1 1 /global/cfs/projectdirs/legend/users/tbuerger/sim/RMGApplications/01-FullCosmogenics/GrabmayrGammaCascades/2H-5keV-cascades.txt
 
 /process/inactivate Scintillation      # Es sind nicht alle Szintillations Yields in Remage für L1000 definiert. Dadurch kann es zum Abbruch kommen.
 #/process/optical/boundary/verbose 2
