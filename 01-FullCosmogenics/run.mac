@@ -59,6 +59,5 @@
 #/RMG/Generator/Select MUSUNCosmicMuons
 #/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
-
+# 90min
 /run/beamOn 1000000
-

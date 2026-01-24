@@ -35,9 +35,11 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
 
     // Check if the process is neutron capture (nCapture)
     const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
-    // if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture") {  // Nur korrekt wenn Grabmayr Kaskaden nicht aktiv
-    if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "RMGnCapture") {
-    // Ensure the captured particle is a neutron
+    if (
+        postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture" ||
+        postStepPoint->GetProcessDefinedStep()->GetProcessName() == "RMGnCapture"
+    ) {
+        // Ensure the captured particle is a neutron
         if (track->GetParticleDefinition() == G4Neutron::Definition()) {
             // Prüfe ob bereits NC-Info existiert (= sekundärer NC)
             const auto* userInfo = track->GetUserInformation();
@@ -147,11 +149,21 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
             nonConstTrackInfo->GetGammaMomentumDirection(3), nonConstTrackInfo->GetGammaKineticEnergy(3)
         );
 
-        // Gammas vom NC: Speichere ihre spezifische Energie
-        if (postStepPoint->GetProcessDefinedStep()->GetProcessName() == "nCapture" 
-            && secTrack->GetParticleDefinition() == G4Gamma::Definition()) {
-            inheritedInfo->SetPhotonGammaKineticEnergy(secTrack->GetKineticEnergy());
+        auto process = postStepPoint->GetProcessDefinedStep();
+
+        if (
+            process &&
+            (
+                process->GetProcessName() == "RMGnCapture" ||
+                process->GetProcessName() == "nCapture"
+            ) &&
+            secTrack->GetParticleDefinition() == G4Gamma::Definition()
+        ) {
+            inheritedInfo->SetPhotonGammaKineticEnergy(
+                secTrack->GetKineticEnergy()
+            );
         }
+
 
         const_cast<G4Track*>(secTrack)->SetUserInformation(inheritedInfo);
     }
