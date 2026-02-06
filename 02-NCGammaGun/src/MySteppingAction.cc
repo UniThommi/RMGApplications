@@ -66,7 +66,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                     }
                 }
 
-                G4int muonTrackID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
+                G4int muonTrackID = -1;
                 G4int ncTrackID = track->GetTrackID();
                 G4int gammaCount = 0;
                 G4double totalGammaEnergy = 0.0;
@@ -107,19 +107,6 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                     return a.energy > b.energy;
                 });
 
-                // Erstelle Top-4 Vektor für NC-OutputScheme
-                struct Top4Gamma {
-                    G4ThreeVector dir;
-                    G4double energy;
-                };
-                std::vector<Top4Gamma> top4Gammas;
-                for (size_t i = 0; i < std::min(gammas.size(), size_t(4)); ++i) {
-                    top4Gammas.push_back({gammas[i].dir, gammas[i].energy});
-                }
-                while (top4Gammas.size() < 4) {
-                    top4Gammas.push_back({G4ThreeVector(0., 0., 0.), 0.});
-                }
-
                 // Speichere NC-Info im NeutronCaptureOutputScheme
                 MyNeutronCaptureOutputScheme::NCInfo ncInfo;
                 ncInfo.pos = track->GetVertexPosition();
@@ -129,14 +116,6 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                 ncInfo.gammaAmount = gammaCount;
                 ncInfo.gammaTotalEnergy = totalGammaEnergy;
                 ncInfo.fGe77 = fGe77;
-                ncInfo.gamma1_dir = top4Gammas[0].dir;
-                ncInfo.gamma1_E = top4Gammas[0].energy;
-                ncInfo.gamma2_dir = top4Gammas[1].dir;
-                ncInfo.gamma2_E = top4Gammas[1].energy;
-                ncInfo.gamma3_dir = top4Gammas[2].dir;
-                ncInfo.gamma3_E = top4Gammas[2].energy;
-                ncInfo.gamma4_dir = top4Gammas[3].dir;
-                ncInfo.gamma4_E = top4Gammas[3].energy;
                 MyNeutronCaptureOutputScheme::AddPendingNC(ncTrackID, ncInfo);
 
                 // Speichere Gammas und setze UserInfo

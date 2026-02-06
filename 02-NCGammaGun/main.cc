@@ -10,6 +10,7 @@
 #include "G4VUserEventInformation.hh"
 #include "MyNeutronCaptureOutputScheme.hh"
 #include "MyGammaCaptureOutputScheme.hh"
+#include "MySingleNCGammaGenerator.hh"
 
 #include <fstream>
 #include <iostream>
@@ -74,8 +75,6 @@ int main(int argc, char **argv) {
     user_init->AddOptionalOutputScheme<MyNeutronCaptureOutputScheme>("MyNeutronCaptureOutputScheme");
     user_init->AddOptionalOutputScheme<MyGammaCaptureOutputScheme>("MyGammaCaptureOutputScheme");
   }
-
-  // Initialize UserGenerator
 
   // Interactive or batch mode?
   if (!macroName.empty())

@@ -1,0 +1,34 @@
+{
+    "default": {
+        "focus": [0, 0, 0],
+        "up": [1, 0, 0],
+        "camera": [0, 0, 300]
+    },
+    "scenes": [
+        {
+            "focus": [0, 0, 0],
+            "up": [0, 0, 1],
+            "camera": [-300, 0, 0]
+        }
+    ],
+    "clipper": [
+        {
+            "origin": [-10000, 0, 0],
+            "normal": [-1, 0, 0]
+        }
+    ],
+    "points": [
+        {
+            "file": "/home/tbueger/code/sim/RMGApplications/01-FullCosmogenics/build/output_t2.lh5",
+            "table": "hit/vertices",
+            "columns": ["xloc", "yloc", "zloc"],
+            "color": [0, 1, 0, 1]
+        },
+        {
+            "file": "/home/tbueger/code/sim/RMGApplications/01-FullCosmogenics/build/output_t2.lh5",
+            "table": "hit/optical",
+            "columns": ["nC_x_position", "nC_y_position", "nC_z_position"],
+            "color": [1, 0, 0, 1]
+        }
+    ]
+}

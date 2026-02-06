@@ -25,8 +25,6 @@ public:
         G4int gammaAmount;
         G4double gammaTotalEnergy;
         G4bool fGe77;
-        G4ThreeVector gamma1_dir, gamma2_dir, gamma3_dir, gamma4_dir;
-        G4double gamma1_E, gamma2_E, gamma3_E, gamma4_E;
     };
 
     // Static method für MySteppingAction
@@ -78,8 +76,6 @@ public:
     std::vector<G4double> nCGammaTotalEnergies;
     std::vector<G4int> nCGammaAmounts;
     std::vector<G4bool> nCfGe77s; // True -> Ge77 wurde produziert.
-    std::vector<G4ThreeVector> gammaDirs1, gammaDirs2, gammaDirs3, gammaDirs4;
-    std::vector<G4double> gammaEs1, gammaEs2, gammaEs3, gammaEs4;
 
 };
 
