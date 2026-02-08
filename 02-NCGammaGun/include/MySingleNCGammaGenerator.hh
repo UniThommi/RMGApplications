@@ -1,56 +1,65 @@
 #ifndef _MY_SINGLE_NC_GAMMA_GENERATOR_HH_
 #define _MY_SINGLE_NC_GAMMA_GENERATOR_HH_
 
-#include "RMGVGenerator.hh"
-#include "G4ParticleGun.hh"
-#include "G4GenericMessenger.hh"
-#include "H5Cpp.h"
-#include <memory>
 #include <vector>
+#include <map>
+#include <atomic>
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "G4GenericMessenger.hh"
+#include "G4ParticleGun.hh"
+#include "RMGVGenerator.hh"
 
-class CustomNCGammaSingleGenerator : public RMGVGenerator {
+namespace u = CLHEP;
+
+class G4Event;
+
+class MySingleNCGammaGenerator : public RMGVGenerator {
 public:
-    CustomNCGammaSingleGenerator();
-    ~CustomNCGammaSingleGenerator();
+  MySingleNCGammaGenerator();
+  ~MySingleNCGammaGenerator();
+  
+  MySingleNCGammaGenerator(MySingleNCGammaGenerator const &) = delete;
+  MySingleNCGammaGenerator &operator=(MySingleNCGammaGenerator const &) = delete;
+  MySingleNCGammaGenerator(MySingleNCGammaGenerator &&) = delete;
+  MySingleNCGammaGenerator &operator=(MySingleNCGammaGenerator &&) = delete;
 
-    void BeginOfRunAction(const G4Run*) override;
-    void GeneratePrimaries(G4Event* event) override;
-
-    void SetNCFile(G4String pathToFile);
-    void SetParticlePosition(G4ThreeVector) override { /* Not used */ }
+  void GeneratePrimaries(G4Event *event) override;
+  void SetParticlePosition(G4ThreeVector) override {};
+  void BeginOfRunAction(const G4Run*) override;
 
 private:
-    void DefineCommands();
-    void LoadData();
-    void ValidateEventCount(G4int requestedEvents);
-    
-    template<typename T>
-    std::vector<T> ReadDataset(H5::H5File& file, const std::string& dataset_path);
+  static std::atomic<G4int> fGlobalNCIndex;  // Shared across threads
+  void DefineCommands();
+  void SetMergedNCDir(G4String pathToDir);
+  void LoadNCData();
 
-    std::unique_ptr<G4ParticleGun> fGun;
-    std::unique_ptr<G4GenericMessenger> fMessenger;
-    G4String fInputFile;
+  std::unique_ptr<G4GenericMessenger> fMessenger = nullptr;
 
-    // Metadata
-    G4int fTotalNCs;
-    G4int fCurrentEventID;
-
-    // NC data
-    std::vector<int> nc_evtid;
-    std::vector<int> nc_id;
-    std::vector<double> nc_x, nc_y, nc_z;
-    std::vector<double> nc_time;
-    
-    // Gamma data
-    std::vector<int> gamma_evtid;
-    std::vector<int> gamma_nc_id;
-    std::vector<int> gamma_id;
-    std::vector<double> gamma_px, gamma_py, gamma_pz;
-    std::vector<double> gamma_E;
-    std::vector<double> gamma_pol_x, gamma_pol_y, gamma_pol_z;
-    
-    // Lookup: nc_id → indices in gamma arrays
-    std::map<int, std::vector<size_t>> nc_to_gamma_indices;
+  G4String fInputFilePath;
+  
+  // NC-indexed data structures
+  std::vector<G4int> fMuonIDs;         // MuonID (evtid) for each NC
+  std::vector<G4int> fNCIDs;           // NC IDs (nc_id/track_id)
+  std::vector<G4double> fNCx;          // NC positions
+  std::vector<G4double> fNCy;
+  std::vector<G4double> fNCz;
+  std::vector<G4double> fNCTimes;      // NC times in ns
+  
+  // Gamma data (all gammas)
+  std::vector<G4int> fGammaMuonIDs;    // Muon ID for each gamma
+  std::vector<G4int> fGammaNCIDs;      // Which NC does this gamma belong to
+  std::vector<G4int> fGammaIDs;        // Original gamma IDs
+  std::vector<G4double> fGammaPx;      // Momentum direction
+  std::vector<G4double> fGammaPy;
+  std::vector<G4double> fGammaPz;
+  std::vector<G4double> fGammaEnergies; // in keV
+  std::vector<G4double> fGammaPolX;    // Polarization
+  std::vector<G4double> fGammaPolY;
+  std::vector<G4double> fGammaPolZ;
+  
+  // Map: (MuonID, NCID) -> indices of gammas belonging to this NC
+  std::map<std::pair<G4int, G4int>, std::vector<size_t>> fNCToGammaIndices;
 };
 
 #endif
+// vim: tabstop=2 shiftwidth=2 expandtab

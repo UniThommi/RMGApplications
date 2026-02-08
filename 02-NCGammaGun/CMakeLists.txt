@@ -14,9 +14,9 @@ add_executable(
   src/RNGCerenkov.cc
   src/RNGTrackingAction.cc
   src/MySteppingAction.cc
-  src/MyNeutronCaptureOutputScheme.cc
-  src/MyGammaCaptureOutputScheme.cc
-  src/MySingleNCGammaGenerator.cc)
+  src/MyPrimaryGammaUserInfo.cc
+  src/MySingleNCGammaGenerator.cc
+  src/DebugVertexOutputScheme.cc)
 
 target_link_libraries(FullCosmogenics PUBLIC RMG::remage)
 

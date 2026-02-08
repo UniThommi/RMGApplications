@@ -1,183 +1,186 @@
 #include "MySingleNCGammaGenerator.hh"
-#include "MyTrackInfo.hh"
-#include "G4Run.hh"
-#include "G4Event.hh"
-#include "G4ParticleTable.hh"
-#include "G4PrimaryVertex.hh"
-#include "G4PrimaryParticle.hh"
-#include "G4RunManager.hh"
-#include "H5Cpp.h"
-#include <iostream>
+#include "MyPrimaryGammaUserInfo.hh"
 
-#ifndef H5_NO_NAMESPACE
-using namespace H5;
-#endif
+#include "G4Event.hh"
+#include "G4Gamma.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4PrimaryParticle.hh"
+#include "G4PrimaryVertex.hh"
+#include "G4ThreeVector.hh"
+#include "RMGLog.hh"
+
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+#include <random>
+
+std::atomic<G4int> MySingleNCGammaGenerator::fGlobalNCIndex{0};
 
 namespace u = CLHEP;
 
-template<typename T>
-std::vector<T> CustomNCGammaSingleGenerator::ReadDataset(H5::H5File& file, const std::string& dataset_path) {
-    DataSet dataset = file.openDataSet(dataset_path);
-    DataSpace dataspace = dataset.getSpace();
-    hsize_t dims[1];
-    dataspace.getSimpleExtentDims(dims, nullptr);
-    std::vector<T> data(dims[0]);
-    dataset.read(data.data(), dataset.getDataType());
-    return data;
+MySingleNCGammaGenerator::MySingleNCGammaGenerator() : RMGVGenerator("SingleNCGamma") {
+  this->DefineCommands();
 }
 
-CustomNCGammaSingleGenerator::CustomNCGammaSingleGenerator()
-    : RMGVGenerator("NCGammas_Single"), fTotalNCs(0), fCurrentEventID(0) {
-    this->DefineCommands();
-    fGun = std::make_unique<G4ParticleGun>();
+MySingleNCGammaGenerator::~MySingleNCGammaGenerator() {}
+
+void MySingleNCGammaGenerator::SetMergedNCDir(G4String pathToDir) {
+  fInputFilePath = pathToDir;
+  RMGLog::Out(RMGLog::summary, "MySingleNCGammaGenerator: Set input directory to ", pathToDir);
 }
 
-CustomNCGammaSingleGenerator::~CustomNCGammaSingleGenerator() {}
-
-void CustomNCGammaSingleGenerator::BeginOfRunAction(const G4Run* run) {
-    LoadData();
-    
-    // Validate requested event count
-    G4int requestedEvents = run->GetNumberOfEventToBeProcessed();
-    ValidateEventCount(requestedEvents);
+void MySingleNCGammaGenerator::BeginOfRunAction(const G4Run*) {
+  if (fInputFilePath.empty()) {
+    RMGLog::Out(RMGLog::fatal, "MySingleNCGammaGenerator: No input directory specified!");
+    throw std::runtime_error("No merged NC directory specified");
+  }
+  
+  LoadNCData();
+  
+  RMGLog::Out(RMGLog::summary, "MySingleNCGammaGenerator: Loaded ", fNCIDs.size(), 
+              " NCs with ", fGammaIDs.size(), " total gammas");
 }
 
-void CustomNCGammaSingleGenerator::LoadData() {
-    G4cout << "=== Loading NC Data from " << fInputFile << " ===" << G4endl;
+void MySingleNCGammaGenerator::LoadNCData() {
+  // Construct file paths
+  G4String ncFile = fInputFilePath + "/merged_ncs.csv";
+  G4String gammaFile = fInputFilePath + "/merged_gammas.csv";
+  
+  // Load NC data
+  RMGLog::Out(RMGLog::debug, "Loading NC data from ", ncFile);
+  std::ifstream ncStream(ncFile);
+  if (!ncStream.is_open()) {
+    RMGLog::Out(RMGLog::fatal, "Cannot open NC file: ", ncFile);
+    throw std::runtime_error("Cannot open NC CSV file");
+  }
+  
+  std::string line;
+  std::getline(ncStream, line); // Skip header
+  
+  while (std::getline(ncStream, line)) {
+    std::stringstream ss(line);
+    std::string token;
     
-    try {
-        H5File file(fInputFile, H5F_ACC_RDONLY);
-        
-        // Read metadata
-        H5::Attribute attr = file.openAttribute("total_ncs");
-        attr.read(H5::PredType::NATIVE_INT, &fTotalNCs);
-        G4cout << "Total NCs in file: " << fTotalNCs << G4endl;
-        
-        // Read NC data
-        G4cout << "Loading NC data..." << G4endl;
-        nc_evtid = ReadDataset<int>(file, "/ncs/evtid");
-        nc_id = ReadDataset<int>(file, "/ncs/nc_id");
-        nc_x = ReadDataset<double>(file, "/ncs/nc_x");
-        nc_y = ReadDataset<double>(file, "/ncs/nc_y");
-        nc_z = ReadDataset<double>(file, "/ncs/nc_z");
-        nc_time = ReadDataset<double>(file, "/ncs/nc_time");
-        
-        // Read Gamma data
-        G4cout << "Loading Gamma data..." << G4endl;
-        gamma_evtid = ReadDataset<int>(file, "/gammas/evtid");
-        gamma_nc_id = ReadDataset<int>(file, "/gammas/nc_id");
-        gamma_id = ReadDataset<int>(file, "/gammas/gamma_id");
-        gamma_px = ReadDataset<double>(file, "/gammas/gamma_px");
-        gamma_py = ReadDataset<double>(file, "/gammas/gamma_py");
-        gamma_pz = ReadDataset<double>(file, "/gammas/gamma_pz");
-        gamma_E = ReadDataset<double>(file, "/gammas/gamma_E");
-        gamma_pol_x = ReadDataset<double>(file, "/gammas/gamma_pol_x");
-        gamma_pol_y = ReadDataset<double>(file, "/gammas/gamma_pol_y");
-        gamma_pol_z = ReadDataset<double>(file, "/gammas/gamma_pol_z");
-        
-        file.close();
-        
-        // Build lookup map: nc_id → gamma indices
-        G4cout << "Building NC → Gamma lookup table..." << G4endl;
-        for (size_t i = 0; i < gamma_nc_id.size(); ++i) {
-            nc_to_gamma_indices[gamma_nc_id[i]].push_back(i);
-        }
-        
-        G4cout << "✅ Loaded " << nc_id.size() << " NCs" << G4endl;
-        G4cout << "✅ Loaded " << gamma_id.size() << " Gammas" << G4endl;
-        G4cout << "✅ Built lookup for " << nc_to_gamma_indices.size() << " unique NCs" << G4endl;
-        
-    } catch (H5::Exception& error) {
-        error.printErrorStack();
-        G4Exception("CustomNCGammaSingleGenerator::LoadData", "HDF5Error", 
-                    FatalException, "Failed to load NC data file");
-    }
+    // Parse: muon_id,nc_id,nc_x,nc_y,nc_z,nc_time
+    std::getline(ss, token, ','); fMuonIDs.push_back(std::stoi(token));
+    std::getline(ss, token, ','); fNCIDs.push_back(std::stoi(token));
+    std::getline(ss, token, ','); fNCx.push_back(std::stod(token));
+    std::getline(ss, token, ','); fNCy.push_back(std::stod(token));
+    std::getline(ss, token, ','); fNCz.push_back(std::stod(token));
+    std::getline(ss, token, ','); fNCTimes.push_back(std::stod(token));
+  }
+  ncStream.close();
+  
+  // Load Gamma data
+  RMGLog::Out(RMGLog::debug, "Loading Gamma data from ", gammaFile);
+  std::ifstream gammaStream(gammaFile);
+  if (!gammaStream.is_open()) {
+    RMGLog::Out(RMGLog::fatal, "Cannot open Gamma file: ", gammaFile);
+    throw std::runtime_error("Cannot open Gamma CSV file");
+  }
+  
+  std::getline(gammaStream, line); // Skip header
+  
+  while (std::getline(gammaStream, line)) {
+    std::stringstream ss(line);
+    std::string token;
+    
+    // Parse: muon_id,nc_id,gamma_id,gamma_px,gamma_py,gamma_pz,gamma_E,gamma_pol_x,gamma_pol_y,gamma_pol_z
+    std::getline(ss, token, ','); fGammaMuonIDs.push_back(std::stoi(token));
+    std::getline(ss, token, ','); fGammaNCIDs.push_back(std::stoi(token));
+    std::getline(ss, token, ','); fGammaIDs.push_back(std::stoi(token));
+    std::getline(ss, token, ','); fGammaPx.push_back(std::stod(token));
+    std::getline(ss, token, ','); fGammaPy.push_back(std::stod(token));
+    std::getline(ss, token, ','); fGammaPz.push_back(std::stod(token));
+    std::getline(ss, token, ','); fGammaEnergies.push_back(std::stod(token));
+    std::getline(ss, token, ','); fGammaPolX.push_back(std::stod(token));
+    std::getline(ss, token, ','); fGammaPolY.push_back(std::stod(token));
+    std::getline(ss, token, ','); fGammaPolZ.push_back(std::stod(token));
+  }
+  gammaStream.close();
+  
+  // Build map: (MuonID, NCID) -> gamma indices
+  for (size_t i = 0; i < fGammaNCIDs.size(); ++i) {
+    G4int muon_id = fGammaMuonIDs[i];
+    G4int nc_id = fGammaNCIDs[i];
+    auto key = std::make_pair(muon_id, nc_id);
+    fNCToGammaIndices[key].push_back(i);
+  }
+  
+  RMGLog::Out(RMGLog::debug, "Built gamma index map for ", fNCToGammaIndices.size(), " unique NCs");
 }
 
-void CustomNCGammaSingleGenerator::ValidateEventCount(G4int requestedEvents) {
-    if (requestedEvents > fTotalNCs) {
-        std::ostringstream msg;
-        msg << "Requested " << requestedEvents << " events but only " 
-            << fTotalNCs << " NCs available in file!";
-        G4Exception("CustomNCGammaSingleGenerator::ValidateEventCount", 
-                    "InsufficientData", FatalException, msg.str().c_str());
-    }
-    G4cout << "✅ Validation passed: " << requestedEvents << " <= " << fTotalNCs << G4endl;
-}
-
-void CustomNCGammaSingleGenerator::GeneratePrimaries(G4Event* event) {
-    G4int eventID = event->GetEventID();
+void MySingleNCGammaGenerator::GeneratePrimaries(G4Event* event) {
+    // Thread-safe fetch-and-increment
+  G4int currentIndex = fGlobalNCIndex.fetch_add(1);
+  if (currentIndex >= static_cast<G4int>(fNCIDs.size())) {
+    RMGLog::Out(RMGLog::error, "Reached end of NC data. Requested ", 
+                currentIndex + 1, " but only have ", fNCIDs.size(), " NCs");
+    return;
+  }
+  
+  // Get NC data for current event
+  G4int ncID = fNCIDs[currentIndex];
+  G4int muonID = fMuonIDs[currentIndex];
+  G4ThreeVector ncPos(fNCx[currentIndex] * u::m, 
+                      fNCy[currentIndex] * u::m, 
+                      fNCz[currentIndex] * u::m);
+  G4double ncTime = fNCTimes[currentIndex] * u::ns;
+  
+  // Get gammas for this NC using (muonID, ncID) pair
+  auto key = std::make_pair(muonID, ncID);
+  auto it = fNCToGammaIndices.find(key);
+  if (it == fNCToGammaIndices.end()) {
+    RMGLog::Out(RMGLog::warning, "No gammas found for NC (MuonID=", muonID, ", NCID=", ncID, ")");
+    return;
+  }
+  
+  const auto& gammaIndices = it->second;
+  
+  RMGLog::OutDev(RMGLog::debug, "Event ", event->GetEventID(), 
+                 ": Generating ", gammaIndices.size(), " gammas for NC ", ncID);
+  
+  // Create separate vertex for each gamma (like old code)
+  for (size_t idx : gammaIndices) {
+    G4int gammaID = fGammaIDs[idx];
     
-    if (eventID >= static_cast<G4int>(nc_id.size())) {
-        G4cerr << "❌ ERROR: EventID " << eventID << " exceeds NC count!" << G4endl;
-        return;
-    }
+    // Momentum und Energie
+    G4ThreeVector momDir(fGammaPx[idx], fGammaPy[idx], fGammaPz[idx]);
+    momDir = momDir.unit();
+    G4double energy = fGammaEnergies[idx] * u::keV;
     
-    // Get NC data for this event
-    int muon_evtid = nc_evtid[eventID];
-    int ncID = nc_id[eventID];
-    G4ThreeVector ncPosition(nc_x[eventID] * u::m, nc_y[eventID] * u::m, nc_z[eventID] * u::m);
-    G4double ncTime = nc_time[eventID] * u::ns;
+    // Polarization
+    G4ThreeVector pol(fGammaPolX[idx], fGammaPolY[idx], fGammaPolZ[idx]);
+    if (pol.mag() > 0) pol = pol.unit();
     
-    // Create vertex at NC position and time
-    G4PrimaryVertex* vertex = new G4PrimaryVertex(ncPosition, ncTime);
+    // Vertex erzeugen
+    auto* vertex = new G4PrimaryVertex(ncPos, ncTime);
+    auto* vertexUserInfo = new MyPrimaryGammaUserInfo(muonID, ncID, gammaID);
+    vertex->SetUserInformation(vertexUserInfo);
     
-    // Find all gammas for this NC
-    auto it = nc_to_gamma_indices.find(ncID);
-    if (it == nc_to_gamma_indices.end()) {
-        G4cout << "⚠️  Warning: No gammas found for NC " << ncID << G4endl;
-        event->AddPrimaryVertex(vertex);
-        return;
-    }
+    // Particle manuell erzeugen
+    auto* particle = new G4PrimaryParticle(G4Gamma::Definition());
+    particle->SetMomentumDirection(momDir);
+    particle->SetKineticEnergy(energy);
+    particle->SetPolarization(pol);
     
-    const auto& gamma_indices = it->second;
+    // Particle zum Vertex hinzufügen
+    vertex->SetPrimary(particle);
     
-    // Get particle definition
-    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-    G4ParticleDefinition* gamma = particleTable->FindParticle("gamma");
-    
-    // Create gamma particles
-    for (size_t idx : gamma_indices) {
-        G4ThreeVector momentum(gamma_px[idx], gamma_py[idx], gamma_pz[idx]);
-        G4ThreeVector polarization(gamma_pol_x[idx], gamma_pol_y[idx], gamma_pol_z[idx]);
-        G4double energy = gamma_E[idx] * u::keV;
-        int gammaID = gamma_id[idx];
-        
-        G4PrimaryParticle* particle = new G4PrimaryParticle(gamma);
-        particle->SetMomentumDirection(momentum);
-        particle->SetKineticEnergy(energy);
-        particle->SetPolarization(polarization);
-        
-        // Set UserInfo (muon_evtid, ncID, gammaID)
-        auto* userInfo = new MyTrackInfo(ncID, gammaID);
-        // Note: PrimaryParticle doesn't support UserInfo directly
-        // We'll set it in the tracking action
-        
-        vertex->SetPrimary(particle);
-    }
-    
+    // Vertex zum Event hinzufügen
     event->AddPrimaryVertex(vertex);
-    
-    if (eventID % 1000 == 0) {
-        G4cout << "Event " << eventID << ": NC " << ncID 
-               << " with " << gamma_indices.size() << " gammas" << G4endl;
-    }
+  }  
 }
 
-void CustomNCGammaSingleGenerator::SetNCFile(G4String pathToFile) {
-    fInputFile = pathToFile;
-}
-
-void CustomNCGammaSingleGenerator::DefineCommands() {
-    fMessenger = std::make_unique<G4GenericMessenger>(
-        this, "/Cosmogenics/Generator/",
-        "Commands for NC Gamma Single Generator");
-    
-    fMessenger->DeclareMethod("SetNCFile", &CustomNCGammaSingleGenerator::SetNCFile)
-        .SetGuidance("Set the merged NC+Gamma input HDF5 file")
-        .SetParameterName("pathToFile", false)
-        .SetToBeBroadcasted(true)
-        .SetStates(G4State_PreInit, G4State_Idle);
+void MySingleNCGammaGenerator::DefineCommands() {
+  fMessenger = std::make_unique<G4GenericMessenger>(this, "/My/Generator/SingleNCGamma/",
+                                                      "Commands for single NC gamma generator");
+  
+  fMessenger->DeclareMethod("SetMergedDir", &MySingleNCGammaGenerator::SetMergedNCDir)
+      .SetGuidance("Set path to directory containing merged_ncs.csv and merged_gammas.csv")
+      .SetParameterName("dirpath", false)
+      .SetToBeBroadcasted(true)
+      .SetStates(G4State_PreInit, G4State_Idle);
 }
 
 // vim: tabstop=2 shiftwidth=2 expandtab

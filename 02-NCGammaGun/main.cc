@@ -1,4 +1,7 @@
 #include "MySteppingAction.hh"
+#include "MyPrimaryGammaUserInfo.hh"
+#include "MySingleNCGammaGenerator.hh"
+#include "DebugVertexOutputScheme.hh"
 
 #include "RMGHardware.hh"
 #include "RMGLog.hh"
@@ -8,9 +11,6 @@
 #include "RNGTrackingAction.hh"
 #include "RMGIsotopeFilterOutputScheme.hh"
 #include "G4VUserEventInformation.hh"
-#include "MyNeutronCaptureOutputScheme.hh"
-#include "MyGammaCaptureOutputScheme.hh"
-#include "MySingleNCGammaGenerator.hh"
 
 #include <fstream>
 #include <iostream>
@@ -41,7 +41,6 @@ int main(int argc, char **argv) {
                  "<Output Directory> Default: ./build");
   app.add_option("-r,--rng", rngFlag, 
                  "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
-  app.add_flag("-s,--sensitiveSurface", useSensitiveSurfaceOutputScheme, "Use SensitiveSurfaceOutputScheme");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -70,11 +69,11 @@ int main(int argc, char **argv) {
       outputfilename = "build/RestoredOutput.hdf5";
   }
 
-  if (useSensitiveSurfaceOutputScheme) {
-    user_init->AddSteppingAction<MySteppingAction>();
-    user_init->AddOptionalOutputScheme<MyNeutronCaptureOutputScheme>("MyNeutronCaptureOutputScheme");
-    user_init->AddOptionalOutputScheme<MyGammaCaptureOutputScheme>("MyGammaCaptureOutputScheme");
-  }
+  user_init->AddSteppingAction<MySteppingAction>();
+  user_init->AddOptionalOutputScheme<DebugVertexOutputScheme>("DebugVertexOutputScheme");
+
+  // Registriere Gamma Gun
+  user_init->SetUserGenerator<MySingleNCGammaGenerator>();
 
   // Interactive or batch mode?
   if (!macroName.empty())

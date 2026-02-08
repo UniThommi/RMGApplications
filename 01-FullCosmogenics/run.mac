@@ -4,7 +4,7 @@
 
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
-/RMG/Processes/OpticalPhysics true
+/RMG/Processes/OpticalPhysics false
 /RMG/Output/ActivateOutputScheme MyNeutronCaptureOutputScheme
 /RMG/Output/ActivateOutputScheme MyGammaCaptureOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
@@ -20,7 +20,7 @@
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 ./GrabmayrGammaCascades/158Gd-5keV-cascades.txt
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 1 1 ./GrabmayrGammaCascades/2H-5keV-cascades.txt
 
-/process/inactivate Scintillation      # Es sind nicht alle Szintillations Yields in Remage für L1000 definiert. Dadurch kann es zum Abbruch kommen.
+#/process/inactivate Scintillation      # Es sind nicht alle Szintillations Yields in Remage für L1000 definiert. Dadurch kann es zum Abbruch kommen.
 #/process/optical/boundary/verbose 2
 
 #/RMG/Output/IsotopeFilter/AddIsotope 77 32 # Ge77 filter
@@ -38,30 +38,30 @@
 #/gps/energy 10000 eV
 
 
-/RMG/Generator/Select GPS
-/RMG/Generator/Confine Volume
-/RMG/Generator/Confinement/SamplingMode UnionAll
-/RMG/Generator/Confinement/Geometrical/AddSolid Cylinder
-/RMG/Generator/Confinement/Geometrical/CenterPositionX 0 mm
-/RMG/Generator/Confinement/Geometrical/CenterPositionY 0 mm
-/RMG/Generator/Confinement/Geometrical/CenterPositionZ -540 mm
-/RMG/Generator/Confinement/Geometrical/Cylinder/InnerRadius 0 mm
-/RMG/Generator/Confinement/Geometrical/Cylinder/OuterRadius 4500 mm
-/RMG/Generator/Confinement/Geometrical/Cylinder/Height 8920 mm
-/RMG/Generator/Confinement/Geometrical/Cylinder/StartingAngle 0 deg
-/RMG/Generator/Confinement/Geometrical/Cylinder/SpanningAngle 360 deg
-/RMG/Generator/Confinement/MaxSamplingTrials 10000
-/gps/particle neutron
-/gps/energy 10000 eV # Höchste Energie ohne Transport vor NC
-/gps/ang/type iso
+#/RMG/Generator/Select GPS
+#/RMG/Generator/Confine Volume
+#/RMG/Generator/Confinement/SamplingMode UnionAll
+#/RMG/Generator/Confinement/Geometrical/AddSolid Cylinder
+#/RMG/Generator/Confinement/Geometrical/CenterPositionX 0 mm
+#/RMG/Generator/Confinement/Geometrical/CenterPositionY 0 mm
+#/RMG/Generator/Confinement/Geometrical/CenterPositionZ -540 mm
+#/RMG/Generator/Confinement/Geometrical/Cylinder/InnerRadius 0 mm
+#/RMG/Generator/Confinement/Geometrical/Cylinder/OuterRadius 4500 mm
+#/RMG/Generator/Confinement/Geometrical/Cylinder/Height 8920 mm
+#/RMG/Generator/Confinement/Geometrical/Cylinder/StartingAngle 0 deg
+#/RMG/Generator/Confinement/Geometrical/Cylinder/SpanningAngle 360 deg
+#/RMG/Generator/Confinement/MaxSamplingTrials 10000
+#/gps/particle neutron
+#/gps/energy 10000 eV # Höchste Energie ohne Transport vor NC
+#/gps/ang/type iso
 
 
-#/RMG/Generator/Confine UnConfined
-#/RMG/Generator/Select MUSUNCosmicMuons
-#/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
+/RMG/Generator/Confine UnConfined
+/RMG/Generator/Select MUSUNCosmicMuons
+/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
 
 # 120min
 #/run/beamOn 1000000
 
-/run/beamOn 600
+/run/beamOn 10000
