@@ -32,13 +32,13 @@
 #/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
 /RMG/Generator/Select UserDefined
-/My/Generator/SingleNCGamma/SetMergedDir /home/tbueger/code/data/optPhotonSensitiveSurface/ncGunPostprocessed/
-
+#/My/Generator/SingleNCGamma/SetMergedDir /home/tbueger/code/data/optPhotonSensitiveSurface/ncGunPostprocessed/
+/My/Generator/MuonGamma/SetMergedDir /home/tbueger/code/data/optPhotonSensitiveSurface/ncGunPostprocessed/
 
 
 
 # 120min
 #/run/beamOn 1000000
 
-#1273 NCs mit 1803 Gammas
-/run/beamOn 1000
+# 204 Muons with 1273 NCs mit 1803 Gammas
+/run/beamOn 200

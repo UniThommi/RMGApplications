@@ -16,6 +16,7 @@ add_executable(
   src/MySteppingAction.cc
   src/MyPrimaryGammaUserInfo.cc
   src/MySingleNCGammaGenerator.cc
+  src/MyMuonGammaGenerator.cc
   src/DebugVertexOutputScheme.cc)
 
 target_link_libraries(FullCosmogenics PUBLIC RMG::remage)

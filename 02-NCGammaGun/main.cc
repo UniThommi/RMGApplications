@@ -1,6 +1,7 @@
 #include "MySteppingAction.hh"
 #include "MyPrimaryGammaUserInfo.hh"
 #include "MySingleNCGammaGenerator.hh"
+#include "MyMuonGammaGenerator.hh"
 #include "DebugVertexOutputScheme.hh"
 
 #include "RMGHardware.hh"
@@ -74,6 +75,7 @@ int main(int argc, char **argv) {
 
   // Registriere Gamma Gun
   user_init->SetUserGenerator<MySingleNCGammaGenerator>();
+  user_init->SetUserGenerator<MyMuonGammaGenerator>();
 
   // Interactive or batch mode?
   if (!macroName.empty())
