@@ -31,12 +31,13 @@ def read_dataset_chunked(files, dataset_path):
     
     return np.concatenate(all_data)
 
-def merge_nc_files(input_pattern, output_dir):
+def merge_nc_files(input_pattern, output_dir, nested=False):
     """Merge NC and Gamma data from multiple HDF5 files into CSVs."""
     
     input_path = Path(input_pattern)
     if input_path.is_dir():
-        files = sorted(input_path.glob("output_t*.hdf5"))
+        pattern = "run_*/output_t*.hdf5" if nested else "output_t*.hdf5"
+        files = sorted(input_path.glob(pattern))
         files = [str(f) for f in files]
     else:
         files = sorted(glob.glob(input_pattern))
@@ -113,6 +114,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Merge Geant4 NC output files to CSV')
     parser.add_argument('-i', '--input', required=True, help='Input path with files "output_t*.hdf5"')
     parser.add_argument('-o', '--output', required=True, help='Output directory')
+    parser.add_argument('--nested', action='store_true', help='Search in run_*/ subdirs')
     args = parser.parse_args()
     
-    merge_nc_files(args.input, args.output)
+    merge_nc_files(args.input, args.output, nested=args.nested)
