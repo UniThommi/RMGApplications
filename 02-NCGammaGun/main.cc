@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
   std::string gdmlFilePath;
   std::string outputdir = "./build/";
   int rngFlag = 0;
+  std::string generatorMode;  // "single" or "muon"
   bool useSensitiveSurfaceOutputScheme = false;
 
   app.add_option("-m,--macro", macroName,
@@ -42,6 +43,9 @@ int main(int argc, char **argv) {
                  "<Output Directory> Default: ./build");
   app.add_option("-r,--rng", rngFlag, 
                  "RNG restoration mode: 0 deactivated, 1 for prerun, 2 for restoration run");
+  app.add_option("--generator", generatorMode,
+                 "<Generator mode> 'single' for SingleNCGamma, 'muon' for MuonGamma")
+      ->required();
 
   CLI11_PARSE(app, argc, argv);
 
@@ -74,8 +78,15 @@ int main(int argc, char **argv) {
   user_init->AddOptionalOutputScheme<DebugVertexOutputScheme>("DebugVertexOutputScheme");
 
   // Registriere Gamma Gun
-  user_init->SetUserGenerator<MySingleNCGammaGenerator>();
-  user_init->SetUserGenerator<MyMuonGammaGenerator>();
+  if (generatorMode == "single") {
+    user_init->SetUserGenerator<MySingleNCGammaGenerator>();
+    RMGLog::Out(RMGLog::summary, "Using SingleNCGammaGenerator");
+  } else if (generatorMode == "muon") {
+    user_init->SetUserGenerator<MyMuonGammaGenerator>();
+    RMGLog::Out(RMGLog::summary, "Using MuonGammaGenerator");
+  } else {
+    throw std::runtime_error("Unknown generator mode: " + generatorMode + ". Use 'single' or 'muon'.");
+  }
 
   // Interactive or batch mode?
   if (!macroName.empty())

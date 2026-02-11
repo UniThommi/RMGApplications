@@ -32,8 +32,8 @@
 #/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
 /RMG/Generator/Select UserDefined
-#/My/Generator/SingleNCGamma/SetMergedDir /home/tbueger/code/data/optPhotonSensitiveSurface/ncGunPostprocessed/
-/My/Generator/MuonGamma/SetMergedDir /home/tbueger/code/data/optPhotonSensitiveSurface/ncGunPostprocessed/
+/My/Generator/SingleNCGamma/SetMergedDir /home/tbueger/code/data/optPhotonSensitiveSurface/ncGunPostprocessed/
+#/My/Generator/MuonGamma/SetMergedDir /home/tbueger/code/data/optPhotonSensitiveSurface/ncGunPostprocessed/
 
 
 
