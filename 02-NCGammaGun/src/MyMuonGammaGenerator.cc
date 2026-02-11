@@ -15,6 +15,29 @@
 #include <set>
 
 std::atomic<G4int> MyMuonGammaGenerator::fGlobalMuonIndex{-1};
+G4String MyMuonGammaGenerator::fInputFilePath                  = "";
+std::vector<G4int>   MyMuonGammaGenerator::fMuonIDs            = {};
+std::vector<G4int>   MyMuonGammaGenerator::fNCIDs              = {};
+std::vector<G4double> MyMuonGammaGenerator::fNCx               = {};
+std::vector<G4double> MyMuonGammaGenerator::fNCy               = {};
+std::vector<G4double> MyMuonGammaGenerator::fNCz               = {};
+std::vector<G4double> MyMuonGammaGenerator::fNCTimes           = {};
+std::vector<G4int>   MyMuonGammaGenerator::fGammaMuonIDs       = {};
+std::vector<G4int>   MyMuonGammaGenerator::fGammaNCIDs         = {};
+std::vector<G4int>   MyMuonGammaGenerator::fGammaIDs           = {};
+std::vector<G4double> MyMuonGammaGenerator::fGammaPx           = {};
+std::vector<G4double> MyMuonGammaGenerator::fGammaPy           = {};
+std::vector<G4double> MyMuonGammaGenerator::fGammaPz           = {};
+std::vector<G4double> MyMuonGammaGenerator::fGammaEnergies     = {};
+std::vector<G4double> MyMuonGammaGenerator::fGammaPolX         = {};
+std::vector<G4double> MyMuonGammaGenerator::fGammaPolY         = {};
+std::vector<G4double> MyMuonGammaGenerator::fGammaPolZ         = {};
+std::map<std::pair<G4int,G4int>, std::vector<size_t>>
+    MyMuonGammaGenerator::fNCToGammaIndices                    = {};
+std::map<G4int, std::vector<size_t>>
+    MyMuonGammaGenerator::fMuonToNCIndices                     = {};
+std::vector<G4int>   MyMuonGammaGenerator::fUniqueMuonIDs      = {};
+bool MyMuonGammaGenerator::fDataLoaded                         = false;
 
 namespace u = CLHEP;
 
@@ -30,15 +53,12 @@ void MyMuonGammaGenerator::SetMergedNCDir(G4String pathToDir) {
 }
 
 void MyMuonGammaGenerator::BeginOfRunAction(const G4Run*) {
-  if (fInputFilePath.empty()) {
-    RMGLog::Out(RMGLog::fatal, "MyMuonGammaGenerator: No input directory specified!");
-    throw std::runtime_error("No merged NC directory specified");
-  }
-  
-  LoadNCData();
-  
-  RMGLog::Out(RMGLog::summary, "MyMuonGammaGenerator: Loaded ", fUniqueMuonIDs.size(), 
-              " unique muons with ", fNCIDs.size(), " NCs and ", fGammaIDs.size(), " total gammas");
+  static std::once_flag loadFlag;
+  std::call_once(loadFlag, [this]() {
+    LoadNCData();
+    RMGLog::Out(RMGLog::summary, "MyMuonGammaGenerator: Loaded ", fUniqueMuonIDs.size(),
+                " unique muons with ", fNCIDs.size(), " NCs and ", fGammaIDs.size(), " total gammas");
+  });
 }
 
 void MyMuonGammaGenerator::LoadNCData() {

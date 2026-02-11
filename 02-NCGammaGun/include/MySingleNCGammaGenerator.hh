@@ -35,30 +35,31 @@ private:
 
   std::unique_ptr<G4GenericMessenger> fMessenger = nullptr;
 
-  G4String fInputFilePath;
+  static G4String fInputFilePath;
   
   // NC-indexed data structures
-  std::vector<G4int> fMuonIDs;         // MuonID (evtid) for each NC
-  std::vector<G4int> fNCIDs;           // NC IDs (nc_id/track_id)
-  std::vector<G4double> fNCx;          // NC positions
-  std::vector<G4double> fNCy;
-  std::vector<G4double> fNCz;
-  std::vector<G4double> fNCTimes;      // NC times in ns
+  static std::vector<G4int> fMuonIDs;         // MuonID (evtid) for each NC
+  static std::vector<G4int> fNCIDs;           // NC IDs (nc_id/track_id)
+  static std::vector<G4double> fNCx;          // NC positions
+  static std::vector<G4double> fNCy;
+  static std::vector<G4double> fNCz;
+  static std::vector<G4double> fNCTimes;      // NC times in ns
   
   // Gamma data (all gammas)
-  std::vector<G4int> fGammaMuonIDs;    // Muon ID for each gamma
-  std::vector<G4int> fGammaNCIDs;      // Which NC does this gamma belong to
-  std::vector<G4int> fGammaIDs;        // Original gamma IDs
-  std::vector<G4double> fGammaPx;      // Momentum direction
-  std::vector<G4double> fGammaPy;
-  std::vector<G4double> fGammaPz;
-  std::vector<G4double> fGammaEnergies; // in keV
-  std::vector<G4double> fGammaPolX;    // Polarization
-  std::vector<G4double> fGammaPolY;
-  std::vector<G4double> fGammaPolZ;
+  static std::vector<G4int> fGammaMuonIDs;    // Muon ID for each gamma
+  static std::vector<G4int> fGammaNCIDs;      // Which NC does this gamma belong to
+  static std::vector<G4int> fGammaIDs;        // Original gamma IDs
+  static std::vector<G4double> fGammaPx;      // Momentum direction
+  static std::vector<G4double> fGammaPy;
+  static std::vector<G4double> fGammaPz;
+  static std::vector<G4double> fGammaEnergies; // in keV
+  static std::vector<G4double> fGammaPolX;    // Polarization
+  static std::vector<G4double> fGammaPolY;
+  static std::vector<G4double> fGammaPolZ;
   
   // Map: (MuonID, NCID) -> indices of gammas belonging to this NC
-  std::map<std::pair<G4int, G4int>, std::vector<size_t>> fNCToGammaIndices;
+  static std::map<std::pair<G4int, G4int>, std::vector<size_t>> fNCToGammaIndices;
+  static bool fDataLoaded;
 };
 
 #endif

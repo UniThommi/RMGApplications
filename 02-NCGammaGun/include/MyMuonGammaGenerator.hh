@@ -36,36 +36,38 @@ private:
 
   std::unique_ptr<G4GenericMessenger> fMessenger = nullptr;
 
-  G4String fInputFilePath;
+  static G4String fInputFilePath;
   
   // NC-indexed data structures
-  std::vector<G4int> fMuonIDs;         // MuonID for each NC
-  std::vector<G4int> fNCIDs;           // NC IDs
-  std::vector<G4double> fNCx;          // NC positions
-  std::vector<G4double> fNCy;
-  std::vector<G4double> fNCz;
-  std::vector<G4double> fNCTimes;      // NC times in ns
+  static std::vector<G4int> fMuonIDs;         // MuonID for each NC
+  static std::vector<G4int> fNCIDs;           // NC IDs
+  static std::vector<G4double> fNCx;          // NC positions
+  static std::vector<G4double> fNCy;
+  static std::vector<G4double> fNCz;
+  static std::vector<G4double> fNCTimes;      // NC times in ns
   
   // Gamma data
-  std::vector<G4int> fGammaMuonIDs;
-  std::vector<G4int> fGammaNCIDs;
-  std::vector<G4int> fGammaIDs;
-  std::vector<G4double> fGammaPx;
-  std::vector<G4double> fGammaPy;
-  std::vector<G4double> fGammaPz;
-  std::vector<G4double> fGammaEnergies;
-  std::vector<G4double> fGammaPolX;
-  std::vector<G4double> fGammaPolY;
-  std::vector<G4double> fGammaPolZ;
+  static std::vector<G4int> fGammaMuonIDs;
+  static std::vector<G4int> fGammaNCIDs;
+  static std::vector<G4int> fGammaIDs;
+  static std::vector<G4double> fGammaPx;
+  static std::vector<G4double> fGammaPy;
+  static std::vector<G4double> fGammaPz;
+  static std::vector<G4double> fGammaEnergies;
+  static std::vector<G4double> fGammaPolX;
+  static std::vector<G4double> fGammaPolY;
+  static std::vector<G4double> fGammaPolZ;
   
   // Map: (MuonID, NCID) -> gamma indices (identical to SingleNC)
-  std::map<std::pair<G4int, G4int>, std::vector<size_t>> fNCToGammaIndices;
+  static std::map<std::pair<G4int, G4int>, std::vector<size_t>> fNCToGammaIndices;
   
-  // NEW: Map: MuonID -> NC indices
-  std::map<G4int, std::vector<size_t>> fMuonToNCIndices;
+  // Map: MuonID -> NC indices
+  static std::map<G4int, std::vector<size_t>> fMuonToNCIndices;
   
-  // NEW: List of unique muon IDs in order
-  std::vector<G4int> fUniqueMuonIDs;
+  // List of unique muon IDs in order
+  static std::vector<G4int> fUniqueMuonIDs;
+
+  static bool fDataLoaded;
 };
 
 #endif

@@ -15,6 +15,30 @@
 #include <random>
 
 std::atomic<G4int> MySingleNCGammaGenerator::fGlobalNCIndex{0};
+G4String MySingleNCGammaGenerator::fInputFilePath = "";
+
+std::vector<G4int>   MySingleNCGammaGenerator::fMuonIDs       = {};
+std::vector<G4int>   MySingleNCGammaGenerator::fNCIDs         = {};
+std::vector<G4double> MySingleNCGammaGenerator::fNCx          = {};
+std::vector<G4double> MySingleNCGammaGenerator::fNCy          = {};
+std::vector<G4double> MySingleNCGammaGenerator::fNCz          = {};
+std::vector<G4double> MySingleNCGammaGenerator::fNCTimes      = {};
+
+std::vector<G4int>   MySingleNCGammaGenerator::fGammaMuonIDs  = {};
+std::vector<G4int>   MySingleNCGammaGenerator::fGammaNCIDs    = {};
+std::vector<G4int>   MySingleNCGammaGenerator::fGammaIDs      = {};
+std::vector<G4double> MySingleNCGammaGenerator::fGammaPx      = {};
+std::vector<G4double> MySingleNCGammaGenerator::fGammaPy      = {};
+std::vector<G4double> MySingleNCGammaGenerator::fGammaPz      = {};
+std::vector<G4double> MySingleNCGammaGenerator::fGammaEnergies= {};
+std::vector<G4double> MySingleNCGammaGenerator::fGammaPolX    = {};
+std::vector<G4double> MySingleNCGammaGenerator::fGammaPolY    = {};
+std::vector<G4double> MySingleNCGammaGenerator::fGammaPolZ    = {};
+
+std::map<std::pair<G4int,G4int>, std::vector<size_t>>
+    MySingleNCGammaGenerator::fNCToGammaIndices                = {};
+
+bool MySingleNCGammaGenerator::fDataLoaded                     = false;
 
 namespace u = CLHEP;
 
@@ -26,19 +50,15 @@ MySingleNCGammaGenerator::~MySingleNCGammaGenerator() {}
 
 void MySingleNCGammaGenerator::SetMergedNCDir(G4String pathToDir) {
   fInputFilePath = pathToDir;
-  RMGLog::Out(RMGLog::summary, "MySingleNCGammaGenerator: Set input directory to ", pathToDir);
 }
 
-void MySingleNCGammaGenerator::BeginOfRunAction(const G4Run*) {
-  if (fInputFilePath.empty()) {
-    RMGLog::Out(RMGLog::fatal, "MySingleNCGammaGenerator: No input directory specified!");
-    throw std::runtime_error("No merged NC directory specified");
-  }
-  
-  LoadNCData();
-  
-  RMGLog::Out(RMGLog::summary, "MySingleNCGammaGenerator: Loaded ", fNCIDs.size(), 
-              " NCs with ", fGammaIDs.size(), " total gammas");
+void MySingleNCGammaGenerator::BeginOfRunAction(const G4Run*) {  
+  static std::once_flag loadFlag;
+  std::call_once(loadFlag, [this]() {
+    RMGLog::Out(RMGLog::summary, "call_once: entering LoadNCData");
+    LoadNCData();
+    RMGLog::Out(RMGLog::summary, "call_once: LoadNCData done, fNCIDs.size()=", fNCIDs.size());
+  });
 }
 
 void MySingleNCGammaGenerator::LoadNCData() {
@@ -111,7 +131,11 @@ void MySingleNCGammaGenerator::LoadNCData() {
 }
 
 void MySingleNCGammaGenerator::GeneratePrimaries(G4Event* event) {
-    // Thread-safe fetch-and-increment
+  if (fNCIDs.empty()) {
+    RMGLog::Out(RMGLog::fatal, "GeneratePrimaries called but fNCIDs is empty!");
+    return;
+  }
+  // Thread-safe fetch-and-increment
   G4int currentIndex = fGlobalNCIndex.fetch_add(1);
   if (currentIndex >= static_cast<G4int>(fNCIDs.size())) {
     RMGLog::Out(RMGLog::error, "Reached end of NC data. Requested ", 
