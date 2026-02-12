@@ -81,13 +81,15 @@ void MyMuonGammaGenerator::LoadNCData() {
     std::stringstream ss(line);
     std::string token;
     
-    // Parse: muon_id,nc_id,nc_x,nc_y,nc_z,nc_time
+    // Parse: muon_id,nc_id,nc_x,nc_y,nc_z,nc_time,run_id,orig_muon_id
     std::getline(ss, token, ','); fMuonIDs.push_back(std::stoi(token));
     std::getline(ss, token, ','); fNCIDs.push_back(std::stoi(token));
     std::getline(ss, token, ','); fNCx.push_back(std::stod(token));
     std::getline(ss, token, ','); fNCy.push_back(std::stod(token));
     std::getline(ss, token, ','); fNCz.push_back(std::stod(token));
     std::getline(ss, token, ','); fNCTimes.push_back(std::stod(token));
+    std::getline(ss, token, ','); // skip run_id
+    std::getline(ss, token, ','); // skip orig_muon_id
   }
   ncStream.close();
   
