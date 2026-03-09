@@ -38,6 +38,7 @@ def merge_nc_files(
     input_pattern: str,
     output_dir: str,
     nested: bool = False,
+    ge77_only: bool = False,
 ) -> tuple[int, int]:
     """Merge NC and Gamma data from multiple HDF5 files into CSVs.
 
@@ -82,6 +83,7 @@ def merge_nc_files(
         'nc_y': 'hit/MyNeutronCaptureOutput/nC_y_position_in_m/pages',
         'nc_z': 'hit/MyNeutronCaptureOutput/nC_z_position_in_m/pages',
         'nc_time': 'hit/MyNeutronCaptureOutput/nC_time_in_ns/pages',
+        'nc_ge77': 'hit/MyNeutronCaptureOutput/nC_flag_Ge77/pages',
     }
 
     # Gamma datasets to read
@@ -125,6 +127,31 @@ def merge_nc_files(
             'gamma': gamma_data,
         })
         print(f"   {len(nc_data['nc_id'])} NCs, {len(gamma_data['gamma_id'])} gammas")
+
+    # --- Ge77 filter ---
+    if ge77_only:
+        print("\n=== Applying Ge77 filter (muon-level) ===")
+        for rd in run_data_list:
+            nc = rd['nc']
+            gamma = rd['gamma']
+
+            # Find muon_ids that have at least one NC with ge77 flag
+            ge77_mask = nc['nc_ge77'].astype(bool)
+            ge77_muon_ids = set(nc['muon_id'][ge77_mask].tolist())
+            n_total_muons = len(set(nc['muon_id'].tolist()))
+
+            # Filter NCs: keep all NCs of qualifying muons
+            nc_keep = np.isin(nc['muon_id'], list(ge77_muon_ids))
+            for key in nc:
+                nc[key] = nc[key][nc_keep]
+
+            # Filter Gammas: keep all gammas of qualifying muons
+            gamma_keep = np.isin(gamma['muon_id'], list(ge77_muon_ids))
+            for key in gamma:
+                gamma[key] = gamma[key][gamma_keep]
+
+            print(f"   Run {rd['run_id']}: {len(ge77_muon_ids)}/{n_total_muons} muons pass Ge77 filter → "
+                  f"{len(nc['nc_id'])} NCs, {len(gamma['gamma_id'])} gammas kept")
 
     # --- Pass 2: Identify collisions and write ---
     print("\n=== Resolving muon_id collisions ===")
@@ -215,6 +242,7 @@ def merge_nc_files(
     with open(stats_file, 'w') as f:
         f.write(f"n_ncs={n_ncs}\n")
         f.write(f"n_gammas={n_gammas}\n")
+        f.write(f"ge77_filter={ge77_only}\n")
 
     print(f"\n✅ Wrote {n_ncs} NCs to {nc_file}")
     print(f"✅ Wrote {n_gammas} Gammas to {gamma_file}")
@@ -229,6 +257,8 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--input', required=True, help='Input path with files "output_t*.hdf5"')
     parser.add_argument('-o', '--output', required=True, help='Output directory')
     parser.add_argument('--nested', action='store_true', help='Search in run_*/ subdirs')
+    parser.add_argument('--ge77-only', action='store_true',
+                help='Keep only muons where at least one NC has Ge77 flag set')
     args = parser.parse_args()
 
-    merge_nc_files(args.input, args.output, nested=args.nested)
+    merge_nc_files(args.input, args.output, nested=args.nested, ge77_only=args.ge77_only)
