@@ -73,6 +73,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                 G4bool fGe77 = false;
 
                 std::vector<MyGammaCaptureOutputScheme::GammaInfo> gammas;
+                std::vector<const G4Track*> gammaTracks; // parallel zu 'gammas' (gleiche Reihenfolge)
 
                 // Sammle alle Gammas und prüfe auf Ge77
                 for (const auto& secTrack : *secondaries) {
@@ -97,12 +98,15 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                         info.energy = E;
                         info.polarization = secTrack->GetPolarization();
                         gammas.push_back(info);
+                        gammaTracks.push_back(secTrack);
                     }
                 }
 
-                // Sortiere Gammas nach Energie (absteigend)
-                std::sort(gammas.begin(), gammas.end(), 
-                    [](const MyGammaCaptureOutputScheme::GammaInfo& a, 
+                // Sortiere eine KOPIE nach Energie (absteigend) für die Top-4.
+                // 'gammas' selbst bleibt in Original-Reihenfolge, parallel zu 'gammaTracks'.
+                std::vector<MyGammaCaptureOutputScheme::GammaInfo> sortedGammas = gammas;
+                std::sort(sortedGammas.begin(), sortedGammas.end(),
+                    [](const MyGammaCaptureOutputScheme::GammaInfo& a,
                        const MyGammaCaptureOutputScheme::GammaInfo& b) {
                     return a.energy > b.energy;
                 });
@@ -113,8 +117,8 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                     G4double energy;
                 };
                 std::vector<Top4Gamma> top4Gammas;
-                for (size_t i = 0; i < std::min(gammas.size(), size_t(4)); ++i) {
-                    top4Gammas.push_back({gammas[i].dir, gammas[i].energy});
+                for (size_t i = 0; i < std::min(sortedGammas.size(), size_t(4)); ++i) {
+                    top4Gammas.push_back({sortedGammas[i].dir, sortedGammas[i].energy});
                 }
                 while (top4Gammas.size() < 4) {
                     top4Gammas.push_back({G4ThreeVector(0., 0., 0.), 0.});
@@ -122,7 +126,8 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
 
                 // Speichere NC-Info im NeutronCaptureOutputScheme
                 MyNeutronCaptureOutputScheme::NCInfo ncInfo;
-                ncInfo.pos = track->GetVertexPosition();
+                // Capture-Punkt (global), NICHT die Erzeugungs-/Vertex-Position des Neutrons.
+                ncInfo.pos = postStepPoint->GetPosition();
                 ncInfo.time = track->GetGlobalTime();
                 ncInfo.physVol = physVolumeName;
                 ncInfo.material = materialName;
@@ -139,28 +144,24 @@ void MySteppingAction::UserSteppingAction(const G4Step* step) {
                 ncInfo.gamma4_E = top4Gammas[3].energy;
                 MyNeutronCaptureOutputScheme::AddPendingNC(ncTrackID, ncInfo);
 
-                // Speichere Gammas und setze UserInfo
-                int gammaIdx = 0;
-                for (const auto& secTrack : *secondaries) {
-                    if (secTrack->GetParticleDefinition() == G4Gamma::Definition()) {
-                        G4int gammaID = gammaIdx;
-                        
-                        // Speichere im GammaCaptureOutputScheme
-                        MyGammaCaptureOutputScheme::AddPendingGamma(
-                            ncTrackID, gammaID, gammas[gammaIdx]
-                        );
-                        
-                        // Setze UserInfo für Gamma
-                        auto* gammaInfo = new MyTrackInfo(muonTrackID, ncTrackID, gammaID);
-                        const_cast<G4Track*>(secTrack)->SetUserInformation(gammaInfo);
-                        
-                        gammaIdx++;
-                    }
+                // Speichere Gammas und setze UserInfo.
+                // gammaTracks[gi] und gammas[gi] sind garantiert konsistent (gleiche Reihenfolge).
+                for (size_t gi = 0; gi < gammaTracks.size(); ++gi) {
+                    G4int gammaID = static_cast<G4int>(gi);
+
+                    // Speichere im GammaCaptureOutputScheme
+                    MyGammaCaptureOutputScheme::AddPendingGamma(
+                        ncTrackID, gammaID, gammas[gi]
+                    );
+
+                    // Setze UserInfo für Gamma
+                    auto* gammaInfo = new MyTrackInfo(muonTrackID, ncTrackID, gammaID);
+                    const_cast<G4Track*>(gammaTracks[gi])->SetUserInformation(gammaInfo);
                 }
 
                 // Setze UserInfo für NC-Track selbst
                 auto* info = new MyTrackInfo(muonTrackID, ncTrackID, -1);
-                track->SetUserInformation(info);
+                const_cast<G4Track*>(track)->SetUserInformation(info);
             }  
         }           
     }
