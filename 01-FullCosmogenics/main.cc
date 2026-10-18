@@ -46,14 +46,15 @@ int main(int argc, char **argv) {
 
   // std::string outputfilename = "build/output.hdf5";
 
+  // remage writes one file per worker thread (output_t<N>.hdf5) into the -o directory.
   std::string outputfilename = outputdir + std::string("/") + std::string("output.hdf5");
 
-  RMGManager man("FullCosmogenics", argc, argv);  // RMGManager ist ein singleton.
+  RMGManager man("FullCosmogenics", argc, argv);  // RMGManager is a singleton.
   // Overwrite the standard Hardware with one that reads
   // in the PMT QE from datasheet
 
   // Overwrite RMGPhysics to use own Optical Processes
-  man.GetDetectorConstruction()->IncludeGDMLFile(gdmlFilePath);
+  man.GetDetectorConstruction()->IncludeGDMLFile(gdmlFilePath);  // geometry from -g
 
   // Custom User init
   auto user_init = man.GetUserInit();
@@ -61,21 +62,24 @@ int main(int argc, char **argv) {
 
   if (rngFlag != 0) {
     user_init->AddTrackingAction<RNGTrackingAction>();
-    man.SetUserInit(new CosmogenicPhysics());
+    man.SetUserInit(new CosmogenicPhysics());  // replaces the remage physics list
     run_man->SetNumberOfThreads(nThreads);
+    // Fixed file names: -o is ignored in the RNG modes.
     if(rngFlag == 1)
       outputfilename = "build/output.csv";
     else
       outputfilename = "build/RestoredOutput.hdf5";
   }
 
+  // -s registers the NC recording: stepping action plus the NC and capture-gamma
+  // output schemes. run.mac activates these schemes, so it requires -s.
   if (useSensitiveSurfaceOutputScheme) {
     user_init->AddSteppingAction<MySteppingAction>();
     user_init->AddOptionalOutputScheme<MyNeutronCaptureOutputScheme>("MyNeutronCaptureOutputScheme");
     user_init->AddOptionalOutputScheme<MyGammaCaptureOutputScheme>("MyGammaCaptureOutputScheme");
   }
 
-  // Initialize UserGenerator
+  // The primary generator is selected in the macro (/RMG/Generator/Select).
 
   // Interactive or batch mode?
   if (!macroName.empty())

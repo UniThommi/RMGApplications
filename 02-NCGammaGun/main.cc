@@ -29,7 +29,9 @@ int main(int argc, char **argv) {
   std::string outputdir = "./build/";
   int rngFlag = 0;
   std::string generatorMode;  // "single" or "muon"
+  // BEGIN UNUSED CODE — copied from 01-FullCosmogenics; no -s option in this application
   bool useSensitiveSurfaceOutputScheme = false;
+  // END UNUSED CODE
 
   app.add_option("-m,--macro", macroName,
                  "<Geant4 macro filename> Default: None")
@@ -51,14 +53,15 @@ int main(int argc, char **argv) {
 
   // std::string outputfilename = "build/output.hdf5";
 
+  // remage writes one file per worker thread (output_t<N>.hdf5) into the -o directory.
   std::string outputfilename = outputdir + std::string("/") + std::string("output.hdf5");
 
-  RMGManager man("FullCosmogenics", argc, argv);  // RMGManager ist ein singleton.
+  RMGManager man("FullCosmogenics", argc, argv);  // RMGManager is a singleton.
   // Overwrite the standard Hardware with one that reads
   // in the PMT QE from datasheet
 
   // Overwrite RMGPhysics to use own Optical Processes
-  man.GetDetectorConstruction()->IncludeGDMLFile(gdmlFilePath);
+  man.GetDetectorConstruction()->IncludeGDMLFile(gdmlFilePath);  // geometry from -g
 
   // Custom User init
   auto user_init = man.GetUserInit();
@@ -66,18 +69,21 @@ int main(int argc, char **argv) {
 
   if (rngFlag != 0) {
     user_init->AddTrackingAction<RNGTrackingAction>();
-    man.SetUserInit(new CosmogenicPhysics());
+    man.SetUserInit(new CosmogenicPhysics());  // replaces the remage physics list
     run_man->SetNumberOfThreads(nThreads);
+    // Fixed file names: -o is ignored in the RNG modes.
     if(rngFlag == 1)
       outputfilename = "build/output.csv";
     else
       outputfilename = "build/RestoredOutput.hdf5";
   }
 
+  // Labels the photons with the NC IDs; the debug scheme is activated in run.mac.
   user_init->AddSteppingAction<MySteppingAction>();
   user_init->AddOptionalOutputScheme<DebugVertexOutputScheme>("DebugVertexOutputScheme");
 
-  // Registriere Gamma Gun
+  // Register only the gamma generator selected with --generator; run.mac selects it
+  // with /RMG/Generator/Select UserDefined and sets its input directory.
   if (generatorMode == "single") {
     user_init->SetUserGenerator<MySingleNCGammaGenerator>();
     RMGLog::Out(RMGLog::summary, "Using SingleNCGammaGenerator");

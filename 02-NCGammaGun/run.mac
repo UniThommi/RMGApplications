@@ -4,13 +4,17 @@
 
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
+# Optical re-simulation of the capture gammas from 01-FullCosmogenics
 /RMG/Processes/OpticalPhysics true
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
+# Labels of the primary vertices (registered in main.cc)
 /RMG/Output/ActivateOutputScheme DebugVertexOutputScheme
 
+# Same cascade settings as in 01-FullCosmogenics/run.mac; the 156Gd and 158Gd files
+# are not included in the repository.
 /RMG/Processes/UseGrabmayrsGammaCascades true
 
-/control/execute ./gdml/macroZylSSD.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l1000
+/control/execute ./gdml/macroZylSSD.mac  # Initialises the detectors from the macro file created with legend-pygeom-l1000
 
 /run/initialize
 
@@ -19,7 +23,7 @@
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 ./GrabmayrGammaCascades/158Gd-5keV-cascades.txt
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 1 1 ./GrabmayrGammaCascades/2H-5keV-cascades.txt
 
-/process/inactivate Scintillation      # Es sind nicht alle Szintillations Yields in Remage für L1000 definiert. Dadurch kann es zum Abbruch kommen.
+/process/inactivate Scintillation      # Not all scintillation yields for L1000 are defined in remage. This can cause the run to abort.
 #/process/optical/boundary/verbose 2
 
 #/RMG/Output/IsotopeFilter/AddIsotope 77 32 # Ge77 filter
@@ -31,6 +35,9 @@
 #/RMG/Generator/Select MUSUNCosmicMuons
 #/RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat
 
+# Gamma generator registered with --generator. SetMergedDir: directory with
+# merged_ncs.csv and merged_gammas.csv from merge_nc_data_for_gun.py (local path).
+# With --generator muon, use the MuonGamma command instead.
 /RMG/Generator/Select UserDefined
 /My/Generator/SingleNCGamma/SetMergedDir /home/tbueger/code/data/optPhotonSensitiveSurface/ncGunPostprocessed/
 #/My/Generator/MuonGamma/SetMergedDir /home/tbueger/code/data/optPhotonSensitiveSurface/ncGunPostprocessed/
@@ -40,5 +47,5 @@
 # 120min
 #/run/beamOn 1000000
 
-# 204 Muons with 1273 NCs mit 1803 Gammas
+# 204 muons with 1273 NCs with 1803 gammas
 /run/beamOn 200

@@ -13,6 +13,10 @@ namespace u = CLHEP;
 
 class G4Event;
 
+// Primary generator for --generator single: every event re-shoots the gammas of ONE
+// neutron capture (NC) of the first simulation, read from merged_ncs.csv and
+// merged_gammas.csv (written by merge_nc_data_for_gun.py). Each gamma gets its own
+// vertex at the capture position and time, labelled with MyPrimaryGammaUserInfo.
 class MySingleNCGammaGenerator : public RMGVGenerator {
 public:
   MySingleNCGammaGenerator();
@@ -28,6 +32,8 @@ public:
   void BeginOfRunAction(const G4Run*) override;
 
 private:
+  // Index of the next NC: the worker threads together shoot every NC exactly once,
+  // in file order.
   static std::atomic<G4int> fGlobalNCIndex;  // Shared across threads
   void DefineCommands();
   void SetMergedNCDir(G4String pathToDir);
@@ -36,7 +42,9 @@ private:
   std::unique_ptr<G4GenericMessenger> fMessenger = nullptr;
 
   static G4String fInputFilePath;
-  
+
+  // The input data are static, i.e. loaded once and shared by all worker threads
+  // instead of one copy per thread (avoids running out of memory).
   // NC-indexed data structures
   static std::vector<G4int> fMuonIDs;         // MuonID (evtid) for each NC
   static std::vector<G4int> fNCIDs;           // NC IDs (nc_id/track_id)
@@ -53,13 +61,15 @@ private:
   static std::vector<G4double> fGammaPy;
   static std::vector<G4double> fGammaPz;
   static std::vector<G4double> fGammaEnergies; // in keV
-  static std::vector<G4double> fGammaPolX;    // Polarization
+  static std::vector<G4double> fGammaPolX;    // Polarisation
   static std::vector<G4double> fGammaPolY;
   static std::vector<G4double> fGammaPolZ;
   
   // Map: (MuonID, NCID) -> indices of gammas belonging to this NC
   static std::map<std::pair<G4int, G4int>, std::vector<size_t>> fNCToGammaIndices;
+  // BEGIN UNUSED CODE — fDataLoaded is never set or read (loading uses std::call_once)
   static bool fDataLoaded;
+  // END UNUSED CODE
 };
 
 #endif

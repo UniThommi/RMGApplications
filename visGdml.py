@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Interactive 3D view of a GDML geometry (e.g. the files in gdml/) with pyg4ometry's
+VTK viewer, coloured by material.
+"""
 
 import argparse
 from pathlib import Path
@@ -8,7 +12,7 @@ import pyg4ometry
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Visualize a GDML geometry using pyg4ometry."
+        description="Visualise a GDML geometry using pyg4ometry."
     )
     parser.add_argument(
         "gdml_file",

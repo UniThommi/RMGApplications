@@ -1,3 +1,7 @@
+// Output scheme for the neutron capture (NC) truth, see MyNeutronCaptureOutputScheme.hh.
+// MySteppingAction buffers the NCs of an event via AddPendingNC(); StoreEvent() moves
+// them into the per-event vectors and writes one ntuple row per NC.
+
 #include "MyNeutronCaptureOutputScheme.hh"
 
 #include <set>
@@ -21,12 +25,12 @@
 
 namespace u = CLHEP;
 
-// Initialize thread_local static member
+// Initialise thread_local static member
 thread_local std::vector<std::tuple<G4int, MyNeutronCaptureOutputScheme::NCInfo>>
     MyNeutronCaptureOutputScheme::fPendingNCs;
 
-MyNeutronCaptureOutputScheme::MyNeutronCaptureOutputScheme() { 
-  this->DefineCommands(); 
+MyNeutronCaptureOutputScheme::MyNeutronCaptureOutputScheme() {
+  this->DefineCommands();
 }
 
 MyNeutronCaptureOutputScheme::~MyNeutronCaptureOutputScheme() {};
@@ -34,6 +38,9 @@ MyNeutronCaptureOutputScheme::~MyNeutronCaptureOutputScheme() {};
 void MyNeutronCaptureOutputScheme::AddPendingNC(G4int ncID, const NCInfo& ncInfo) {
     fPendingNCs.push_back(std::make_tuple(ncID, ncInfo));}
 
+// Moves the buffered NCs into the per-event vectors. A volume or material name that
+// has not been seen before gets the next free ID, and the new (ID, name) pair is
+// written to the mapping ntuple at once.
 void MyNeutronCaptureOutputScheme::ProcessPendingNCs() {
     for (const auto& entry : fPendingNCs) {
         G4int ncID = std::get<0>(entry);
@@ -42,12 +49,12 @@ void MyNeutronCaptureOutputScheme::ProcessPendingNCs() {
         nCTrackIDs.push_back(ncID);
         nCPositions.push_back(nc.pos);
         nCGlobTimes.push_back(nc.time);
-        
+
         // PhysVol mapping
         if (physVolumeMapping.find(nc.physVol) == physVolumeMapping.end()) {
             const G4int id = physVolumeMapping.size();
             physVolumeMapping.emplace(nc.physVol, id);
-            
+
             auto rmg_man = RMGManager::Instance();
             auto ana_man = G4AnalysisManager::Instance();
             int vol_col_id = 0;
@@ -62,7 +69,7 @@ void MyNeutronCaptureOutputScheme::ProcessPendingNCs() {
         if (materialMapping.find(nc.material) == materialMapping.end()) {
             const G4int id = materialMapping.size();
             materialMapping.emplace(nc.material, id);
-            
+
             auto rmg_man = RMGManager::Instance();
             auto ana_man = G4AnalysisManager::Instance();
             int mat_col_id = 0;
@@ -104,12 +111,14 @@ void MyNeutronCaptureOutputScheme::ClearBeforeEvent() {
     gammaDirs4.clear(); gammaEs4.clear();
 };
 
+// BEGIN UNUSED CODE — no-op override of an empty base-class hook
 void MyNeutronCaptureOutputScheme::TrackingActionPre(const G4Track* aTrack) {
     // Not used anymore - data comes via AddPendingNC
 }
+// END UNUSED CODE
 
 // invoked in RMGRunAction::SetupAnalysisManager()
-void MyNeutronCaptureOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {  
+void MyNeutronCaptureOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
     G4cout << "Debug: AssignOutputNames" << G4endl;
 
     auto rmg_man = RMGManager::Instance();
@@ -117,7 +126,7 @@ void MyNeutronCaptureOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man)
         ana_man->CreateNtuple("MyNeutronCaptureOutput", "Event data"));
 
     ana_man->CreateNtupleIColumn(neutronsNTuple, "evtid");
-    // Create column structure to safe data
+    // Create column structure to save data
     ana_man->CreateNtupleIColumn(neutronsNTuple, "nC_track_id");
     ana_man->CreateNtupleDColumn(neutronsNTuple, "nC_x_position_in_m");
     ana_man->CreateNtupleDColumn(neutronsNTuple, "nC_y_position_in_m");
@@ -137,7 +146,7 @@ void MyNeutronCaptureOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man)
 
     ana_man->FinishNtuple(neutronsNTuple);
 
-    // Speichern der Mappings
+    // Save the mappings
     auto physVol = rmg_man->RegisterNtuple(physVolRegister,
         ana_man->CreateNtuple("physVolumes", "physVolumes_name_mapping"));
     ana_man->CreateNtupleIColumn(physVol, "physVolumesID");
@@ -152,21 +161,24 @@ void MyNeutronCaptureOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man)
 }
 
 void MyNeutronCaptureOutputScheme::StoreEvent(const G4Event* event) {
-    // Erst pending NCs verarbeiten
+    // Process the pending NCs first
     ProcessPendingNCs();
     auto rmg_man = RMGManager::Instance();
-    if (rmg_man->IsPersistencyEnabled()) { 
+    if (rmg_man->IsPersistencyEnabled()) {
         RMGLog::OutDev(RMGLog::debug, "Filling persistent data vectors");
         const auto ana_man = G4AnalysisManager::Instance();
         auto ntupleid = rmg_man->GetNtupleID(NCsRegisterID);
         if (ntupleid < 0) {
             G4cerr << "❌ ERROR: Invalid Ntuple ID! Data will not be saved." << G4endl;
             return;
-        }   
+        }
 
+        // Positions in m, energies in keV; the time is in Geant4 internal units (ns).
         for (size_t i = 0; i < nCTrackIDs.size(); ++i) {
             int col_id = 0;
-            ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID()); // Gleichzeitig Neutron ID
+            // Event ID: identifies the primary (one MUSUN muon per event, or one neutron
+            // per event in the homogeneous-NC simulation)
+            ana_man->FillNtupleIColumn(ntupleid, col_id++, event->GetEventID());
             // Neutron Capture Info:
             ana_man->FillNtupleIColumn(ntupleid, col_id++, nCTrackIDs[i]);
             ana_man->FillNtupleDColumn(ntupleid, col_id++, nCPositions[i].getX()/u::m);
@@ -184,31 +196,32 @@ void MyNeutronCaptureOutputScheme::StoreEvent(const G4Event* event) {
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs1[i].y());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs1[i].z());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaEs1[i] / u::keV);
-            
+
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs2[i].x());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs2[i].y());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs2[i].z());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaEs2[i] / u::keV);
-            
+
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs3[i].x());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs3[i].y());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs3[i].z());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaEs3[i] / u::keV);
-            
+
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs4[i].x());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs4[i].y());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaDirs4[i].z());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaEs4[i] / u::keV);
-           
-            // Startet neue Reihe in Output
+
+            // Starts a new row in the output
             ana_man->AddNtupleRow(ntupleid);
         }
     }
 }
 
 
+    // No messenger commands are defined; kept as a placeholder.
     void MyNeutronCaptureOutputScheme::DefineCommands() {
-    
+
     }
 
 // vim: tabstop=2 shiftwidth=2 expandtab

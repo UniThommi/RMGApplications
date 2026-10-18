@@ -1,3 +1,7 @@
+// Output scheme for all capture gammas, see MyGammaCaptureOutputScheme.hh.
+// MySteppingAction buffers the gammas via AddPendingGamma(); StoreEvent() writes one
+// ntuple row per gamma. The direction is the unit momentum vector.
+
 #include "MyGammaCaptureOutputScheme.hh"
 
 #include "G4AnalysisManager.hh"
@@ -7,7 +11,7 @@
 
 namespace u = CLHEP;
 
-// Initialize thread_local static member
+// Initialise thread_local static member
 thread_local std::vector<std::tuple<G4int, G4int, MyGammaCaptureOutputScheme::GammaInfo>>
     MyGammaCaptureOutputScheme::fPendingGammas;
 
@@ -26,7 +30,7 @@ void MyGammaCaptureOutputScheme::ProcessPendingGammas() {
         G4int ncID = std::get<0>(entry);
         G4int gammaID = std::get<1>(entry);
         const auto& gamma = std::get<2>(entry);
-        
+
         ncIDs.push_back(ncID);
         gammaIDs.push_back(gammaID);
         gammaMomenta.push_back(gamma.dir);
@@ -61,20 +65,20 @@ void MyGammaCaptureOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
     ana_man->CreateNtupleDColumn(gammasNTuple, "gamma_pol_x");
     ana_man->CreateNtupleDColumn(gammasNTuple, "gamma_pol_y");
     ana_man->CreateNtupleDColumn(gammasNTuple, "gamma_pol_z");
-    
+
     ana_man->FinishNtuple(gammasNTuple);
 }
 
 void MyGammaCaptureOutputScheme::StoreEvent(const G4Event* event) {
-    // Erst pending Gammas verarbeiten
+    // Process the pending gammas first
     ProcessPendingGammas();
-    
+
     auto rmg_man = RMGManager::Instance();
     if (rmg_man->IsPersistencyEnabled()) {
         RMGLog::OutDev(RMGLog::debug, "Filling gamma persistent data vectors");
         const auto ana_man = G4AnalysisManager::Instance();
         auto ntupleid = rmg_man->GetNtupleID(gammasRegisterID);
-        
+
         if (ntupleid < 0) {
             G4cerr << "❌ ERROR: Invalid Gamma Ntuple ID! Data will not be saved." << G4endl;
             return;
@@ -92,14 +96,14 @@ void MyGammaCaptureOutputScheme::StoreEvent(const G4Event* event) {
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaPolarizations[i].x());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaPolarizations[i].y());
             ana_man->FillNtupleDColumn(ntupleid, col_id++, gammaPolarizations[i].z());
-            
+
             ana_man->AddNtupleRow(ntupleid);
         }
     }
 }
 
 void MyGammaCaptureOutputScheme::DefineCommands() {
-    // Placeholder für zukünftige Messenger-Commands
+    // Placeholder for future messenger commands
 }
 
 // vim: tabstop=2 shiftwidth=2 expandtab

@@ -1,3 +1,6 @@
+// Single-NC gamma generator, see MySingleNCGammaGenerator.hh. Input units, as written by
+// merge_nc_data_for_gun.py: positions in m, times in ns, energies in keV.
+
 #include "MySingleNCGammaGenerator.hh"
 #include "MyPrimaryGammaUserInfo.hh"
 
@@ -38,7 +41,9 @@ std::vector<G4double> MySingleNCGammaGenerator::fGammaPolZ    = {};
 std::map<std::pair<G4int,G4int>, std::vector<size_t>>
     MySingleNCGammaGenerator::fNCToGammaIndices                = {};
 
+// BEGIN UNUSED CODE — fDataLoaded is never set or read (loading uses std::call_once)
 bool MySingleNCGammaGenerator::fDataLoaded                     = false;
+// END UNUSED CODE
 
 namespace u = CLHEP;
 
@@ -52,7 +57,9 @@ void MySingleNCGammaGenerator::SetMergedNCDir(G4String pathToDir) {
   fInputFilePath = pathToDir;
 }
 
-void MySingleNCGammaGenerator::BeginOfRunAction(const G4Run*) {  
+// Called by every worker thread; std::call_once loads the CSV files once into the shared
+// static vectors, and the other threads wait until loading has finished.
+void MySingleNCGammaGenerator::BeginOfRunAction(const G4Run*) {
   static std::once_flag loadFlag;
   std::call_once(loadFlag, [this]() {
     RMGLog::Out(RMGLog::summary, "call_once: entering LoadNCData");
@@ -132,6 +139,8 @@ void MySingleNCGammaGenerator::LoadNCData() {
   RMGLog::Out(RMGLog::debug, "Built gamma index map for ", fNCToGammaIndices.size(), " unique NCs");
 }
 
+// One event = one NC. Events beyond the number of NCs, and NCs without gammas, get no
+// primaries.
 void MySingleNCGammaGenerator::GeneratePrimaries(G4Event* event) {
   if (fNCIDs.empty()) {
     RMGLog::Out(RMGLog::fatal, "GeneratePrimaries called but fNCIDs is empty!");
@@ -166,34 +175,35 @@ void MySingleNCGammaGenerator::GeneratePrimaries(G4Event* event) {
   RMGLog::OutDev(RMGLog::debug, "Event ", event->GetEventID(), 
                  ": Generating ", gammaIndices.size(), " gammas for NC ", ncID);
   
-  // Create separate vertex for each gamma (like old code)
+  // Create a separate vertex for each gamma, so that each vertex carries the label
+  // (muon ID, NC ID, gamma ID) of its own gamma
   for (size_t idx : gammaIndices) {
     G4int gammaID = fGammaIDs[idx];
-    
-    // Momentum und Energie
+
+    // Momentum and energy
     G4ThreeVector momDir(fGammaPx[idx], fGammaPy[idx], fGammaPz[idx]);
     momDir = momDir.unit();
     G4double energy = fGammaEnergies[idx] * u::keV;
-    
-    // Polarization
+
+    // Polarisation (normalised unless it is zero)
     G4ThreeVector pol(fGammaPolX[idx], fGammaPolY[idx], fGammaPolZ[idx]);
     if (pol.mag() > 0) pol = pol.unit();
-    
-    // Vertex erzeugen
+
+    // Create the vertex at the capture position and time
     auto* vertex = new G4PrimaryVertex(ncPos, ncTime);
     auto* vertexUserInfo = new MyPrimaryGammaUserInfo(muonID, ncID, gammaID);
     vertex->SetUserInformation(vertexUserInfo);
-    
-    // Particle manuell erzeugen
+
+    // Create the particle manually
     auto* particle = new G4PrimaryParticle(G4Gamma::Definition());
     particle->SetMomentumDirection(momDir);
     particle->SetKineticEnergy(energy);
     particle->SetPolarization(pol);
-    
-    // Particle zum Vertex hinzufügen
+
+    // Add the particle to the vertex
     vertex->SetPrimary(particle);
-    
-    // Vertex zum Event hinzufügen
+
+    // Add the vertex to the event
     event->AddPrimaryVertex(vertex);
   }  
 }

@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
+# Set up from 01-FullCosmogenics: project and executable keep the name FullCosmogenics.
+# Requires the remage fork, which provides MyTrackInfo.
 project(FullCosmogenics)
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)

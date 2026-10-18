@@ -27,9 +27,15 @@ __pycache__
 # python
 .venv
 
+# machine-specific paths (format: local_paths.example.json)
+local_paths.json
+
 # Gamma files
 Gammas.csv
 158Gd-5keV-cascades.txt
 156Gd-5keV-cascades.txt
 
 *.png
+!docs/*.png
+*.md
+!README.md

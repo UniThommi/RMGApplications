@@ -4,6 +4,20 @@
 Merge multiple Geant4 HDF5 output files into CSV files for particle gun.
 Creates two CSV files: one for NCs, one for Gammas.
 Additionally writes merge_stats.txt with key counts for downstream scripts.
+
+Links the two applications: the input is the neutron-capture (NC) output of
+01-FullCosmogenics (``hit/MyNeutronCaptureOutput`` and ``hit/CaptureGammas`` in the
+``output_t*.hdf5`` files), the output is read by the gamma generators of 02-NCGammaGun:
+
+- ``merged_ncs.csv``: one row per NC (muon_id, nc_id, position in m, time in ns,
+  run_id, orig_muon_id),
+- ``merged_gammas.csv``: one row per capture gamma (muon_id, nc_id, gamma_id, momentum
+  direction, energy in keV, polarisation).
+
+The muon ID is the Geant4 event ID of the first simulation, which starts at 0 in every
+run. With several runs (``--nested``), colliding muon IDs are therefore re-indexed, so
+that (muon_id, nc_id) is unique in the merged files; run_id and orig_muon_id keep the
+original identity of each NC.
 """
 
 import h5py
@@ -45,6 +59,15 @@ def merge_nc_files(
     Handles muon_id collisions across runs by re-indexing only
     conflicting muon_ids. Non-conflicting data is written first,
     then conflicting data with new unique muon_ids appended.
+
+    Args:
+        input_pattern: Directory with ``output_t*.hdf5`` files (with ``nested``:
+            ``run_*/output_t*.hdf5``), or a glob pattern of HDF5 files.
+        output_dir: Directory for the CSV files and ``merge_stats.txt``.
+        nested: Search the ``run_NNN`` subdirectories; the run ID is taken from the
+            directory name (0 without nesting).
+        ge77_only: Keep only muons with at least one NC that produced 77Ge, with all
+            NCs and gammas of these muons.
 
     Returns:
         Tuple of (n_ncs, n_gammas).

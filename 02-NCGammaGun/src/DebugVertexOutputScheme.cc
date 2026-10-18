@@ -1,3 +1,5 @@
+// Output scheme for the primary-vertex labels, see DebugVertexOutputScheme.hh.
+
 #include "DebugVertexOutputScheme.hh"
 
 #include "G4AnalysisManager.hh"
@@ -79,5 +81,5 @@ void DebugVertexOutputScheme::StoreEvent(const G4Event* event) {
 }
 
 void DebugVertexOutputScheme::DefineCommands() {
-  // Keine Commands nötig für Debug-Scheme
+  // No commands needed for the debug scheme
 }

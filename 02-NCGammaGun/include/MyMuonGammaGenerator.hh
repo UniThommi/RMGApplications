@@ -13,6 +13,11 @@ namespace u = CLHEP;
 
 class G4Event;
 
+// Primary generator for --generator muon: every event re-shoots the gammas of ALL
+// neutron captures (NCs) of ONE muon of the first simulation, so the NCs of a muon keep
+// their time structure within one event. Input as for MySingleNCGammaGenerator
+// (merged_ncs.csv and merged_gammas.csv); one vertex per gamma at the capture position
+// and time, labelled with MyPrimaryGammaUserInfo.
 class MyMuonGammaGenerator : public RMGVGenerator {
 public:
   MyMuonGammaGenerator();
@@ -28,8 +33,10 @@ public:
   void BeginOfRunAction(const G4Run*) override;
 
 private:
+  // Index into fUniqueMuonIDs of the last muon taken: the worker threads together shoot
+  // every muon exactly once.
   static std::atomic<G4int> fGlobalMuonIndex;  // Shared across threads
-  
+
   void DefineCommands();
   void SetMergedNCDir(G4String pathToDir);
   void LoadNCData();
@@ -37,7 +44,9 @@ private:
   std::unique_ptr<G4GenericMessenger> fMessenger = nullptr;
 
   static G4String fInputFilePath;
-  
+
+  // The input data are static, i.e. loaded once and shared by all worker threads
+  // instead of one copy per thread (avoids running out of memory).
   // NC-indexed data structures
   static std::vector<G4int> fMuonIDs;         // MuonID for each NC
   static std::vector<G4int> fNCIDs;           // NC IDs
@@ -64,10 +73,12 @@ private:
   // Map: MuonID -> NC indices
   static std::map<G4int, std::vector<size_t>> fMuonToNCIndices;
   
-  // List of unique muon IDs in order
+  // List of unique muon IDs in order (ascending)
   static std::vector<G4int> fUniqueMuonIDs;
 
+  // BEGIN UNUSED CODE — fDataLoaded is never set or read (loading uses std::call_once)
   static bool fDataLoaded;
+  // END UNUSED CODE
 };
 
 #endif

@@ -1,3 +1,5 @@
+# Interactive OpenGL visualisation of optical photons (3.095 eV, about 400 nm) shot from
+# a square plane onto the wall test geometry; registers Wall_phys as optical detector 1000.
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
 /RMG/Processes/OpticalPhysics true
@@ -29,9 +31,9 @@
 /gps/energy 3.095 eV
 /gps/pos/type Plane
 /gps/pos/shape Square
-/gps/pos/centre 0 0 -1000 mm   # Position: 3 m "vor" der Wand, links auf der x-Achse
-/gps/pos/halfx 975 mm          # Halbachse X: Hälfte der 1950 mm
-/gps/pos/halfy 975 mm          # Halbachse Y: Hälfte der 1950 mm
-/gps/direction 0 0 1           # Richtung: +x, also direkt auf die Wand
+/gps/pos/centre 0 0 -1000 mm   # Position: centre of the square at z = -1000 mm, in front of the wall
+/gps/pos/halfx 975 mm          # Half-length in x: half of the 1950 mm
+/gps/pos/halfy 975 mm          # Half-length in y: half of the 1950 mm
+/gps/direction 0 0 1           # Direction: +z, i.e. straight onto the wall
 
 /run/beamOn 100

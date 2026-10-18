@@ -4,6 +4,9 @@
 #include "G4VUserPrimaryVertexInformation.hh"
 #include "G4Types.hh"
 
+// Label of a primary vertex: (muon ID, NC ID, gamma ID) of the capture gamma from the
+// first simulation that the vertex re-shoots. Set by the gamma generators; read by
+// MySteppingAction (copied to MyTrackInfo) and by DebugVertexOutputScheme.
 class MyPrimaryGammaUserInfo : public G4VUserPrimaryVertexInformation {
 public:
     explicit MyPrimaryGammaUserInfo(G4int muonID = -1, G4int ncID = -1, G4int gammaID = -1);

@@ -4,30 +4,36 @@
 
 /RMG/Processes/HadronicPhysics Shielding
 /RMG/Processes/Realm CosmicRays
+# MUSUN simulation (sim1): NC truth only, without optical photons.
+# The homogeneous-NC simulation uses true (NC truth and optical photons in one file).
 /RMG/Processes/OpticalPhysics false
+# These output schemes are only registered with the -s option (see main.cc).
 /RMG/Output/ActivateOutputScheme MyNeutronCaptureOutputScheme
 /RMG/Output/ActivateOutputScheme MyGammaCaptureOutputScheme
 #/RMG/Output/ActivateOutputScheme IsotopeFilter
 
+# Capture gammas from the cascade files set after /run/initialize (remage process RMGnCapture)
 /RMG/Processes/UseGrabmayrsGammaCascades true
 
-/control/execute ./gdml/macroZylSSD.mac  # Initialisiert Detektoren aus Macro File erstellt mit legend-pygeom-l1000
+/control/execute ./gdml/macroZylSSD.mac  # Initialises the detectors from the macro file created with legend-pygeom-l1000
 
 /run/initialize
 
+# Cascade file per capturing isotope (Z, A). The 156Gd and 158Gd files are not
+# included in the repository.
 /RMG/GrabmayrGammaCascades/SetGammaCascadeRandomStartLocation 1
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 155 ./GrabmayrGammaCascades/156Gd-5keV-cascades.txt
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 64 157 ./GrabmayrGammaCascades/158Gd-5keV-cascades.txt
 /RMG/GrabmayrGammaCascades/SetGammaCascadeFile 1 1 ./GrabmayrGammaCascades/2H-5keV-cascades.txt
 
-#/process/inactivate Scintillation      # Es sind nicht alle Szintillations Yields in Remage für L1000 definiert. Dadurch kann es zum Abbruch kommen.
+#/process/inactivate Scintillation      # Not all scintillation yields for L1000 are defined in remage. This can cause the run to abort.
 #/process/optical/boundary/verbose 2
 
 #/RMG/Output/IsotopeFilter/AddIsotope 77 32 # Ge77 filter
 #/RMG/Output/IsotopeFilter/DiscardPhotonsIfIsotopeNotProduced true
 /RMG/Output/NtuplePerDetector false
 
-#/RMG/Generator/Confine Volume   ### Wähle alle relevanten Volumen von tank_water
+#/RMG/Generator/Confine Volume   ### Select all relevant volumes of tank_water
 #/RMG/Generator/Confinement/Physical/AddVolume water
 #/RMG/Generator/Confinement/Physical/AddVolume skirt
 #/RMG/Generator/Confinement/Physical/AddVolume foot
@@ -38,6 +44,8 @@
 #/gps/energy 10000 eV
 
 
+# Homogeneous-NC simulation: neutrons distributed homogeneously in a cylinder
+# (replaces the MUSUN generator below).
 #/RMG/Generator/Select GPS
 #/RMG/Generator/Confine Volume
 #/RMG/Generator/Confinement/SamplingMode UnionAll
@@ -52,10 +60,11 @@
 #/RMG/Generator/Confinement/Geometrical/Cylinder/SpanningAngle 360 deg
 #/RMG/Generator/Confinement/MaxSamplingTrials 10000
 #/gps/particle neutron
-#/gps/energy 10000 eV # Höchste Energie ohne Transport vor NC
+#/gps/energy 10000 eV # Highest energy without transport before the NC
 #/gps/ang/type iso
 
 
+# MUSUN simulation (sim1): cosmic muons from the MUSUN file (not included in the repository)
 /RMG/Generator/Confine UnConfined
 /RMG/Generator/Select MUSUNCosmicMuons
 /RMG/Generator/MUSUNCosmicMuons/SetMUSUNFile musun/combined_file.dat

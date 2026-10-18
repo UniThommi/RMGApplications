@@ -1,4 +1,9 @@
 # Guide to re-running simulations with same RNG
+
+> **Note:** Copy of `01-FullCosmogenics/docs/Rerun.md`. `Speedrun.sh`, `RestoreSeeds.sh` and
+> `rerun.mac` are not part of the branch `NeutronCapturesMUSUN`. They are in the branch `master` and in
+> the upstream repository [EricMEsch/RMGApplications](https://github.com/EricMEsch/RMGApplications).
+
 The macro `Speedrun.sh` runs the simulation once without optical properties, prepares all the temporary files and then re-runs the simulation with Optical processes on. The macro file used to run is `rerun.mac`.
 The macro `RestoreSeeds.sh` can be used to only re-run the simulation with Optical processes on, but it fully relies on all of the temporary files from `Speedrun.sh`.
 The temporary files necessary to run `RestoreSeeds.sh` are:

@@ -1,3 +1,6 @@
+// Muon gamma generator, see MyMuonGammaGenerator.hh. Input units, as written by
+// merge_nc_data_for_gun.py: positions in m, times in ns, energies in keV.
+
 #include "MyMuonGammaGenerator.hh"
 #include "MyPrimaryGammaUserInfo.hh"
 
@@ -37,7 +40,9 @@ std::map<std::pair<G4int,G4int>, std::vector<size_t>>
 std::map<G4int, std::vector<size_t>>
     MyMuonGammaGenerator::fMuonToNCIndices                     = {};
 std::vector<G4int>   MyMuonGammaGenerator::fUniqueMuonIDs      = {};
+// BEGIN UNUSED CODE — fDataLoaded is never set or read (loading uses std::call_once)
 bool MyMuonGammaGenerator::fDataLoaded                         = false;
+// END UNUSED CODE
 
 namespace u = CLHEP;
 
@@ -52,6 +57,8 @@ void MyMuonGammaGenerator::SetMergedNCDir(G4String pathToDir) {
   RMGLog::Out(RMGLog::summary, "MyMuonGammaGenerator: Set input directory to ", pathToDir);
 }
 
+// Called by every worker thread; std::call_once loads the CSV files once into the shared
+// static vectors, and the other threads wait until loading has finished.
 void MyMuonGammaGenerator::BeginOfRunAction(const G4Run*) {
   static std::once_flag loadFlag;
   std::call_once(loadFlag, [this]() {
@@ -143,6 +150,8 @@ void MyMuonGammaGenerator::LoadNCData() {
   RMGLog::Out(RMGLog::debug, "Built muon index map for ", fMuonToNCIndices.size(), " unique muons");
 }
 
+// One event = one muon with all its NCs (muons in ascending ID order). Events beyond the
+// number of muons get no primaries.
 void MyMuonGammaGenerator::GeneratePrimaries(G4Event* event) {
   // Thread-safe fetch-and-increment
   G4int currentMuonIndex = ++fGlobalMuonIndex;
@@ -190,30 +199,30 @@ void MyMuonGammaGenerator::GeneratePrimaries(G4Event* event) {
     for (size_t idx : gammaIndices) {
       G4int gammaID = fGammaIDs[idx];
       
-      // Momentum und Energie
+      // Momentum and energy
       G4ThreeVector momDir(fGammaPx[idx], fGammaPy[idx], fGammaPz[idx]);
       momDir = momDir.unit();
       G4double energy = fGammaEnergies[idx] * u::keV;
-      
-      // Polarization
+
+      // Polarisation (normalised unless it is zero)
       G4ThreeVector pol(fGammaPolX[idx], fGammaPolY[idx], fGammaPolZ[idx]);
       if (pol.mag() > 0) pol = pol.unit();
-      
-      // Vertex erzeugen
+
+      // Create the vertex at the capture position and time
       auto* vertex = new G4PrimaryVertex(ncPos, ncTime);
       auto* vertexUserInfo = new MyPrimaryGammaUserInfo(muonID, ncID, gammaID);
       vertex->SetUserInformation(vertexUserInfo);
-      
-      // Particle manuell erzeugen
+
+      // Create the particle manually
       auto* particle = new G4PrimaryParticle(G4Gamma::Definition());
       particle->SetMomentumDirection(momDir);
       particle->SetKineticEnergy(energy);
       particle->SetPolarization(pol);
-      
-      // Particle zum Vertex hinzufügen
+
+      // Add the particle to the vertex
       vertex->SetPrimary(particle);
-      
-      // Vertex zum Event hinzufügen
+
+      // Add the vertex to the event
       event->AddPrimaryVertex(vertex);
     }
   }
