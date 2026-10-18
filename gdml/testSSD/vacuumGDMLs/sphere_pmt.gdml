@@ -1,0 +1,1154 @@
+<?xml version="1.0" ?>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+	<define>
+		<matrix name="vacuum_RINDEX" coldim="2" values="1.0*eV 1.0 6.0*eV 1.0"/>
+		<matrix name="tyvek_foil_surface_EFFICIENCY" coldim="2" values="1.7148575163651492*eV 0.00011180492248742545 1.7267994210752127*eV 0.00015253326451108415 1.7364733674117685*eV 0.00020504265774578078 1.7487193008914002*eV 0.00028390421844927286 1.7611391822897766*eV 0.00038163790490334317 1.771202834760004*eV 0.0005206611140276468 1.7839453011971262*eV 0.0006896215396521144 1.7968724410608736*eV 0.0009690862326243943 1.8073498313877592*eV 0.0012647192107745537 1.823297035782357*eV 0.0017511435085761772 1.8368029397511152*eV 0.0023194094008564415 1.853276508717493*eV 0.003164324788026395 1.872873088114808*eV 0.004317026291443426 1.8871263079634744*eV 0.005803157410898057 1.9103882655346731*eV 0.007917133920964214 1.9342308647925162*eV 0.010332363650448404 1.9586761205876821*eV 0.013889267436021391 1.986926256942312*eV 0.01812637798222652 2.0225807248482917*eV 0.024366361846994027 2.062965032166394*eV 0.03133274167107783 2.1121669239046046*eV 0.04029082005722611 2.16377309656545*eV 0.05029975270799037 2.2179641937960692*eV 0.06279507636954185 2.2666215435685606*eV 0.08195157123586568 2.3174616529570145*eV 0.105381649800505 2.370634769277252*eV 0.135510423378144 2.4502806014466456*eV 0.1642420962832747 2.5511151940987715*eV 0.18762915611736272 2.6492350092564165*eV 0.2175405158230205 2.7613407223429904*eV 0.24486799033396234 2.88335345193489*eV 0.27158132136116986 3.038828392970595*eV 0.29242857729894634 3.187254458437025*eV 0.3102528237118202 3.378316033602187*eV 0.31487612031816453 3.5730316551354546*eV 0.30569741053686666 3.7915657013211095*eV 0.27562834657877716 3.948541351375805*eV 0.2175405158230205 4.065055686334436*eV 0.1618305449544598 4.146628710140478*eV 0.11861970956123094 4.188655352472982*eV 0.0882423771406832 4.231542608641647*eV 0.06564437859645157 4.260625375711349*eV 0.04740999597331323 4.3050068900416765*eV 0.03526876570841576 4.335111833328681*eV 0.025471976062091974 4.365640789901418*eV 0.018670631080716194 4.412249054562287*eV 0.013685332622112092 4.443878080043021*eV 0.010180654521942993 4.475963842353801*eV 0.007352720830190036 4.492181102652184*eV 0.005469761871005661 4.524970745737236*eV 0.00389239417094821 4.558242589455893*eV 0.002895590586787849 4.575062672811818*eV 0.0020605613529923734 4.592007349377788*eV 0.0009000000000000001 4.609078008669155*eV 0.0"/>
+		<matrix name="tyvek_foil_surface_REFLECTIVITY" coldim="2" values="2.4796839686640055*eV 0.96 2.8178226916636424*eV 0.96 3.099604960830007*eV 0.96 3.4925126319211346*eV 0.945 4.1328066144400095*eV 0.9 4.959367937328011*eV 0.8"/>
+		<matrix name="pmt_cathode_surface_EFFICIENCY" coldim="2" values="1.7148575163651492*eV 0.00011180492248742545 1.7267994210752127*eV 0.00015253326451108415 1.7364733674117685*eV 0.00020504265774578078 1.7487193008914002*eV 0.00028390421844927286 1.7611391822897766*eV 0.00038163790490334317 1.771202834760004*eV 0.0005206611140276468 1.7839453011971262*eV 0.0006896215396521144 1.7968724410608736*eV 0.0009690862326243943 1.8073498313877592*eV 0.0012647192107745537 1.823297035782357*eV 0.0017511435085761772 1.8368029397511152*eV 0.0023194094008564415 1.853276508717493*eV 0.003164324788026395 1.872873088114808*eV 0.004317026291443426 1.8871263079634744*eV 0.005803157410898057 1.9103882655346731*eV 0.007917133920964214 1.9342308647925162*eV 0.010332363650448404 1.9586761205876821*eV 0.013889267436021391 1.986926256942312*eV 0.01812637798222652 2.0225807248482917*eV 0.024366361846994027 2.062965032166394*eV 0.03133274167107783 2.1121669239046046*eV 0.04029082005722611 2.16377309656545*eV 0.05029975270799037 2.2179641937960692*eV 0.06279507636954185 2.2666215435685606*eV 0.08195157123586568 2.3174616529570145*eV 0.105381649800505 2.370634769277252*eV 0.135510423378144 2.4502806014466456*eV 0.1642420962832747 2.5511151940987715*eV 0.18762915611736272 2.6492350092564165*eV 0.2175405158230205 2.7613407223429904*eV 0.24486799033396234 2.88335345193489*eV 0.27158132136116986 3.038828392970595*eV 0.29242857729894634 3.187254458437025*eV 0.3102528237118202 3.378316033602187*eV 0.31487612031816453 3.5730316551354546*eV 0.30569741053686666 3.7915657013211095*eV 0.27562834657877716 3.948541351375805*eV 0.2175405158230205 4.065055686334436*eV 0.1618305449544598 4.146628710140478*eV 0.11861970956123094 4.188655352472982*eV 0.0882423771406832 4.231542608641647*eV 0.06564437859645157 4.260625375711349*eV 0.04740999597331323 4.3050068900416765*eV 0.03526876570841576 4.335111833328681*eV 0.025471976062091974 4.365640789901418*eV 0.018670631080716194 4.412249054562287*eV 0.013685332622112092 4.443878080043021*eV 0.010180654521942993 4.475963842353801*eV 0.007352720830190036 4.492181102652184*eV 0.005469761871005661 4.524970745737236*eV 0.00389239417094821 4.558242589455893*eV 0.002895590586787849 4.575062672811818*eV 0.0020605613529923734 4.592007349377788*eV 0.0009000000000000001 4.609078008669155*eV 0.0"/>
+		<matrix name="pmt_cathode_surface_REFLECTIVITY" coldim="2" values="1.771202834760004*eV 0.028725181851905604 4.592007349377788*eV 0.028725181851905604"/>
+		<matrix name="borosilicate_RINDEX" coldim="2" values="1.0*eV 1.49 6.0*eV 1.49"/>
+		<matrix name="borosilicate_ABSLENGTH" coldim="2" values="1.0*eV 2.0*m 6.0*eV 3.0*m"/>
+	</define>
+	<materials>
+		<element name="Hydrogen" formula="H" Z="1">
+			<atom value="1.00794"/>
+		</element>
+		<material name="vacuum">
+			<property name="RINDEX" ref="vacuum_RINDEX"/>
+			<D value="1e-25"/>
+			<composite ref="Hydrogen" n="1"/>
+		</material>
+		<element name="Carbon" formula="C" Z="6">
+			<atom value="12.011"/>
+		</element>
+		<material name="tyvek">
+			<D value="0.38"/>
+			<composite ref="Carbon" n="2"/>
+			<composite ref="Hydrogen" n="4"/>
+		</material>
+		<element name="Silicon" formula="Si" Z="14">
+			<atom value="28.09"/>
+		</element>
+		<element name="Oxygen" formula="O" Z="8">
+			<atom value="16.0"/>
+		</element>
+		<element name="Boron" formula="B" Z="5">
+			<atom value="10.811"/>
+		</element>
+		<element name="Sodium" formula="Na" Z="11">
+			<atom value="22.99"/>
+		</element>
+		<element name="Aluminium" formula="Al" Z="13">
+			<atom value="26.981539"/>
+		</element>
+		<material name="borosilicate">
+			<property name="RINDEX" ref="borosilicate_RINDEX"/>
+			<property name="ABSLENGTH" ref="borosilicate_ABSLENGTH"/>
+			<D value="2.23"/>
+			<fraction ref="Silicon" n="0.376"/>
+			<fraction ref="Oxygen" n="0.543"/>
+			<fraction ref="Boron" n="0.04"/>
+			<fraction ref="Sodium" n="0.029"/>
+			<fraction ref="Aluminium" n="0.012"/>
+		</material>
+	</materials>
+	<solids>
+		<box name="world" x="20.0" y="20.0" z="20.0" lunit="m"/>
+		<sphere name="tyvek_sphere" rmin="1739.52" rmax="1740.52" deltaphi="6.283185307179586" startphi="0.0" starttheta="0.0" deltatheta="3.141592653589793" lunit="mm" aunit="rad"/>
+		<opticalsurface name="tyvek_foil_surface" model="unified" finish="groundfrontpainted" type="dielectric_dielectric" value="0.3">
+			<property name="EFFICIENCY" ref="tyvek_foil_surface_EFFICIENCY"/>
+			<property name="REFLECTIVITY" ref="tyvek_foil_surface_REFLECTIVITY"/>
+		</opticalsurface>
+		<ellipsoid name="PMT_window" ax="131.0" by="131.0" cz="131.0" zcut1="41.0" zcut2="200.0" lunit="mm"/>
+		<ellipsoid name="PMT_vacuum" ax="128.0" by="128.0" cz="129.0" zcut1="41.0" zcut2="200.0" lunit="mm"/>
+		<ellipsoid name="PMT_cathode" ax="128.0" by="128.0" cz="129.0" zcut1="65.0" zcut2="200.0" lunit="mm"/>
+		<opticalsurface name="pmt_cathode_surface" model="unified" finish="polished" type="dielectric_metal" value="0.01">
+			<property name="EFFICIENCY" ref="pmt_cathode_surface_EFFICIENCY"/>
+			<property name="REFLECTIVITY" ref="pmt_cathode_surface_REFLECTIVITY"/>
+		</opticalsurface>
+	</solids>
+	<structure>
+		<volume name="tyvek_sphere_log">
+			<materialref ref="tyvek"/>
+			<solidref ref="tyvek_sphere"/>
+			<auxiliary auxtype="rmg_color" auxvalue="1.0,1.0,1.0,0.15"/>
+		</volume>
+		<volume name="PMT_cathode">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_cathode"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.545,0.271,0.074,1.0"/>
+		</volume>
+		<volume name="PMT000011_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000011">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000011_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000011_vacuum">
+				<volumeref ref="PMT000011_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000033_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000033">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000033_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000033_vacuum">
+				<volumeref ref="PMT000033_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000040_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000040">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000040_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000040_vacuum">
+				<volumeref ref="PMT000040_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000062_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000062">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000062_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000062_vacuum">
+				<volumeref ref="PMT000062_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000087_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000087">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000087_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000087_vacuum">
+				<volumeref ref="PMT000087_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000109_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000109">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000109_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000109_vacuum">
+				<volumeref ref="PMT000109_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000136_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000136">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000136_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000136_vacuum">
+				<volumeref ref="PMT000136_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000163_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000163">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000163_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000163_vacuum">
+				<volumeref ref="PMT000163_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000171_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000171">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000171_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000171_vacuum">
+				<volumeref ref="PMT000171_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000184_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000184">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000184_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000184_vacuum">
+				<volumeref ref="PMT000184_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000195_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000195">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000195_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000195_vacuum">
+				<volumeref ref="PMT000195_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000219_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000219">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000219_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000219_vacuum">
+				<volumeref ref="PMT000219_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000272_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000272">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000272_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000272_vacuum">
+				<volumeref ref="PMT000272_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000279_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000279">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000279_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000279_vacuum">
+				<volumeref ref="PMT000279_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000288_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000288">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000288_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000288_vacuum">
+				<volumeref ref="PMT000288_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000335_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000335">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000335_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000335_vacuum">
+				<volumeref ref="PMT000335_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000346_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000346">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000346_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000346_vacuum">
+				<volumeref ref="PMT000346_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000365_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000365">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000365_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000365_vacuum">
+				<volumeref ref="PMT000365_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000381_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000381">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000381_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000381_vacuum">
+				<volumeref ref="PMT000381_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000389_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000389">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000389_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000389_vacuum">
+				<volumeref ref="PMT000389_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000401_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000401">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000401_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000401_vacuum">
+				<volumeref ref="PMT000401_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000411_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000411">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000411_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000411_vacuum">
+				<volumeref ref="PMT000411_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000435_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000435">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000435_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000435_vacuum">
+				<volumeref ref="PMT000435_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000490_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000490">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000490_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000490_vacuum">
+				<volumeref ref="PMT000490_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000498_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000498">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000498_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000498_vacuum">
+				<volumeref ref="PMT000498_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000510_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000510">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000510_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000510_vacuum">
+				<volumeref ref="PMT000510_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000534_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000534">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000534_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000534_vacuum">
+				<volumeref ref="PMT000534_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000544_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000544">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000544_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000544_vacuum">
+				<volumeref ref="PMT000544_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000552_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000552">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000552_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000552_vacuum">
+				<volumeref ref="PMT000552_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000557_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000557">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000557_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000557_vacuum">
+				<volumeref ref="PMT000557_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000563_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000563">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000563_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000563_vacuum">
+				<volumeref ref="PMT000563_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000627_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000627">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000627_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000627_vacuum">
+				<volumeref ref="PMT000627_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000646_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000646">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000646_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000646_vacuum">
+				<volumeref ref="PMT000646_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000660_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000660">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000660_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000660_vacuum">
+				<volumeref ref="PMT000660_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000680_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000680">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000680_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000680_vacuum">
+				<volumeref ref="PMT000680_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000690_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000690">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000690_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000690_vacuum">
+				<volumeref ref="PMT000690_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000696_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000696">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000696_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000696_vacuum">
+				<volumeref ref="PMT000696_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000755_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000755">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000755_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000755_vacuum">
+				<volumeref ref="PMT000755_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000783_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000783">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000783_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000783_vacuum">
+				<volumeref ref="PMT000783_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000792_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000792">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000792_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000792_vacuum">
+				<volumeref ref="PMT000792_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000802_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000802">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000802_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000802_vacuum">
+				<volumeref ref="PMT000802_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000813_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000813">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000813_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000813_vacuum">
+				<volumeref ref="PMT000813_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000827_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000827">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000827_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000827_vacuum">
+				<volumeref ref="PMT000827_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000847_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000847">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000847_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000847_vacuum">
+				<volumeref ref="PMT000847_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000858_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000858">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000858_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000858_vacuum">
+				<volumeref ref="PMT000858_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000917_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000917">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000917_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000917_vacuum">
+				<volumeref ref="PMT000917_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000932_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000932">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000932_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000932_vacuum">
+				<volumeref ref="PMT000932_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000950_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000950">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000950_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000950_vacuum">
+				<volumeref ref="PMT000950_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000962_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000962">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000962_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000962_vacuum">
+				<volumeref ref="PMT000962_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000983_vacuum">
+			<materialref ref="vacuum"/>
+			<solidref ref="PMT_vacuum"/>
+			<physvol name="PMT000983">
+				<volumeref ref="PMT_cathode"/>
+			</physvol>
+		</volume>
+		<volume name="PMT000983_window">
+			<materialref ref="borosilicate"/>
+			<solidref ref="PMT_window"/>
+			<auxiliary auxtype="rmg_color" auxvalue="0.9,0.8,0.5,0.5"/>
+			<physvol name="PMT000983_vacuum">
+				<volumeref ref="PMT000983_vacuum"/>
+			</physvol>
+		</volume>
+		<volume name="world">
+			<materialref ref="vacuum"/>
+			<solidref ref="world"/>
+			<physvol name="TyvekSphere_phys">
+				<volumeref ref="tyvek_sphere_log"/>
+			</physvol>
+			<physvol name="PMT000011_window">
+				<volumeref ref="PMT000011_window"/>
+				<position name="PMT000011_window_pos" x="-74.636246586172717" y="471.234714933108251" z="1635.801308332878534" unit="mm"/>
+				<rotation name="PMT000011_window_rot" x="-2.861111103720065" y="-0.043815668512499" z="0.307972948715519" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000033_window">
+				<volumeref ref="PMT000033_window"/>
+				<position name="PMT000033_window_pos" x="216.602823921355707" y="-425.106977750135229" z="1635.801308332878534" unit="mm"/>
+				<rotation name="PMT000033_window_rot" x="2.887339901145165" y="0.127462197811909" z="0.926164399099866" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000040_window">
+				<volumeref ref="PMT000040_window"/>
+				<position name="PMT000040_window_pos" x="809.336013398699379" y="0.000000000000000" z="1499.484532638471819" unit="mm"/>
+				<rotation name="PMT000040_window_rot" x="3.141592653589793" y="0.494934126340895" z="3.141592653589793" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000062_window">
+				<volumeref ref="PMT000062_window"/>
+				<position name="PMT000062_window_pos" x="-769.724289415174894" y="-250.098582299868156" z="1499.484532638471819" unit="mm"/>
+				<rotation name="PMT000062_window_rot" x="2.976324265948742" y="-0.468699946760213" z="-2.473733622940105" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000087_window">
+				<volumeref ref="PMT000087_window"/>
+				<position name="PMT000087_window_pos" x="464.148908402904851" y="910.943523750288932" z="1363.167756944065331" unit="mm"/>
+				<rotation name="PMT000087_window_rot" x="-2.552491314482684" y="0.275880554951016" z="-0.858297239996588" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000109_window">
+				<volumeref ref="PMT000109_window"/>
+				<position name="PMT000109_window_pos" x="-159.934814113227361" y="-1009.788674856659782" z="1363.167756944065331" unit="mm"/>
+				<rotation name="PMT000109_window_rot" x="2.504027380700523" y="-0.093999044325985" z="-0.283115554603455" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000136_window">
+				<volumeref ref="PMT000136_window"/>
+				<position name="PMT000136_window_pos" x="-956.665697136574408" y="695.058314053617892" z="1226.850981249658616" unit="mm"/>
+				<rotation name="PMT000136_window_rot" x="-2.626140666124133" y="-0.596121065209313" z="1.723353117409877" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000163_window">
+				<volumeref ref="PMT000163_window"/>
+				<position name="PMT000163_window_pos" x="1166.576911171592428" y="594.400625034528048" z="1090.534205555252129" unit="mm"/>
+				<rotation name="PMT000163_window_rot" x="-2.642554264480222" y="0.754091918780658" z="-1.997974876913861" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000171_window">
+				<volumeref ref="PMT000171_window"/>
+				<position name="PMT000171_window_pos" x="-204.816496931544464" y="1293.160467731975587" z="1090.534205555252129" unit="mm"/>
+				<rotation name="PMT000171_window_rot" x="-2.271393228053577" y="-0.120491660670969" z="0.258100618082169" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000184_window">
+				<volumeref ref="PMT000184_window"/>
+				<position name="PMT000184_window_pos" x="-1059.229669774816557" y="-769.575402016478506" z="1090.534205555252129" unit="mm"/>
+				<rotation name="PMT000184_window_rot" x="2.527060350265227" y="-0.670819804760108" z="-1.664630866770978" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000195_window">
+				<volumeref ref="PMT000195_window"/>
+				<position name="PMT000195_window_pos" x="925.800678526455386" y="-925.800678526455840" z="1090.534205555252129" unit="mm"/>
+				<rotation name="PMT000195_window_rot" x="2.437712926330767" y="0.574390388384224" z="1.354711354498110" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000219_window">
+				<volumeref ref="PMT000219_window"/>
+				<position name="PMT000219_window_pos" x="-1394.337419733755041" y="220.841351848089033" z="954.217429860845755" unit="mm"/>
+				<rotation name="PMT000219_window_rot" x="-2.914159760919041" y="-0.958434098111988" z="2.708882587248612" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000272_window">
+				<volumeref ref="PMT000272_window"/>
+				<position name="PMT000272_window_pos" x="461.927918893421747" y="-1421.667951339910815" z="817.900654166439267" unit="mm"/>
+				<rotation name="PMT000272_window_rot" x="2.092864005806350" y="0.274526160500617" z="0.468874325772653" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000279_window">
+				<volumeref ref="PMT000279_window"/>
+				<position name="PMT000279_window_pos" x="1476.426306615444901" y="-233.842954253709877" z="817.900654166439267" unit="mm"/>
+				<rotation name="PMT000279_window_rot" x="2.863115475915191" y="1.048083137230472" z="2.665794693335949" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000288_window">
+				<volumeref ref="PMT000288_window"/>
+				<position name="PMT000288_window_pos" x="482.593341251879679" y="1485.269581521308965" z="681.583878472032779" unit="mm"/>
+				<rotation name="PMT000288_window_rot" x="-2.001023276182887" y="0.287148624809175" z="-0.443402681602293" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000335_window">
+				<volumeref ref="PMT000335_window"/>
+				<position name="PMT000335_window_pos" x="-1141.525828186688386" y="1141.525828186688614" z="545.267102777626178" unit="mm"/>
+				<rotation name="PMT000335_window_rot" x="-2.016416936993460" y="-0.734108260045449" z="1.095101107939904" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000346_window">
+				<volumeref ref="PMT000346_window"/>
+				<position name="PMT000346_window_pos" x="-948.897768726209620" y="-1306.045733250191461" z="545.267102777626178" unit="mm"/>
+				<rotation name="PMT000346_window_rot" x="1.966292737354050" y="-0.590622359907391" z="-0.856753949523216" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000365_window">
+				<volumeref ref="PMT000365_window"/>
+				<position name="PMT000365_window_pos" x="1169.666250728096429" y="1169.666250728096202" z="408.950327083219747" unit="mm"/>
+				<rotation name="PMT000365_window_rot" x="-1.907141422666926" y="0.756582214326119" z="-1.020943144118312" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000381_window">
+				<volumeref ref="PMT000381_window"/>
+				<position name="PMT000381_window_pos" x="-1633.792446868063507" y="-258.767302303652684" z="408.950327083219747" unit="mm"/>
+				<rotation name="PMT000381_window_rot" x="2.577432751269685" y="-1.282821675833508" z="-2.401185175461083" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000389_window">
+				<volumeref ref="PMT000389_window"/>
+				<position name="PMT000389_window_pos" x="-258.767302303653196" y="-1633.792446868063507" z="408.950327083219747" unit="mm"/>
+				<rotation name="PMT000389_window_rot" x="1.816064279475460" y="-0.152452192138468" z="-0.195073605829618" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000401_window">
+				<volumeref ref="PMT000401_window"/>
+				<position name="PMT000401_window_pos" x="1661.299303065164622" y="263.123960327518262" z="272.633551388813032" unit="mm"/>
+				<rotation name="PMT000401_window_rot" x="-2.373942430928450" y="1.346558932878385" z="-2.204189055888435" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000411_window">
+				<volumeref ref="PMT000411_window"/>
+				<position name="PMT000411_window_pos" x="-263.123960327518205" y="1661.299303065164622" z="272.633551388813032" unit="mm"/>
+				<rotation name="PMT000411_window_rot" x="-1.733455075211642" y="-0.155039496401096" z="0.182415720514302" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000435_window">
+				<volumeref ref="PMT000435_window"/>
+				<position name="PMT000435_window_pos" x="1189.358985517668998" y="-1189.358985517669680" z="272.633551388813032" unit="mm"/>
+				<rotation name="PMT000435_window_rot" x="1.796130715089329" y="0.772596764883637" z="0.944053425583850" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000490_window">
+				<volumeref ref="PMT000490_window"/>
+				<position name="PMT000490_window_pos" x="0.000000000000104" y="1703.959696180081664" z="0.000000000000104" unit="mm"/>
+				<rotation name="PMT000490_window_rot" x="-1.570796326794897" y="0.000000000000000" z="0.000000000000000" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000498_window">
+				<volumeref ref="PMT000498_window"/>
+				<position name="PMT000498_window_pos" x="-1620.561972556376531" y="526.552503849617551" z="0.000000000000104" unit="mm"/>
+				<rotation name="PMT000498_window_rot" x="-1.570796326794897" y="-1.256637061435917" z="1.256637061435918" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000510_window">
+				<volumeref ref="PMT000510_window"/>
+				<position name="PMT000510_window_pos" x="-0.000000000000313" y="-1703.959696180081664" z="0.000000000000104" unit="mm"/>
+				<rotation name="PMT000510_window_rot" x="1.570796326794897" y="0.000000000000000" z="-0.000000000000000" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000534_window">
+				<volumeref ref="PMT000534_window"/>
+				<position name="PMT000534_window_pos" x="-998.352235824768627" y="1374.113967651185249" z="-136.316775694406488" unit="mm"/>
+				<rotation name="PMT000534_window_rot" x="-1.471916450580907" y="-0.625991827265694" z="0.570260449465383" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000544_window">
+				<volumeref ref="PMT000544_window"/>
+				<position name="PMT000544_window_pos" x="-1374.113967651185476" y="-998.352235824768627" z="-136.316775694406488" unit="mm"/>
+				<rotation name="PMT000544_window_rot" x="1.435093740851719" y="-0.938079602453123" z="-0.832809038684565" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000552_window">
+				<volumeref ref="PMT000552_window"/>
+				<position name="PMT000552_window_pos" x="524.864831226778961" y="-1615.367850308926563" z="-136.316775694406488" unit="mm"/>
+				<rotation name="PMT000552_window_rot" x="1.486608338482091" y="0.313118029343642" z="0.288171541613063" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000557_window">
+				<volumeref ref="PMT000557_window"/>
+				<position name="PMT000557_window_pos" x="1513.373042430965825" y="-771.102079697389513" z="-136.316775694406488" unit="mm"/>
+				<rotation name="PMT000557_window_rot" x="1.395822378827189" y="1.093305311642101" z="0.943820017108116" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000563_window">
+				<volumeref ref="PMT000563_window"/>
+				<position name="PMT000563_window_pos" x="1498.679752328279847" y="763.615474453265961" z="-272.633551388812862" unit="mm"/>
+				<rotation name="PMT000563_window_rot" x="-1.227872575060078" y="1.074868743513924" z="-0.795290502529869" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000627_window">
+				<volumeref ref="PMT000627_window"/>
+				<position name="PMT000627_window_pos" x="-750.971960423667156" y="-1473.865458867286634" z="-408.950327083219577" unit="mm"/>
+				<rotation name="PMT000627_window_rot" x="1.300137196470972" y="-0.456402473560346" z="-0.349556929899927" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000646_window">
+				<volumeref ref="PMT000646_window"/>
+				<position name="PMT000646_window_pos" x="948.897768726209506" y="1306.045733250191688" z="-545.267102777626292" unit="mm"/>
+				<rotation name="PMT000646_window_rot" x="-1.175299916235743" y="0.590622359907391" z="-0.399883111912702" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000660_window">
+				<volumeref ref="PMT000660_window"/>
+				<position name="PMT000660_window_pos" x="-1614.361308020794240" y="0.000000000000198" z="-545.267102777626292" unit="mm"/>
+				<rotation name="PMT000660_window_rot" x="-0.000000000000000" y="-1.245066839500266" z="0.000000000000000" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000680_window">
+				<volumeref ref="PMT000680_window"/>
+				<position name="PMT000680_window_pos" x="1561.704857779835947" y="0.000000000000000" z="-681.583878472032552" unit="mm"/>
+				<rotation name="PMT000680_window_rot" x="0.000000000000000" y="1.159279480727409" z="0.000000000000000" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000690_window">
+				<volumeref ref="PMT000690_window"/>
+				<position name="PMT000690_window_pos" x="0.000000000000096" y="1561.704857779835947" z="-681.583878472032552" unit="mm"/>
+				<rotation name="PMT000690_window_rot" x="-1.159279480727409" y="0.000000000000000" z="0.000000000000000" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000696_window">
+				<volumeref ref="PMT000696_window"/>
+				<position name="PMT000696_window_pos" x="-1263.445770141797539" y="917.947083836501974" z="-681.583878472032552" unit="mm"/>
+				<rotation name="PMT000696_window_rot" x="-0.932106786799901" y="-0.835267943847587" z="0.439210294046386" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000755_window">
+				<volumeref ref="PMT000755_window"/>
+				<position name="PMT000755_window_pos" x="1057.004533131297876" y="-1057.004533131298331" z="-817.900654166439153" unit="mm"/>
+				<rotation name="PMT000755_window_rot" x="0.912241995490136" y="0.669153802395189" z="0.337878188240278" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000783_window">
+				<volumeref ref="PMT000783_window"/>
+				<position name="PMT000783_window_pos" x="-1257.849958170162154" y="-640.906565333200206" z="-954.217429860845641" unit="mm"/>
+				<rotation name="PMT000783_window_rot" x="0.591449315792035" y="-0.830386741168133" z="-0.267000847650278" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000792_window">
+				<volumeref ref="PMT000792_window"/>
+				<position name="PMT000792_window_pos" x="436.244856683251498" y="-1342.623613591421872" z="-954.217429860845641" unit="mm"/>
+				<rotation name="PMT000792_window_rot" x="0.952917856636932" y="0.258900959691988" z="0.134173299823814" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000802_window">
+				<volumeref ref="PMT000802_window"/>
+				<position name="PMT000802_window_pos" x="1245.199157368526812" y="404.589731961652603" z="-1090.534205555252356" unit="mm"/>
+				<rotation name="PMT000802_window_rot" x="-0.355260460236815" y="0.819446288125153" z="-0.155619036171882" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000813_window">
+				<volumeref ref="PMT000813_window"/>
+				<position name="PMT000813_window_pos" x="-594.400625034527820" y="1166.576911171592201" z="-1090.534205555252356" unit="mm"/>
+				<rotation name="PMT000813_window_rot" x="-0.819075705567922" y="-0.356327632717859" z="0.156015763999406" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000827_window">
+				<volumeref ref="PMT000827_window"/>
+				<position name="PMT000827_window_pos" x="-594.400625034528048" y="-1166.576911171592201" z="-1090.534205555252356" unit="mm"/>
+				<rotation name="PMT000827_window_rot" x="0.819075705567922" y="-0.356327632717859" z="-0.156015763999406" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000847_window">
+				<volumeref ref="PMT000847_window"/>
+				<position name="PMT000847_window_pos" x="536.845506270572287" y="1053.618630439856361" z="-1226.850981249658616" unit="mm"/>
+				<rotation name="PMT000847_window_rot" x="-0.709580318900800" y="0.320517377594041" z="-0.119625171041501" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000858_window">
+				<volumeref ref="PMT000858_window"/>
+				<position name="PMT000858_window_pos" x="-1124.627976301952458" y="365.413780435058641" z="-1226.850981249658616" unit="mm"/>
+				<rotation name="PMT000858_window_rot" x="-0.289480318844474" y="-0.720830147946500" z="0.109756403059876" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000917_window">
+				<volumeref ref="PMT000917_window"/>
+				<position name="PMT000917_window_pos" x="910.943523750289046" y="-464.148908402905136" z="-1363.167756944065331" unit="mm"/>
+				<rotation name="PMT000917_window_rot" x="0.328180242839722" y="0.564038994386210" z="0.095876837525215" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000932_window">
+				<volumeref ref="PMT000932_window"/>
+				<position name="PMT000932_window_pos" x="-250.098582299868326" y="769.724289415175235" z="-1499.484532638471819" unit="mm"/>
+				<rotation name="PMT000932_window_rot" x="-0.474251429623401" y="-0.147307107947465" z="0.035660800638997" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000950_window">
+				<volumeref ref="PMT000950_window"/>
+				<position name="PMT000950_window_pos" x="-0.000000000000149" y="-809.336013398699833" z="-1499.484532638471819" unit="mm"/>
+				<rotation name="PMT000950_window_rot" x="0.494934126340896" y="0.000000000000000" z="0.000000000000000" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000962_window">
+				<volumeref ref="PMT000962_window"/>
+				<position name="PMT000962_window_pos" x="453.757352315785965" y="147.434701077893010" z="-1635.801308332878534" unit="mm"/>
+				<rotation name="PMT000962_window_rot" x="-0.089887085195026" y="0.269548041032929" z="-0.012196391744000" unit="rad"/>
+			</physvol>
+			<physvol name="PMT000983_window">
+				<volumeref ref="PMT000983_window"/>
+				<position name="PMT000983_window_pos" x="-425.106977750135400" y="-216.602823921355821" z="-1635.801308332878534" unit="mm"/>
+				<rotation name="PMT000983_window_rot" x="0.131648046186302" y="-0.252145125078097" z="-0.016709454485637" unit="rad"/>
+			</physvol>
+		</volume>
+		<skinsurface name="tyvek_sphere_surface" surfaceproperty="tyvek_foil_surface">
+			<volumeref ref="tyvek_sphere_log"/>
+		</skinsurface>
+		<skinsurface name="pmt_cathode_surface" surfaceproperty="pmt_cathode_surface">
+			<volumeref ref="PMT_cathode"/>
+		</skinsurface>
+	</structure>
+	<userinfo>
+		<auxiliary auxtype="RMG_detector_meta" auxvalue=""/>
+		<auxiliary auxtype="RMG_detector" auxvalue="optical">
+			<auxiliary auxtype="TyvekSphere_phys" auxvalue="1000"/>
+			<auxiliary auxtype="PMT000011" auxvalue="10011"/>
+			<auxiliary auxtype="PMT000033" auxvalue="10033"/>
+			<auxiliary auxtype="PMT000040" auxvalue="10040"/>
+			<auxiliary auxtype="PMT000062" auxvalue="10062"/>
+			<auxiliary auxtype="PMT000087" auxvalue="10087"/>
+			<auxiliary auxtype="PMT000109" auxvalue="10109"/>
+			<auxiliary auxtype="PMT000136" auxvalue="10136"/>
+			<auxiliary auxtype="PMT000163" auxvalue="10163"/>
+			<auxiliary auxtype="PMT000171" auxvalue="10171"/>
+			<auxiliary auxtype="PMT000184" auxvalue="10184"/>
+			<auxiliary auxtype="PMT000195" auxvalue="10195"/>
+			<auxiliary auxtype="PMT000219" auxvalue="10219"/>
+			<auxiliary auxtype="PMT000272" auxvalue="10272"/>
+			<auxiliary auxtype="PMT000279" auxvalue="10279"/>
+			<auxiliary auxtype="PMT000288" auxvalue="10288"/>
+			<auxiliary auxtype="PMT000335" auxvalue="10335"/>
+			<auxiliary auxtype="PMT000346" auxvalue="10346"/>
+			<auxiliary auxtype="PMT000365" auxvalue="10365"/>
+			<auxiliary auxtype="PMT000381" auxvalue="10381"/>
+			<auxiliary auxtype="PMT000389" auxvalue="10389"/>
+			<auxiliary auxtype="PMT000401" auxvalue="10401"/>
+			<auxiliary auxtype="PMT000411" auxvalue="10411"/>
+			<auxiliary auxtype="PMT000435" auxvalue="10435"/>
+			<auxiliary auxtype="PMT000490" auxvalue="10490"/>
+			<auxiliary auxtype="PMT000498" auxvalue="10498"/>
+			<auxiliary auxtype="PMT000510" auxvalue="10510"/>
+			<auxiliary auxtype="PMT000534" auxvalue="10534"/>
+			<auxiliary auxtype="PMT000544" auxvalue="10544"/>
+			<auxiliary auxtype="PMT000552" auxvalue="10552"/>
+			<auxiliary auxtype="PMT000557" auxvalue="10557"/>
+			<auxiliary auxtype="PMT000563" auxvalue="10563"/>
+			<auxiliary auxtype="PMT000627" auxvalue="10627"/>
+			<auxiliary auxtype="PMT000646" auxvalue="10646"/>
+			<auxiliary auxtype="PMT000660" auxvalue="10660"/>
+			<auxiliary auxtype="PMT000680" auxvalue="10680"/>
+			<auxiliary auxtype="PMT000690" auxvalue="10690"/>
+			<auxiliary auxtype="PMT000696" auxvalue="10696"/>
+			<auxiliary auxtype="PMT000755" auxvalue="10755"/>
+			<auxiliary auxtype="PMT000783" auxvalue="10783"/>
+			<auxiliary auxtype="PMT000792" auxvalue="10792"/>
+			<auxiliary auxtype="PMT000802" auxvalue="10802"/>
+			<auxiliary auxtype="PMT000813" auxvalue="10813"/>
+			<auxiliary auxtype="PMT000827" auxvalue="10827"/>
+			<auxiliary auxtype="PMT000847" auxvalue="10847"/>
+			<auxiliary auxtype="PMT000858" auxvalue="10858"/>
+			<auxiliary auxtype="PMT000917" auxvalue="10917"/>
+			<auxiliary auxtype="PMT000932" auxvalue="10932"/>
+			<auxiliary auxtype="PMT000950" auxvalue="10950"/>
+			<auxiliary auxtype="PMT000962" auxvalue="10962"/>
+			<auxiliary auxtype="PMT000983" auxvalue="10983"/>
+		</auxiliary>
+	</userinfo>
+	<setup name="Default" version="1.0">
+		<world ref="world"/>
+	</setup>
+</gdml>
